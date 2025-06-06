@@ -2,17 +2,18 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"homeinsight-properties/internal/handlers"
 	"homeinsight-properties/internal/middleware"
 	"homeinsight-properties/pkg/config"
 	"homeinsight-properties/pkg/logger"
-	"homeinsight-properties/internal/handlers"
+	"log"
+
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	// Load configuration
-	cfg, err := config.LoadConfig("../../configs/config.yaml")
+	cfg, err := config.LoadConfig("../configs/config.yaml")
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
