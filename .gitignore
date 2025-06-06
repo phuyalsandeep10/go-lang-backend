@@ -1,0 +1,43 @@
+# Binaries
+homeinsight
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Dependency directories
+vendor/
+
+# Go test and profiling files
+*.test
+*.prof
+*.cover
+
+# Configuration files with sensitive data
+configs/config.yaml
+.env
+
+# Log files
+*.log
+
+# Temporary files
+tmp/
+*.tmp
+*.swp
+
+# Build artifacts
+bin/
+dist/
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+coverage.out
