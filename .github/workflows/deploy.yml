@@ -41,29 +41,47 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # Ensure Docker service is running
+            sudo systemctl start docker
+            sudo systemctl enable docker
+
+            # Add ubuntu user to docker group
+            sudo usermod -aG docker ubuntu
+
+            # Apply group changes without requiring a logout
+            newgrp docker << 'EOF'
+
             # Login to ECR on the EC2 instance
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 882142483449.dkr.ecr.us-east-1.amazonaws.com
+
             # Pull the latest Go image
             docker pull 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
+
             # Pull the latest Nginx image
             docker pull 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
+
             # Stop and remove existing containers
             docker stop homeinsightcore || true
             docker rm homeinsightcore || true
             docker stop nginx || true
             docker rm nginx || true
+
             # Create a Docker network
             docker network create app-network || true
+
             # Ensure directories exist
             sudo mkdir -p /var/www/certbot
             sudo chown -R ubuntu:ubuntu /var/www/certbot
+
             # Run the Go container
             docker run -d --name homeinsightcore --network app-network \
               -p 8000:8000 \
               882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
+
             # Run the Nginx container with volume mounts
             docker run -d --name nginx --network app-network \
               -p 80:80 -p 443:443 \
               -v /etc/letsencrypt:/etc/letsencrypt \
               -v /var/www/certbot:/var/www/certbot \
               882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
+            EOF
