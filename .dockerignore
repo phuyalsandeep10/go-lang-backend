@@ -1,0 +1,37 @@
+# Binaries
+homeinsight
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Output of build tools
+bin/
+build/
+dist/
+
+# Git-related files
+.git
+.gitignore
+
+# Dependency directories
+vendor/
+
+# IDE/editor-specific files
+*.log
+*.swp
+.idea/
+.vscode/
+*.bak
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Tests
+coverage.out
+
+# Config files that shouldn't go to the container
+.env
+.env.*
+configs/*.local.yaml
