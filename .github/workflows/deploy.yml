@@ -52,7 +52,7 @@ jobs:
           script: |
             set -e
             echo "Logging in to ECR..."
-            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_REGISTRY
+            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 882142483449.dkr.ecr.us-east-1.amazonaws.com
 
             echo "Pulling updated Docker images..."
             docker pull $ECR_REGISTRY/homeinsightcore:latest
