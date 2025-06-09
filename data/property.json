@@ -1,0 +1,39 @@
+{
+  "propertyId": "471411319113",
+  "address": "607 SUNNYSIDE LN, COLUMBIA, TN 38401",
+  "county": "MAURY",
+  "ownerNames": ["POWERS RICHARD REAMS JR", "POWERS CAREY BATEMAN"],
+  "propertyDetails": {
+    "yearBuilt": 1986,
+    "effectiveYearBuilt": 2005,
+    "livingAreaSquareFeet": 8894,
+    "lotAreaAcres": 59.5,
+    "bedroomsCount": null,
+    "bathroomsCount": 7.5,
+    "fullBathroomsCount": 7,
+    "halfBathroomsCount": 1,
+    "fireplacesCount": 4,
+    "storiesCount": 3,
+    "pool": { "areaSquareFeet": 924 },
+    "patios": { "count": 3, "areaSquareFeet": 2400 },
+    "porches": { "count": 3, "areaSquareFeet": 310 }
+  },
+  "taxAssessment": {
+    "assessedYear": 2024,
+    "totalAssessedValue": 2029200,
+    "landValue": 249800,
+    "improvementValue": 1779400,
+    "totalTaxAmount": 9689
+  },
+  "lastMarketSale": {
+    "saleDate": "2014-10-30",
+    "saleAmount": 2000000,
+    "buyerNames": ["POWERS RICHARD R JR", "POWERS CAREY B"],
+    "sellerNames": ["BAKER SANDRA K & R KEITH"]
+  },
+  "location": {
+    "latitude": 35.578178,
+    "longitude": -87.079643,
+    "landUse": "AGRICULTURAL"
+  }
+}

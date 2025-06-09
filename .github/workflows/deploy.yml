@@ -1,0 +1,69 @@
+name: Deploy GO and Nginx to AWS EC2 via ECR
+on:
+  push:
+    branches:
+      - develop
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Log in to Amazon ECR
+        run: |
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 882142483449.dkr.ecr.us-east-1.amazonaws.com
+      - name: Build and Push Go Docker Image
+        env:
+          ECR_REPOSITORY: homeinsightcore
+          IMAGE_TAG: latest
+        run: |
+          docker build -t homeinsightcore -f Dockerfile .
+          docker tag homeinsightcore:latest 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
+          docker push 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
+      - name: Build and Push Nginx Docker Image
+        env:
+          ECR_REPOSITORY: homeinsightcore_nginx
+          IMAGE_TAG: latest
+        run: |
+          docker build -t homeinsightcore_nginx -f Dockerfile.nginx .
+          docker tag homeinsightcore_nginx:latest 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
+          docker push 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Login to ECR on the EC2 instance
+            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 882142483449.dkr.ecr.us-east-1.amazonaws.com
+            # Pull the latest Go image
+            docker pull 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
+            # Pull the latest Nginx image
+            docker pull 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
+            # Stop and remove existing containers
+            docker stop homeinsightcore || true
+            docker rm homeinsightcore || true
+            docker stop nginx || true
+            docker rm nginx || true
+            # Create a Docker network
+            docker network create app-network || true
+            # Ensure directories exist
+            sudo mkdir -p /var/www/certbot
+            sudo chown -R ubuntu:ubuntu /var/www/certbot
+            # Run the Go container
+            docker run -d --name homeinsightcore --network app-network \
+              -p 8000:8000 \
+              882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
+            # Run the Nginx container with volume mounts
+            docker run -d --name nginx --network app-network \
+              -p 80:80 -p 443:443 \
+              -v /etc/letsencrypt:/etc/letsencrypt \
+              -v /var/www/certbot:/var/www/certbot \
+              882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
