@@ -1,33 +1,27 @@
-# Use official Go image
-FROM golang:1.24 as builder
-# Set environment variables
-ENV GO111MODULE=on \
-    CGO_ENABLED=0 \
-    GOOS=linux \
-    GOARCH=amd64
-# Set working directory
+# Stage 1: Build the Go binary
+FROM golang:1.24-alpine AS builder
+
+ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
+
 WORKDIR /app
-# Copy go.mod and go.sum files first
-COPY go.mod ./
-# If you have go.sum, uncomment the next line
-# COPY go.sum ./
-# Download dependencies
+
+COPY go.mod go.sum ./
 RUN go mod download
-# Copy the rest of the application code
+
 COPY . .
-# Build the application
+# Debug: List files to confirm config.yaml is present
+RUN ls -la /app/configs/
+
 RUN go build -o homeinsight ./cmd/api
-# Use a minimal image to run the compiled binary
+
+# Stage 2: Run stage with minimal base image
 FROM alpine:latest
-# Set working directory
+
 WORKDIR /root/
-# Copy binary from builder
+
 COPY --from=builder /app/homeinsight .
-# Copy config file (optional, if your app requires it)
-COPY configs/config.yaml ./configs/config.yaml
-# Set environment variables if needed
-# ENV CONFIG_PATH=./configs/config.yaml
-# Expose port 8000
+COPY --from=builder /app/configs/config.yaml ./configs/config.yaml
+
 EXPOSE 8000
-# Run the binary
+
 CMD ["./homeinsight"]
