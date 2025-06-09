@@ -15,7 +15,6 @@ vendor/
 *.cover
 
 # Configuration files with sensitive data
-configs/config.yaml
 .env
 
 # Log files
