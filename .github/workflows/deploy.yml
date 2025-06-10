@@ -40,6 +40,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: DB_HOST=${{ secrets.DB_HOST }},DB_PORT=${{ secrets.DB_PORT }},DB_USER=${{ secrets.DB_USER }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},DB_NAME=${{ secrets.DB_NAME }}
           script: |
             # Ensure Docker service is running
             sudo systemctl start docker
@@ -73,9 +74,15 @@ jobs:
             sudo mkdir -p /var/www/certbot
             sudo chown -R ubuntu:ubuntu /var/www/certbot
 
-            # Run the Go container
+            # Run the Go container with environment variables
             docker run -d --name homeinsightcore --network app-network \
               -p 8000:8000 \
+              -e DB_HOST=$DB_HOST \
+              -e DB_PORT=$DB_PORT \
+              -e DB_USER=$DB_USER \
+              -e DB_PASSWORD=$DB_PASSWORD
+
+              -e DB_NAME=$DB_NAME \
               882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
 
             # Run the Nginx container with volume mounts
