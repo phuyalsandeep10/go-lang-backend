@@ -2,7 +2,9 @@ server:
   port: 8000
 database:
   host: localhost      # Ignored when DB_HOST is set
-  port: 3306           # Ignored when DB_PORT is set
-  user: ""             # Ignored when DB_USER is set
-  password: ""         # Ignored when DB_PASSWORD is set
-  dbname: homeinsight  # Ignored when DB_NAME is set
+  port: 3306          # Ignored when DB_PORT is set
+  user: ""            # Ignored when DB_USER is set
+  password: ""        # Ignored when DB_PASSWORD is set
+  dbname: homeinsight # Ignored when DB_NAME is set
+jwt:
+  secret: "your_jwt_secret_key" # Override with JWT_SECRET env variable

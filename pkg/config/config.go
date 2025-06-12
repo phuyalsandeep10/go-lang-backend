@@ -18,6 +18,9 @@ type Config struct {
 		Password string `yaml:"password"`
 		DBName   string `yaml:"dbname"`
 	} `yaml:"database"`
+	JWT struct {
+		Secret string `yaml:"secret"`
+	} `yaml:"jwt"`
 }
 
 func LoadConfig(path string) (*Config, error) {
@@ -48,6 +51,9 @@ func LoadConfig(path string) (*Config, error) {
 	}
 	if dbname := os.Getenv("DB_NAME"); dbname != "" {
 		cfg.Database.DBName = dbname
+	}
+	if secret := os.Getenv("JWT_SECRET"); secret != "" {
+		cfg.JWT.Secret = secret
 	}
 
 	return &cfg, nil
