@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
@@ -69,11 +70,17 @@ func InitDB() error {
 		return fmt.Errorf("failed to open database: %v", err)
 	}
 
+	// Configure connection pooling
+	DB.SetMaxOpenConns(100)           // Max simultaneous connections
+	DB.SetMaxIdleConns(10)            // Max idle connections
+	DB.SetConnMaxLifetime(5 * time.Minute) // Max lifetime of a connection
+
 	if err = DB.Ping(); err != nil {
+		DB.Close()
 		return fmt.Errorf("failed to connect to database: %v", err)
 	}
 
-	log.Println("Database connected successfully")
+	log.Println("Database connected successfully.")
 	return nil
 }
 
@@ -81,6 +88,8 @@ func CloseDB() {
 	if DB != nil {
 		if err := DB.Close(); err != nil {
 			log.Printf("Error closing database: %v", err)
+		} else {
+			log.Println("Database connection closed")
 		}
 	}
 }

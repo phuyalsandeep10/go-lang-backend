@@ -18,10 +18,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"golang.org/x/time/rate"
 )
 
 func main() {
-	// Load .env file for local development
+	// Load .env file
 	if err := godotenv.Load(); err != nil {
 		log.Printf("No .env file found, relying on system environment variables: %v", err)
 	}
@@ -45,11 +46,16 @@ func main() {
 	}
 	defer database.CloseDB()
 
+	// Initialize rate limiter (100 requests per minute, burst of 10)
+	rl := middleware.NewRateLimiter(rate.Limit(100/60.0), 10)
+	go rl.Cleanup()
+
 	// Set up Gin router
 	r := gin.New()
 
 	// Apply middleware
 	r.Use(middleware.LoggingMiddleware())
+	r.Use(middleware.RateLimitMiddleware(rl))
 	r.Use(gin.Recovery())
 
 	// Initialize handlers
