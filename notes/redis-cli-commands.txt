@@ -1,0 +1,23 @@
+# Connect to Redis
+redis-cli
+
+# Monitor real-time commands (see what your app is doing)
+MONITOR
+
+# Check memory usage
+INFO memory
+
+# See database statistics
+INFO keyspace
+
+# Clear all data (be careful!)
+FLUSHALL
+
+# Clear current database only
+FLUSHDB
+
+# Check Redis configuration
+CONFIG GET "*"
+
+# See connected clients
+CLIENT LIST

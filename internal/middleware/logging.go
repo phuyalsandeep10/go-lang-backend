@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -17,6 +18,7 @@ func LoggingMiddleware() gin.HandlerFunc {
 		start := time.Now()
 		path := c.Request.URL.Path
 		method := c.Request.Method
+		clientIP := c.ClientIP()
 
 		// Process request
 		c.Next()
@@ -24,7 +26,27 @@ func LoggingMiddleware() gin.HandlerFunc {
 		// Log after request
 		latency := time.Since(start)
 		status := c.Writer.Status()
-		logger.Logger.Printf("%s %s %d %v", method, path, status, latency)
+
+		// Get data source information if available
+		dataSource := c.GetString("data_source")
+		cacheHit := c.GetBool("cache_hit")
+
+		// Build log message with data source info
+		logMsg := ""
+		if dataSource != "" {
+			if cacheHit {
+				logMsg = fmt.Sprintf("%s %s %d %v [%s] - DATA_SOURCE: %s (CACHE_HIT)",
+					method, path, status, latency, clientIP, dataSource)
+			} else {
+				logMsg = fmt.Sprintf("%s %s %d %v [%s] - DATA_SOURCE: %s (CACHE_MISS)",
+					method, path, status, latency, clientIP, dataSource)
+			}
+		} else {
+			logMsg = fmt.Sprintf("%s %s %d %v [%s]",
+				method, path, status, latency, clientIP)
+		}
+
+		logger.Logger.Println(logMsg)
 	}
 }
 

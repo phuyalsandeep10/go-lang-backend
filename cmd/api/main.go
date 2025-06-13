@@ -1,3 +1,4 @@
+// main.go
 package main
 
 import (
@@ -12,6 +13,7 @@ import (
 
 	"homeinsight-properties/internal/handlers"
 	"homeinsight-properties/internal/middleware"
+	"homeinsight-properties/pkg/cache"
 	"homeinsight-properties/pkg/config"
 	"homeinsight-properties/pkg/database"
 	"homeinsight-properties/pkg/logger"
@@ -46,7 +48,13 @@ func main() {
 	}
 	defer database.CloseDB()
 
-	// Initialize rate limiter (100 requests per minute, burst of 10)
+	// Initialize Redis cache
+	if err := cache.InitRedis(); err != nil {
+		log.Fatalf("Failed to initialize Redis: %v", err)
+	}
+	defer cache.CloseRedis()
+
+	// Initialize rate limiter
 	rl := middleware.NewRateLimiter(rate.Limit(100/60.0), 10)
 	go rl.Cleanup()
 
@@ -66,19 +74,18 @@ func main() {
 	api := r.Group("/api")
 	{
 		// Public routes
-		log.Println("Registering route: POST /api/register")
 		api.POST("/register", userHandler.Register)
-		log.Println("Registering route: POST /api/login")
 		api.POST("/login", userHandler.Login)
 
 		// Protected routes
 		protected := api.Group("/properties")
 		protected.Use(middleware.AuthMiddleware())
 		{
-			log.Println("Registering route: GET /api/properties")
 			protected.GET("", propertyHandler.ListProperties)
-			log.Println("Registering route: POST /api/properties")
+			protected.GET("/:id", propertyHandler.GetProperty)
 			protected.POST("", propertyHandler.CreateProperty)
+			protected.PUT("/:id", propertyHandler.UpdateProperty)
+			protected.DELETE("/:id", propertyHandler.DeleteProperty)
 		}
 	}
 
