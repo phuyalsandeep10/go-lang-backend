@@ -1,4 +1,3 @@
-
 // pkg/cache/redis.go
 package cache
 
@@ -55,10 +54,10 @@ func InitRedis() error {
 	cfg := LoadRedisConfig()
 
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
-		Password: cfg.Password,
-		DB:       cfg.DB,
-		PoolSize: 10,
+		Addr:         fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
+		Password:     cfg.Password,
+		DB:           cfg.DB,
+		PoolSize:     10,
 		MinIdleConns: 5,
 	})
 
@@ -115,6 +114,10 @@ func Exists(ctx context.Context, key string) (bool, error) {
 // Cache key generators
 func PropertyListKey() string {
 	return "properties:list"
+}
+
+func PropertyListPaginatedKey(offset, limit int) string {
+	return fmt.Sprintf("properties:list:offset:%d:limit:%d", offset, limit)
 }
 
 func PropertyKey(id string) string {

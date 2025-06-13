@@ -1,9 +1,10 @@
-// Updated PropertyHandler with context passing
+// internal/handlers/property_handler.go
 package handlers
 
 import (
 	"database/sql"
 	"net/http"
+	"strconv"
 	"homeinsight-properties/internal/models"
 	"homeinsight-properties/internal/services"
 	"github.com/gin-gonic/gin"
@@ -22,13 +23,29 @@ func NewPropertyHandler(db *sql.DB) *PropertyHandler {
 }
 
 func (h *PropertyHandler) ListProperties(c *gin.Context) {
-	properties, err := h.propertyService.GetAllProperties(c)
+	// Parse pagination parameters
+	offsetStr := c.DefaultQuery("offset", "0")
+	limitStr := c.DefaultQuery("limit", "10")
+
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil || offset < 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid offset parameter"})
+		return
+	}
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 || limit > 100 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid limit parameter (1-100)"})
+		return
+	}
+
+	result, err := h.propertyService.GetPropertiesWithPagination(c, offset, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, properties)
+	c.JSON(http.StatusOK, result)
 }
 
 func (h *PropertyHandler) GetProperty(c *gin.Context) {

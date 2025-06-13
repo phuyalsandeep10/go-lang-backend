@@ -1,23 +1,70 @@
 # Connect to Redis
-redis-cli
+redis-cli                         # Connect to Redis server (default: 127.0.0.1:6379)
+redis-cli -h <host> -p <port>     # Connect to specific host and port
+redis-cli -a <password>           # Connect with authentication
 
-# Monitor real-time commands (see what your app is doing)
-MONITOR
+# Monitoring Redis
+MONITOR                           # See all commands processed by the server in real-time
+SLOWLOG GET                       # View slow queries
+SLOWLOG LEN                       # Number of slow queries logged
+SLOWLOG RESET                     # Clear slow query log
 
-# Check memory usage
-INFO memory
+# Memory & Resource Usage
+INFO memory                       # Show memory stats (used memory, peak, fragmentation, etc.)
+MEMORY USAGE <key>               # Memory usage by a specific key
+MEMORY STATS                     # Detailed memory stats
+MEMORY PURGE                     # Try to reclaim free memory
 
-# See database statistics
-INFO keyspace
+# Stats & Info
+INFO                              # General stats
+INFO keyspace                     # Info about keys in each DB
+INFO cpu                          # CPU usage
+INFO stats                        # General stats (hits, misses, etc.)
 
-# Clear all data (be careful!)
-FLUSHALL
+# Keys & Data
+KEYS *                            # Show all keys (not recommended in production)
+SCAN 0                            # Safer alternative to list keys (cursor-based)
+TYPE <key>                        # Show data type of key
+TTL <key>                         # Time-to-live of a key
+EXPIRE <key> <seconds>            # Set expiration time
+DEL <key>                         # Delete a key
+DUMP <key>                        # Serialize key
 
-# Clear current database only
-FLUSHDB
+# Get Keys and Values (by type)
+GET <key>                         # Get value of a string key
+MGET <key1> <key2> ...            # Get multiple string values
+HGETALL <hash_key>                # Get all fields and values of a hash
+HGET <hash_key> <field>           # Get specific field of a hash
+LRANGE <list_key> 0 -1            # Get all elements of a list
+SMEMBERS <set_key>                # Get all members of a set
+ZRANGE <zset_key> 0 -1 WITHSCORES # Get all sorted set members and scores
+TYPE <key>                        # Determine the data type before using the right get command
 
-# Check Redis configuration
-CONFIG GET "*"
+# Database & Persistence
+FLUSHALL                          # Delete all keys in all databases
+FLUSHDB                           # Delete all keys in current database
+SAVE                              # Synchronous save to disk
+BGSAVE                            # Asynchronous save to disk
+LASTSAVE                          # Timestamp of last successful save
 
-# See connected clients
-CLIENT LIST
+# Configuration
+CONFIG GET "*"                    # View full config
+CONFIG GET <parameter>            # Get specific config value
+CONFIG SET <param> <value>        # Set a config param (temporary)
+CONFIG REWRITE                    # Persist current config changes
+
+# Clients & Connections
+CLIENT LIST                       # List all connected clients
+CLIENT KILL <ip>:<port>           # Disconnect a client
+CLIENT PAUSE <milliseconds>       # Pause processing commands from clients
+
+# Testing and Debugging
+PING                              # Check if server is alive
+ECHO "Hello Redis"                # Print a message
+DEBUG OBJECT <key>                # Low-level debugging info about key
+DEBUG SEGFAULT                    # Crash Redis (only for testing!)
+
+# Server Control
+SHUTDOWN                          # Stop the server
+SHUTDOWN SAVE                     # Save DB before shutdown
+SHUTDOWN NOSAVE                   # Don’t save DB before shutdown
