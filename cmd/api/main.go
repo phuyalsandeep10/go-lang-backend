@@ -1,4 +1,3 @@
-// main.go
 package main
 
 import (
@@ -17,10 +16,13 @@ import (
 	"homeinsight-properties/pkg/config"
 	"homeinsight-properties/pkg/database"
 	"homeinsight-properties/pkg/logger"
+	"homeinsight-properties/pkg/metrics"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/time/rate"
+	_ "net/http/pprof"
 )
 
 func main() {
@@ -58,13 +60,40 @@ func main() {
 	rl := middleware.NewRateLimiter(rate.Limit(100/60.0), 10)
 	go rl.Cleanup()
 
+	// Initialize Prometheus metrics
+	metrics.Init()
+
 	// Set up Gin router
 	r := gin.New()
 
 	// Apply middleware
+	r.Use(middleware.MetricsMiddleware()) // Add metrics middleware
 	r.Use(middleware.LoggingMiddleware())
 	r.Use(middleware.RateLimitMiddleware(rl))
 	r.Use(gin.Recovery())
+
+	// Expose pprof profiling endpoints
+	r.GET("/debug/pprof/*any", gin.WrapH(http.DefaultServeMux))
+
+	// Expose Prometheus metrics endpoint
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
+	// Health check endpoint
+	r.GET("/health", func(c *gin.Context) {
+		// Check database connectivity
+		if err := database.DB.Ping(); err != nil {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "error", "message": "Database unavailable"})
+			return
+		}
+		// Check Redis connectivity
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if _, err := cache.RedisClient.Ping(ctx).Result(); err != nil {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "error", "message": "Redis unavailable"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
 
 	// Initialize handlers
 	propertyHandler := handlers.NewPropertyHandler(database.DB)

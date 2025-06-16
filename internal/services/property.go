@@ -138,8 +138,8 @@ func (s *PropertyService) GetPropertiesWithPagination(ginCtx *gin.Context, offse
 		Meta: meta,
 	}
 
-	// Cache the results for 10 minutes (shorter than full list due to pagination variety)
-	if err := cache.Set(ctx, listKey, response, 10*time.Minute); err != nil {
+	// Cache the results for 15 minutes (shorter than full list due to pagination variety)
+	if err := cache.Set(ctx, listKey, response, 15*time.Minute); err != nil {
 		fmt.Printf("Failed to cache paginated properties: %v\n", err)
 	}
 
