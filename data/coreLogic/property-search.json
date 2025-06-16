@@ -1,0 +1,49 @@
+{
+  "metadata": {
+    "pageNumber": 1,
+    "pageSize": 1,
+    "totalRecords": 1,
+    "totalPages": 1
+  },
+  "items": [
+    {
+      "clip": "8038105551",
+      "v1PropertyId": "47119:71700542",
+      "clientEchoId": null,
+      "location": null,
+      "propertyAddress": {
+        "streetAddress": "607 SUNNYSIDE LN",
+        "propertyStreetAddressParsed": {
+          "houseNumber": "607",
+          "streetNamePrefixDir": null,
+          "streetName": "SUNNYSIDE",
+          "streetNameSuffix": "LN",
+          "streetNameSuffixDir": null,
+          "unitType": null,
+          "unitNumber": null
+        },
+        "city": "COLUMBIA",
+        "state": "TN",
+        "zipCode": "38401",
+        "zipPlus4": "5224",
+        "county": "MAURY"
+      },
+      "propertyAPN": {
+        "fipsCode": "47119",
+        "apnSequenceNumber": 1,
+        "apnParcelNumberUnformatted": "113    06904 000",
+        "apnParcelNumberFormatted": "113-069.04",
+        "previousApnUnformatted": null,
+        "universalParcelId": "71700542"
+      },
+      "addressMatchInformation": {
+        "propertyMatchScore": 9,
+        "resultCode": "ADDR:MATCH",
+        "matchCode": "ADDR:ADDREXACT",
+        "addressType": "PROPERTY",
+        "addressMatchCode": "A0000",
+        "addressMatchCodeDescription": "Matched unique number"
+      }
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "propertyId": "8038105551",
+  "v1PropertyId": "47119:71700542",
+  "basicInfo": {
+    "address": {
+      "street": "607 SUNNYSIDE LN",
+      "city": "COLUMBIA",
+      "state": "TN",
+      "zipCode": "38401",
+      "county": "MAURY"
+    },
+    "coordinates": {
+      "parcel": {
+        "latitude": 35.578178,
+        "longitude": -87.079643
+      },
+      "block": {
+        "latitude": 35.577825,
+        "longitude": -87.079618
+      }
+    },
+    "apn": {
+      "formatted": "113-069.04",
+      "unformatted": "113    06904 000",
+      "fipsCode": "47119",
+      "universalParcelId": "71700542"
+    }
+  },
+  "currentOwnership": {
+    "owners": [
+      {
+        "name": "POWERS RICHARD REAMS JR",
+        "firstName": "RICHARD",
+        "middleName": "REAMS",
+        "lastName": "POWERS"
+      },
+      {
+        "name": "POWERS CAREY BATEMAN",
+        "firstName": "CAREY",
+        "middleName": "BATEMAN",
+        "lastName": "POWERS"
+      }
+    ],
+    "relationshipTypeCode": "HW",
+    "mailingAddress": {
+      "street": "607 SUNNYSIDE LN",
+      "city": "COLUMBIA",
+      "state": "TN",
+      "zipCode": "38401"
+    }
+  },
+  "propertyCharacteristics": {
+    "landUse": {
+      "primaryType": "AGRICULTURAL",
+      "propertyTypeCode": "70",
+      "landUseCode": "500"
+    },
+    "lot": {
+      "acreage": 59.5,
+      "squareFeet": 2591820,
+      "usableSquareFeet": 43560,
+      "topography": "TRH"
+    },
+    "subdivision": {
+      "name": "TOM K YOUNG SUB 3",
+      "platBook": "10",
+      "platPage": "381"
+    },
+    "utilities": {
+      "electricity": "Available",
+      "sewer": "Public",
+      "water": "Public"
+    }
+  },
+  "buildingDetails": {
+    "summary": {
+      "buildingCount": 1,
+      "stories": 3,
+      "yearBuilt": 1986,
+      "effectiveYearBuilt": 2005,
+      "livingAreaSqFt": 6790,
+      "totalAreaSqFt": 8894,
+      "buildingGrade": "Excellent",
+      "buildingQuality": "Excellent",
+      "condition": "Average"
+    },
+    "roomCounts": {
+      "bathrooms": 7.5,
+      "fullBathrooms": 7,
+      "halfBathrooms": 1,
+      "bathroomFixtures": 23,
+      "fireplaces": 4
+    },
+    "floorAreas": {
+      "groundFloor": 4394,
+      "aboveGroundFloor": 2660,
+      "basement": 1840,
+      "unfinishedBasement": 1840,
+      "buildingAdditions": 2396
+    },
+    "construction": {
+      "frameType": "000",
+      "foundation": "Concrete",
+      "exteriorWalls": "Brick",
+      "interiorWalls": "Drywall",
+      "roofType": "Hip",
+      "roofCover": "015",
+      "flooring": "00E",
+      "basement": "Unfinished"
+    },
+    "features": {
+      "airConditioning": "Split System",
+      "heating": "001",
+      "fireplaces": {
+        "count": 4,
+        "type": "0C0"
+      }
+    },
+    "exterior": {
+      "patios": {
+        "count": 3,
+        "areaSqFt": 2400
+      },
+      "porches": {
+        "count": 3,
+        "areaSqFt": 310
+      },
+      "pool": {
+        "present": true,
+        "areaSqFt": 924
+      }
+    }
+  },
+  "financialInformation": {
+    "currentAssessment": {
+      "year": 2024,
+      "totalValue": 2029200,
+      "landValue": 249800,
+      "improvementValue": 1779400,
+      "improvementPercentage": 88
+    },
+    "taxation": {
+      "year": 2024,
+      "totalTaxAmount": 9689,
+      "countyTaxAmount": 9689,
+      "lastAssessorUpdate": "2024-12-27",
+      "taxrollCertification": "2024-08-01"
+    },
+    "schoolDistrict": {
+      "name": "MAURY COUNTY",
+      "code": "4702760"
+    }
+  },
+  "salesHistory": [
+    {
+      "type": "Most Recent Transfer",
+      "date": "2015-05-04",
+      "recordingDate": "2015-05-05",
+      "saleAmount": null,
+      "documentType": "Executor's Deed",
+      "documentNumber": "5072",
+      "bookPage": "002318/000625",
+      "isInterfamilyTransfer": true,
+      "buyer": {
+        "names": ["YOUNG BERNARD D", "LESA A YOUNG"],
+        "relationship": "Husband & Wife"
+      },
+      "seller": {
+        "names": ["YOUNG THOMAS K JR"]
+      }
+    },
+    {
+      "type": "Last Market Sale",
+      "date": "2014-10-30",
+      "recordingDate": "2014-10-31",
+      "saleAmount": 2000000,
+      "documentType": "Warranty Deed",
+      "documentNumber": "12277",
+      "bookPage": "002296/001101",
+      "isMortgagePurchase": true,
+      "titleCompany": "TITLE ASSOC INC",
+      "buyer": {
+        "names": ["POWERS RICHARD R JR", "CAREY B POWERS"],
+        "relationship": "Husband & Wife"
+      },
+      "seller": {
+        "names": ["BAKER SANDRA K & R KEITH"]
+      }
+    }
+  ],
+  "metadata": {
+    "addressMatch": {
+      "score": 9,
+      "resultCode": "ADDR:MATCH",
+      "matchCode": "ADDR:ADDREXACT",
+      "description": "Matched unique number"
+    },
+    "cbsa": {
+      "code": "34980",
+      "type": "Metro"
+    },
+    "censusTract": "0111011028",
+    "dataSource": "Property records compilation",
+    "lastUpdated": "2024-12-27"
+  }
+}

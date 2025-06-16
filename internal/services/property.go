@@ -6,14 +6,15 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"time"
-	"net/url"
-	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
-	"github.com/google/uuid"
 	"homeinsight-properties/internal/models"
 	"homeinsight-properties/pkg/cache"
 	"homeinsight-properties/pkg/database"
+	"net/url"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
+	"github.com/google/uuid"
 )
 
 type PropertyService struct {
@@ -104,7 +105,7 @@ func (s *PropertyService) GetPropertiesWithPagination(ginCtx *gin.Context, offse
 	}
 
 	// Build pagination metadata
-	meta := models.PaginationMeta{
+	metadata := models.PaginationMeta{
 		Total:  total,
 		Offset: offset,
 		Limit:  limit,
@@ -120,7 +121,7 @@ func (s *PropertyService) GetPropertiesWithPagination(ginCtx *gin.Context, offse
 	// Next page URL
 	if int64(offset+limit) < total {
 		nextURL := s.buildPaginationURL(baseURL, offset+limit, limit, queryParams)
-		meta.Next = &nextURL
+		metadata.Next = &nextURL
 	}
 
 	// Previous page URL
@@ -130,12 +131,12 @@ func (s *PropertyService) GetPropertiesWithPagination(ginCtx *gin.Context, offse
 			prevOffset = 0
 		}
 		prevURL := s.buildPaginationURL(baseURL, prevOffset, limit, queryParams)
-		meta.Prev = &prevURL
+		metadata.Prev = &prevURL
 	}
 
 	response := &models.PaginatedPropertiesResponse{
-		Data: properties,
-		Meta: meta,
+		Data:     properties,
+		Metadata: metadata,
 	}
 
 	// Cache the results for 15 minutes (shorter than full list due to pagination variety)

@@ -17,6 +17,6 @@ type PaginationMeta struct {
 }
 
 type PaginatedPropertiesResponse struct {
-	Data []Property     `json:"data"`
-	Meta PaginationMeta `json:"meta"`
+	Data     []Property     `json:"data"`
+	Metadata PaginationMeta `json:"metadata"`
 }

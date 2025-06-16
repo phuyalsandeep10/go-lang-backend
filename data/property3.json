@@ -1,0 +1,192 @@
+{
+  "propertyId": "8038105551",
+  "avmPropertyId": "47119:71700542",
+  "address": {
+    "streetAddress": "607 SUNNYSIDE LN",
+    "streetAddressParsed": {
+      "houseNumber": "607",
+      "streetName": "SUNNYSIDE",
+      "streetNameSuffix": "LN"
+    },
+    "city": "COLUMBIA",
+    "state": "TN",
+    "zipCode": "38401",
+    "zipPlus4": "5224",
+    "county": "MAURY",
+    "carrierRoute": "C015"
+  },
+  "location": {
+    "coordinates": {
+      "parcel": { "lat": 35.578178, "lng": -87.079643 },
+      "block": { "lat": 35.577825, "lng": -87.079618 }
+    },
+    "legal": {
+      "subdivisionName": "TOM K YOUNG SUB 3",
+      "subdivisionPlatBookNumber": "10",
+      "subdivisionPlatPageNumber": "381"
+    },
+    "cbsa": { "code": "34980", "type": "Metro" },
+    "censusTract": { "id": "0111011028" }
+  },
+  "lot": {
+    "areaAcres": 59.5,
+    "areaSquareFeet": 2591820,
+    "areaSquareFeetUsable": 43560,
+    "topographyType": "TRH"
+  },
+  "landUseAndZoning": {
+    "propertyTypeCode": "70",
+    "landUseCode": "500",
+    "stateLandUseCode": "11",
+    "stateLandUseDescription": "AGRICULTURAL"
+  },
+  "utilities": {
+    "fuelTypeCode": null,
+    "electricityWiringTypeCode": "EAV",
+    "sewerTypeCode": "SPU",
+    "utilitiesTypeCode": null,
+    "waterTypeCode": "WPU"
+  },
+  "building": {
+    "summary": {
+      "buildingsCount": 1,
+      "bathroomsCount": 8,
+      "fullBathroomsCount": 7,
+      "halfBathroomsCount": 1,
+      "bathroomFixturesCount": 23,
+      "fireplacesCount": 4,
+      "livingAreaSquareFeet": 8894,
+      "totalAreaSquareFeet": 8894
+    },
+    "details": {
+      "structureId": {
+        "sequenceNumber": 1,
+        "compositeBuildingLinkageKey": "47119113    06904 000002001",
+        "buildingNumber": "1"
+      },
+      "classification": {
+        "buildingTypeCode": "STR",
+        "gradeTypeCode": "EXC"
+      },
+      "verticalProfile": {
+        "storiesCount": 3
+      },
+      "construction": {
+        "yearBuilt": 1986,
+        "effectiveYearBuilt": 2005,
+        "buildingQualityTypeCode": "QEX",
+        "frameTypeCode": "000",
+        "foundationTypeCode": "CNF",
+        "buildingImprovementConditionCode": "AVE"
+      },
+      "exterior": {
+        "patios": { "count": 3, "typeCode": "100", "areaSquareFeet": 2400 },
+        "porches": { "count": 3, "typeCode": "PZ0", "areaSquareFeet": 310 },
+        "pool": { "typeCode": "001", "areaSquareFeet": 924 },
+        "walls": { "typeCode": "BRI" },
+        "roof": { "typeCode": "H00", "coverTypeCode": "015" }
+      },
+      "interior": {
+        "area": {
+          "universalBuildingAreaSquareFeet": 8894,
+          "livingAreaSquareFeet": 6790,
+          "aboveGradeAreaSquareFeet": 6790,
+          "groundFloorAreaSquareFeet": 4394,
+          "basementAreaSquareFeet": 1840,
+          "unfinishedBasementAreaSquareFeet": 1840,
+          "aboveGroundFloorAreaSquareFeet": 2660,
+          "buildingAdditionsAreaSquareFeet": 2396
+        },
+        "walls": { "typeCode": "DRY" },
+        "basement": { "typeCode": "UNF" },
+        "flooring": { "coverTypeCode": "00E" },
+        "features": {
+          "airConditioning": { "typeCode": "ASP" },
+          "heating": { "typeCode": "001" },
+          "fireplaces": { "typeCode": "0C0", "count": 4 }
+        }
+      }
+    }
+  },
+  "ownership": {
+    "currentOwners": [
+      {
+        "sequenceNumber": 1,
+        "fullName": "POWERS RICHARD REAMS JR",
+        "firstName": "RICHARD",
+        "middleName": "REAMS",
+        "lastName": "POWERS",
+        "isCorporate": false
+      },
+      {
+        "sequenceNumber": 2,
+        "fullName": "POWERS CAREY BATEMAN",
+        "firstName": "CAREY",
+        "middleName": "BATEMAN",
+        "lastName": "POWERS",
+        "isCorporate": false
+      }
+    ],
+    "relationshipTypeCode": "HW",
+    "occupancyCode": "O",
+    "mailingAddress": {
+      "streetAddress": "607 SUNNYSIDE LN",
+      "city": "COLUMBIA",
+      "state": "TN",
+      "zipCode": "38401",
+      "carrierRoute": "C015"
+    }
+  },
+  "taxAssessment": {
+    "year": 2024,
+    "totalTaxAmount": 9689,
+    "countyTaxAmount": 9689,
+    "assessedValue": {
+      "totalValue": 2029200,
+      "landValue": 249800,
+      "improvementValue": 1779400,
+      "improvementValuePercentage": 88
+    },
+    "taxRoll": {
+      "lastAssessorUpdateDate": "2024-12-27",
+      "certificationDate": "2024-08-01"
+    },
+    "schoolDistrict": {
+      "code": "4702760",
+      "name": "MAURY COUNTY"
+    }
+  },
+  "lastMarketSale": {
+    "date": "2014-10-30",
+    "recordingDate": "2014-10-31",
+    "amount": 2000000,
+    "documentTypeCode": "WD",
+    "documentNumber": "12277",
+    "bookNumber": "002296",
+    "pageNumber": "001101",
+    "multiOrSplitParcelCode": "M",
+    "isMortgagePurchase": true,
+    "isResale": true,
+    "buyers": [
+      {
+        "fullName": "POWERS RICHARD R JR & CAREY B",
+        "lastName": "POWERS",
+        "firstNameAndMiddleInitial": "RICHARD R"
+      },
+      {
+        "fullName": null,
+        "lastName": "POWERS",
+        "firstNameAndMiddleInitial": "CAREY B"
+      }
+    ],
+    "sellers": [
+      {
+        "fullName": "BAKER SANDRA K & R KEITH"
+      }
+    ],
+    "titleCompany": {
+      "name": "TITLE ASSOC INC",
+      "code": "00245"
+    }
+  }
+}
