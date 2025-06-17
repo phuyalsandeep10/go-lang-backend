@@ -1,20 +1,19 @@
 package handlers
 
 import (
-	"database/sql"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
 	"homeinsight-properties/internal/models"
 	"homeinsight-properties/internal/services"
-
-	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
 	userService *services.UserService
 }
 
-func NewUserHandler(db *sql.DB) *UserHandler {
+func NewUserHandler(db *mongo.Database) *UserHandler {
 	return &UserHandler{
 		userService: services.NewUserService(db),
 	}

@@ -1,24 +1,25 @@
 package services
 
 import (
-	"database/sql"
+	"context"
 	"errors"
 	"fmt"
 	"regexp"
 
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/crypto/bcrypt"
 	"homeinsight-properties/internal/models"
 	"homeinsight-properties/pkg/auth"
 	"homeinsight-properties/pkg/config"
-
-	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService struct {
-	db *sql.DB
+	db *mongo.Database
 }
 
-func NewUserService(db *sql.DB) *UserService {
+func NewUserService(db *mongo.Database) *UserService {
 	return &UserService{db: db}
 }
 
@@ -38,18 +39,29 @@ func (s *UserService) Register(user *models.User) (string, error) {
 		return "", errors.New("invalid phone format")
 	}
 
+	// Check if email already exists
+	ctx := context.Background()
+	collection := s.db.Collection("users")
+	count, err := collection.CountDocuments(ctx, bson.M{"email": user.Email})
+	if err != nil {
+		return "", fmt.Errorf("failed to check email existence: %v", err)
+	}
+	if count > 0 {
+		return "", errors.New("email already registered")
+	}
+
 	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return "", fmt.Errorf("failed to hash password: %v", err)
 	}
 
-	// Generate user ID
-	user.ID = uuid.New().String()
+	// Generate MongoDB ObjectID
+	user.ID = primitive.NewObjectID()
+	user.Password = string(hashedPassword)
 
-	// Insert user into database
-	query := "INSERT INTO users (id, full_name, email, phone, password) VALUES (?, ?, ?, ?, ?)"
-	_, err = s.db.Exec(query, user.ID, user.FullName, user.Email, user.Phone, hashedPassword)
+	// Insert user into MongoDB
+	_, err = collection.InsertOne(ctx, user)
 	if err != nil {
 		return "", fmt.Errorf("failed to register user: %v", err)
 	}
@@ -59,7 +71,7 @@ func (s *UserService) Register(user *models.User) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to load config: %v", err)
 	}
-	token, err := auth.GenerateJWT(user.ID, user.FullName, user.Email, user.Phone, cfg.JWT.Secret)
+	token, err := auth.GenerateJWT(user.ID.Hex(), user.FullName, user.Email, user.Phone, cfg.JWT.Secret)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate token: %v", err)
 	}
@@ -68,11 +80,12 @@ func (s *UserService) Register(user *models.User) (string, error) {
 }
 
 func (s *UserService) Login(email, password string) (string, error) {
+	ctx := context.Background()
+	collection := s.db.Collection("users")
+
 	var user models.User
-	var hashedPassword string
-	query := "SELECT id, full_name, email, phone, password FROM users WHERE email = ?"
-	err := s.db.QueryRow(query, email).Scan(&user.ID, &user.FullName, &user.Email, &user.Phone, &hashedPassword)
-	if err == sql.ErrNoRows {
+	err := collection.FindOne(ctx, bson.M{"email": email}).Decode(&user)
+	if err == mongo.ErrNoDocuments {
 		return "", errors.New("invalid email or password")
 	}
 	if err != nil {
@@ -80,7 +93,7 @@ func (s *UserService) Login(email, password string) (string, error) {
 	}
 
 	// Verify password
-	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		return "", errors.New("invalid email or password")
 	}
 
@@ -89,7 +102,7 @@ func (s *UserService) Login(email, password string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to load config: %v", err)
 	}
-	token, err := auth.GenerateJWT(user.ID, user.FullName, user.Email, user.Phone, cfg.JWT.Secret)
+	token, err := auth.GenerateJWT(user.ID.Hex(), user.FullName, user.Email, user.Phone, cfg.JWT.Secret)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate token: %v", err)
 	}

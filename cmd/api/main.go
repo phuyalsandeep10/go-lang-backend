@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -67,7 +68,7 @@ func main() {
 	r := gin.New()
 
 	// Apply middleware
-	r.Use(middleware.MetricsMiddleware()) // Add metrics middleware
+	r.Use(middleware.MetricsMiddleware())
 	r.Use(middleware.LoggingMiddleware())
 	r.Use(middleware.RateLimitMiddleware(rl))
 	r.Use(gin.Recovery())
@@ -80,14 +81,14 @@ func main() {
 
 	// Health check endpoint
 	r.GET("/health", func(c *gin.Context) {
-		// Check database connectivity
-		if err := database.DB.Ping(); err != nil {
-			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "error", "message": "Database unavailable"})
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		// Check MongoDB connectivity
+		if err := database.MongoClient.Ping(ctx, nil); err != nil {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "error", "message": "MongoDB unavailable"})
 			return
 		}
 		// Check Redis connectivity
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
 		if _, err := cache.RedisClient.Ping(ctx).Result(); err != nil {
 			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "error", "message": "Redis unavailable"})
 			return

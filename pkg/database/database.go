@@ -1,23 +1,22 @@
 package database
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var DB *sql.DB
+var MongoClient *mongo.Client
+var DB *mongo.Database
 
 type Config struct {
-	User     string
-	Password string
-	Host     string
-	Port     int
+	URI      string
 	DBName   string
 }
 
@@ -26,27 +25,16 @@ func LoadConfig() (*Config, error) {
 		log.Println("No .env file found, relying on system environment variables")
 	}
 
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	host := os.Getenv("DB_HOST")
-	portStr := os.Getenv("DB_PORT")
+	uri := os.Getenv("MONGO_URI")
 	dbName := os.Getenv("DB_NAME")
 
-	if user == "" || password == "" || host == "" || portStr == "" || dbName == "" {
-		return nil, fmt.Errorf("missing required environment variables")
-	}
-
-	var port int
-	if _, err := fmt.Sscanf(portStr, "%d", &port); err != nil {
-		return nil, fmt.Errorf("invalid DB_PORT format: %v", err)
+	if uri == "" || dbName == "" {
+		return nil, fmt.Errorf("missing required environment variables: MONGO_URI or DB_NAME")
 	}
 
 	return &Config{
-		User:     user,
-		Password: password,
-		Host:     host,
-		Port:     port,
-		DBName:   dbName,
+		URI:    uri,
+		DBName: dbName,
 	}, nil
 }
 
@@ -56,40 +44,38 @@ func InitDB() error {
 		return fmt.Errorf("failed to load config: %v", err)
 	}
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local&timeout=30s",
-		cfg.User,
-		cfg.Password,
-		cfg.Host,
-		cfg.Port,
-		cfg.DBName,
-	)
-	log.Printf("Connecting to database with DSN: %s:%d/%s", cfg.Host, cfg.Port, cfg.DBName)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-	DB, err = sql.Open("mysql", dsn)
+	clientOptions := options.Client().ApplyURI(cfg.URI).
+		SetConnectTimeout(10 * time.Second).
+		SetMaxPoolSize(100)
+
+	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		return fmt.Errorf("failed to open database: %v", err)
+		return fmt.Errorf("failed to connect to MongoDB: %v", err)
 	}
 
-	// Configure connection pooling
-	DB.SetMaxOpenConns(100)           // Max simultaneous connections
-	DB.SetMaxIdleConns(10)            // Max idle connections
-	DB.SetConnMaxLifetime(5 * time.Minute) // Max lifetime of a connection
-
-	if err = DB.Ping(); err != nil {
-		DB.Close()
-		return fmt.Errorf("failed to connect to database: %v", err)
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		client.Disconnect(ctx)
+		return fmt.Errorf("failed to ping MongoDB: %v", err)
 	}
 
-	log.Println("Database connected successfully.")
+	MongoClient = client
+	DB = client.Database(cfg.DBName)
+	log.Println("MongoDB connected successfully.")
 	return nil
 }
 
 func CloseDB() {
-	if DB != nil {
-		if err := DB.Close(); err != nil {
-			log.Printf("Error closing database: %v", err)
+	if MongoClient != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := MongoClient.Disconnect(ctx); err != nil {
+			log.Printf("Error closing MongoDB: %v", err)
 		} else {
-			log.Println("Database connection closed")
+			log.Println("MongoDB connection closed")
 		}
 	}
 }
