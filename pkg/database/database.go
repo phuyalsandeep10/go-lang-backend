@@ -10,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 var MongoClient *mongo.Client
@@ -64,6 +65,31 @@ func InitDB() error {
 
 	MongoClient = client
 	DB = client.Database(cfg.DBName)
+
+	// Create indexes for search performance
+	collection := DB.Collection("properties")
+	_, err = collection.Indexes().CreateMany(ctx, []mongo.IndexModel{
+		{
+			Keys: bson.D{{Key: "propertyId", Value: 1}},
+			Options: options.Index().SetUnique(true),
+		},
+		{
+			Keys: bson.D{{Key: "address.streetAddress", Value: 1}},
+		},
+		{
+			Keys: bson.D{{Key: "address.city", Value: 1}},
+		},
+		{
+			Keys: bson.D{{Key: "address.state", Value: 1}},
+		},
+		{
+			Keys: bson.D{{Key: "address.zipCode", Value: 1}},
+		},
+	})
+	if err != nil {
+		log.Printf("Failed to create indexes: %v", err)
+	}
+
 	log.Println("MongoDB connected successfully.")
 	return nil
 }

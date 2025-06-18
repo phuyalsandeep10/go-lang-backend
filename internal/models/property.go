@@ -5,18 +5,19 @@ import (
 )
 
 type Property struct {
-	ID            primitive.ObjectID `json:"_id" bson:"_id"`
-	PropertyID    string             `json:"propertyId" bson:"propertyId"`
-	AVMPropertyID string             `json:"avmPropertyId" bson:"avmPropertyId"`
-	Address       Address            `json:"address" bson:"address"`
-	Location      Location           `json:"location" bson:"location"`
-	Lot           Lot                `json:"lot" bson:"lot"`
-	LandUseAndZoning LandUseAndZoning `json:"landUseAndZoning" bson:"landUseAndZoning"`
-	Utilities     Utilities          `json:"utilities" bson:"utilities"`
-	Building      Building           `json:"building" bson:"building"`
-	Ownership     Ownership          `json:"ownership" bson:"ownership"`
-	TaxAssessment TaxAssessment      `json:"taxAssessment" bson:"taxAssessment"`
-	LastMarketSale LastMarketSale     `json:"lastMarketSale" bson:"lastMarketSale"`
+	ID                 primitive.ObjectID `json:"_id" bson:"_id"`
+	PropertyID         string             `json:"propertyId" bson:"propertyId"`
+	AVMPropertyID      string             `json:"avmPropertyId" bson:"avmPropertyId"`
+	Address            Address            `json:"address" bson:"address"`
+	NormalizedAddress  NormalizedAddress  `json:"normalizedAddress" bson:"normalizedAddress"`
+	Location           Location           `json:"location" bson:"location"`
+	Lot                Lot                `json:"lot" bson:"lot"`
+	LandUseAndZoning   LandUseAndZoning   `json:"landUseAndZoning" bson:"landUseAndZoning"`
+	Utilities          Utilities          `json:"utilities" bson:"utilities"`
+	Building           Building           `json:"building" bson:"building"`
+	Ownership          Ownership          `json:"ownership" bson:"ownership"`
+	TaxAssessment      TaxAssessment      `json:"taxAssessment" bson:"taxAssessment"`
+	LastMarketSale     LastMarketSale     `json:"lastMarketSale" bson:"lastMarketSale"`
 }
 
 type Address struct {
@@ -28,6 +29,13 @@ type Address struct {
 	ZipPlus4           string             `json:"zipPlus4" bson:"zipPlus4"`
 	County             string             `json:"county" bson:"county"`
 	CarrierRoute       string             `json:"carrierRoute" bson:"carrierRoute"`
+}
+
+type NormalizedAddress struct {
+	StreetAddress string `json:"normalizedStreetAddress" bson:"normalizedStreetAddress"`
+	City          string `json:"normalizedCity" bson:"normalizedCity"`
+	State         string `json:"normalizedState" bson:"normalizedState"`
+	ZipCode       string `json:"normalizedZipCode" bson:"normalizedZipCode"`
 }
 
 type StreetAddressParsed struct {
@@ -300,15 +308,29 @@ type TitleCompany struct {
 	Code string `json:"code" bson:"code"`
 }
 
+type SearchRequest struct {
+	Search        string `json:"search" bson:"search"`
+	StreetAddress string `json:"streetAddress" bson:"streetAddress"`
+	City          string `json:"city" bson:"city"`
+	State         string `json:"state" bson:"state"`
+	ZipCode       string `json:"zipCode" bson:"zipCode"`
+	Offset        int    `json:"offset" bson:"offset"`
+	Limit         int    `json:"limit" bson:"limit"`
+}
+
+type PropertyResponse struct {
+	Property *Property `json:"property" bson:"property"`
+}
+
 type PaginationMeta struct {
-	Total  int64   `json:"total"`
-	Offset int     `json:"offset"`
-	Limit  int     `json:"limit"`
-	Next   *string `json:"next,omitempty"`
-	Prev   *string `json:"prev,omitempty"`
+	Total  int64   `json:"total" bson:"total"`
+	Offset int     `json:"offset" bson:"offset"`
+	Limit  int     `json:"limit" bson:"limit"`
+	Next   *string `json:"next,omitempty" bson:"next,omitempty"`
+	Prev   *string `json:"prev,omitempty" bson:"prev,omitempty"`
 }
 
 type PaginatedPropertiesResponse struct {
-	Data     []Property     `json:"data"`
-	Metadata PaginationMeta `json:"metadata"`
+	Data     []PropertyResponse `json:"data" bson:"data"`
+	Metadata PaginationMeta     `json:"metadata" bson:"metadata"`
 }

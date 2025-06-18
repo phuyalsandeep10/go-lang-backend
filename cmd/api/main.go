@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -13,6 +12,7 @@ import (
 
 	"homeinsight-properties/internal/handlers"
 	"homeinsight-properties/internal/middleware"
+	"homeinsight-properties/internal/services"
 	"homeinsight-properties/pkg/cache"
 	"homeinsight-properties/pkg/config"
 	"homeinsight-properties/pkg/database"
@@ -83,12 +83,10 @@ func main() {
 	r.GET("/health", func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		// Check MongoDB connectivity
 		if err := database.MongoClient.Ping(ctx, nil); err != nil {
 			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "error", "message": "MongoDB unavailable"})
 			return
 		}
-		// Check Redis connectivity
 		if _, err := cache.RedisClient.Ping(ctx).Result(); err != nil {
 			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "error", "message": "Redis unavailable"})
 			return
@@ -96,8 +94,11 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
+	// Initialize services
+	propertyService := services.NewPropertyService()
+
 	// Initialize handlers
-	propertyHandler := handlers.NewPropertyHandler(database.DB)
+	propertyHandler := handlers.NewPropertyHandler(propertyService)
 	userHandler := handlers.NewUserHandler(database.DB)
 
 	// Define routes
@@ -111,8 +112,9 @@ func main() {
 		protected := api.Group("/properties")
 		protected.Use(middleware.AuthMiddleware())
 		{
-			protected.GET("", propertyHandler.ListProperties)
-			protected.GET("/:id", propertyHandler.GetProperty)
+			protected.GET("", propertyHandler.GetProperties) // Only lists all properties
+			protected.GET("/property-search", propertyHandler.SearchProperty) // New route for specific searches
+			protected.GET("/:id", propertyHandler.GetPropertyByID)
 			protected.POST("", propertyHandler.CreateProperty)
 			protected.PUT("/:id", propertyHandler.UpdateProperty)
 			protected.DELETE("/:id", propertyHandler.DeleteProperty)

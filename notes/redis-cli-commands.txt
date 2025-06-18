@@ -11,9 +11,9 @@ SLOWLOG RESET                     # Clear slow query log
 
 # Memory & Resource Usage
 INFO memory                       # Show memory stats (used memory, peak, fragmentation, etc.)
-MEMORY USAGE <key>               # Memory usage by a specific key
-MEMORY STATS                     # Detailed memory stats
-MEMORY PURGE                     # Try to reclaim free memory
+MEMORY USAGE <key>                # Memory usage by a specific key
+MEMORY STATS                      # Detailed memory stats
+MEMORY PURGE                      # Try to reclaim free memory
 
 # Stats & Info
 INFO                              # General stats
@@ -39,6 +39,18 @@ LRANGE <list_key> 0 -1            # Get all elements of a list
 SMEMBERS <set_key>                # Get all members of a set
 ZRANGE <zset_key> 0 -1 WITHSCORES # Get all sorted set members and scores
 TYPE <key>                        # Determine the data type before using the right get command
+
+# Sets
+SADD <key> <member> ...           # Add members to a set
+SREM <key> <member> ...           # Remove members from a set
+SISMEMBER <key> <member>          # Check if member exists in set
+SCARD <key>                       # Get number of members in set
+SPOP <key> [count]                # Remove and return random member(s)
+SRANDMEMBER <key> [count]         # Get random member(s) without removing
+SUNION <key1> <key2> ...          # Union of sets
+SINTER <key1> <key2> ...          # Intersection of sets
+SDIFF <key1> <key2> ...           # Difference of sets
+SMOVE <source> <dest> <member>    # Move member from one set to another
 
 # Database & Persistence
 FLUSHALL                          # Delete all keys in all databases
