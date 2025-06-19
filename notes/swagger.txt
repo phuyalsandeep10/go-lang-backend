@@ -1,0 +1,65 @@
+# Makefile for HomeInsight Properties API
+
+.PHONY: swagger-install swagger-gen swagger-serve docs-gen clean help
+
+# Install swagger tools
+swagger-install:
+	@echo "Installing Swagger tools..."
+	go install github.com/swaggo/swag/cmd/swag@latest
+	go get github.com/swaggo/gin-swagger
+	go get github.com/swaggo/files
+
+# Generate swagger documentation
+swagger-gen:
+	@echo "Generating Swagger documentation..."
+	swag init -g main.go -o ./docs
+
+# Format swagger comments
+swagger-fmt:
+	@echo "Formatting Swagger comments..."
+	swag fmt
+
+# Generate and serve documentation
+docs-gen: swagger-gen
+	@echo "Swagger documentation generated successfully!"
+	@echo "Documentation will be available at: http://localhost:8000/swagger/index.html"
+
+# Clean generated files
+clean:
+	@echo "Cleaning generated files..."
+	rm -rf ./docs
+
+# Build the application
+build:
+	@echo "Building application..."
+	go build -o bin/homeinsight-properties main.go
+
+# Run the application
+run: swagger-gen
+	@echo "Starting server with Swagger documentation..."
+	go run main.go
+
+# Run tests
+test:
+	@echo "Running tests..."
+	go test ./...
+
+# Install all dependencies
+deps:
+	@echo "Installing dependencies..."
+	go mod tidy
+	go mod download
+
+# Help command
+help:
+	@echo "Available commands:"
+	@echo "  swagger-install  - Install Swagger tools"
+	@echo "  swagger-gen      - Generate Swagger documentation"
+	@echo "  swagger-fmt      - Format Swagger comments"
+	@echo "  docs-gen         - Generate documentation"
+	@echo "  clean            - Clean generated files"
+	@echo "  build            - Build the application"
+	@echo "  run              - Run the application with docs"
+	@echo "  test             - Run tests"
+	@echo "  deps             - Install dependencies"
+	@echo "  help             - Show this help message"

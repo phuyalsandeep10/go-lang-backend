@@ -1,0 +1,851 @@
+basePath: /api
+definitions:
+  handlers.LoginRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      password:
+        example: password123
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  handlers.TokenResponse:
+    properties:
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+    type: object
+  models.Address:
+    properties:
+      carrierRoute:
+        type: string
+      city:
+        type: string
+      county:
+        type: string
+      state:
+        type: string
+      streetAddress:
+        type: string
+      streetAddressParsed:
+        $ref: '#/definitions/models.StreetAddressParsed'
+      zipCode:
+        type: string
+      zipPlus4:
+        type: string
+    type: object
+  models.AirConditioning:
+    properties:
+      typeCode:
+        type: string
+    type: object
+  models.AssessedValue:
+    properties:
+      improvementValue:
+        type: integer
+      improvementValuePercentage:
+        type: integer
+      landValue:
+        type: integer
+      totalValue:
+        type: integer
+    type: object
+  models.Basement:
+    properties:
+      typeCode:
+        type: string
+    type: object
+  models.Building:
+    properties:
+      details:
+        $ref: '#/definitions/models.BuildingDetails'
+      summary:
+        $ref: '#/definitions/models.BuildingSummary'
+    type: object
+  models.BuildingDetails:
+    properties:
+      classification:
+        $ref: '#/definitions/models.Classification'
+      construction:
+        $ref: '#/definitions/models.Construction'
+      exterior:
+        $ref: '#/definitions/models.Exterior'
+      interior:
+        $ref: '#/definitions/models.Interior'
+      structureId:
+        $ref: '#/definitions/models.StructureID'
+      verticalProfile:
+        $ref: '#/definitions/models.VerticalProfile'
+    type: object
+  models.BuildingSummary:
+    properties:
+      bathroomFixturesCount:
+        type: integer
+      bathroomsCount:
+        type: integer
+      buildingsCount:
+        type: integer
+      fireplacesCount:
+        type: integer
+      fullBathroomsCount:
+        type: integer
+      halfBathroomsCount:
+        type: integer
+      livingAreaSquareFeet:
+        type: integer
+      totalAreaSquareFeet:
+        type: integer
+    type: object
+  models.Buyer:
+    properties:
+      firstNameAndMiddleInitial:
+        type: string
+      fullName:
+        type: string
+      lastName:
+        type: string
+    type: object
+  models.CBSA:
+    properties:
+      code:
+        type: string
+      type:
+        type: string
+    type: object
+  models.CensusTract:
+    properties:
+      id:
+        type: string
+    type: object
+  models.Classification:
+    properties:
+      buildingTypeCode:
+        type: string
+      gradeTypeCode:
+        type: string
+    type: object
+  models.Construction:
+    properties:
+      buildingImprovementConditionCode:
+        type: string
+      buildingQualityTypeCode:
+        type: string
+      effectiveYearBuilt:
+        type: integer
+      foundationTypeCode:
+        type: string
+      frameTypeCode:
+        type: string
+      yearBuilt:
+        type: integer
+    type: object
+  models.Coordinates:
+    properties:
+      block:
+        $ref: '#/definitions/models.CoordinatesPoint'
+      parcel:
+        $ref: '#/definitions/models.CoordinatesPoint'
+    type: object
+  models.CoordinatesPoint:
+    properties:
+      lat:
+        type: number
+      lng:
+        type: number
+    type: object
+  models.Exterior:
+    properties:
+      patios:
+        $ref: '#/definitions/models.Patios'
+      pool:
+        $ref: '#/definitions/models.Pool'
+      porches:
+        $ref: '#/definitions/models.Porches'
+      roof:
+        $ref: '#/definitions/models.Roof'
+      walls:
+        $ref: '#/definitions/models.Walls'
+    type: object
+  models.Features:
+    properties:
+      airConditioning:
+        $ref: '#/definitions/models.AirConditioning'
+      fireplaces:
+        $ref: '#/definitions/models.Fireplaces'
+      heating:
+        $ref: '#/definitions/models.Heating'
+    type: object
+  models.Fireplaces:
+    properties:
+      count:
+        type: integer
+      typeCode:
+        type: string
+    type: object
+  models.Flooring:
+    properties:
+      coverTypeCode:
+        type: string
+    type: object
+  models.Heating:
+    properties:
+      typeCode:
+        type: string
+    type: object
+  models.Interior:
+    properties:
+      area:
+        $ref: '#/definitions/models.InteriorArea'
+      basement:
+        $ref: '#/definitions/models.Basement'
+      features:
+        $ref: '#/definitions/models.Features'
+      flooring:
+        $ref: '#/definitions/models.Flooring'
+      walls:
+        $ref: '#/definitions/models.Walls'
+    type: object
+  models.InteriorArea:
+    properties:
+      aboveGradeAreaSquareFeet:
+        type: integer
+      aboveGroundFloorAreaSquareFeet:
+        type: integer
+      basementAreaSquareFeet:
+        type: integer
+      buildingAdditionsAreaSquareFeet:
+        type: integer
+      groundFloorAreaSquareFeet:
+        type: integer
+      livingAreaSquareFeet:
+        type: integer
+      unfinishedBasementAreaSquareFeet:
+        type: integer
+      universalBuildingAreaSquareFeet:
+        type: integer
+    type: object
+  models.LandUseAndZoning:
+    properties:
+      landUseCode:
+        type: string
+      propertyTypeCode:
+        type: string
+      stateLandUseCode:
+        type: string
+      stateLandUseDescription:
+        type: string
+    type: object
+  models.LastMarketSale:
+    properties:
+      amount:
+        type: integer
+      bookNumber:
+        type: string
+      buyers:
+        items:
+          $ref: '#/definitions/models.Buyer'
+        type: array
+      date:
+        type: string
+      documentNumber:
+        type: string
+      documentTypeCode:
+        type: string
+      isMortgagePurchase:
+        type: boolean
+      isResale:
+        type: boolean
+      multiOrSplitParcelCode:
+        type: string
+      pageNumber:
+        type: string
+      recordingDate:
+        type: string
+      sellers:
+        items:
+          $ref: '#/definitions/models.Seller'
+        type: array
+      titleCompany:
+        $ref: '#/definitions/models.TitleCompany'
+    type: object
+  models.Legal:
+    properties:
+      subdivisionName:
+        type: string
+      subdivisionPlatBookNumber:
+        type: string
+      subdivisionPlatPageNumber:
+        type: string
+    type: object
+  models.Location:
+    properties:
+      cbsa:
+        $ref: '#/definitions/models.CBSA'
+      censusTract:
+        $ref: '#/definitions/models.CensusTract'
+      coordinates:
+        $ref: '#/definitions/models.Coordinates'
+      legal:
+        $ref: '#/definitions/models.Legal'
+    type: object
+  models.Lot:
+    properties:
+      areaAcres:
+        type: number
+      areaSquareFeet:
+        type: integer
+      areaSquareFeetUsable:
+        type: integer
+      topographyType:
+        type: string
+    type: object
+  models.MailingAddress:
+    properties:
+      carrierRoute:
+        type: string
+      city:
+        type: string
+      state:
+        type: string
+      streetAddress:
+        type: string
+      zipCode:
+        type: string
+    type: object
+  models.Owner:
+    properties:
+      firstName:
+        type: string
+      fullName:
+        type: string
+      isCorporate:
+        type: boolean
+      lastName:
+        type: string
+      middleName:
+        type: string
+      sequenceNumber:
+        type: integer
+    type: object
+  models.Ownership:
+    properties:
+      currentOwners:
+        items:
+          $ref: '#/definitions/models.Owner'
+        type: array
+      mailingAddress:
+        $ref: '#/definitions/models.MailingAddress'
+      occupancyCode:
+        type: string
+      relationshipTypeCode:
+        type: string
+    type: object
+  models.PaginatedPropertiesResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.PropertyResponse'
+        type: array
+      metadata:
+        $ref: '#/definitions/models.PaginationMeta'
+    type: object
+  models.PaginationMeta:
+    properties:
+      limit:
+        type: integer
+      next:
+        type: string
+      offset:
+        type: integer
+      prev:
+        type: string
+      total:
+        type: integer
+    type: object
+  models.Patios:
+    properties:
+      areaSquareFeet:
+        type: integer
+      count:
+        type: integer
+      typeCode:
+        type: string
+    type: object
+  models.Pool:
+    properties:
+      areaSquareFeet:
+        type: integer
+      typeCode:
+        type: string
+    type: object
+  models.Porches:
+    properties:
+      areaSquareFeet:
+        type: integer
+      count:
+        type: integer
+      typeCode:
+        type: string
+    type: object
+  models.Property:
+    properties:
+      _id:
+        type: string
+      address:
+        $ref: '#/definitions/models.Address'
+      avmPropertyId:
+        type: string
+      building:
+        $ref: '#/definitions/models.Building'
+      landUseAndZoning:
+        $ref: '#/definitions/models.LandUseAndZoning'
+      lastMarketSale:
+        $ref: '#/definitions/models.LastMarketSale'
+      location:
+        $ref: '#/definitions/models.Location'
+      lot:
+        $ref: '#/definitions/models.Lot'
+      ownership:
+        $ref: '#/definitions/models.Ownership'
+      propertyId:
+        type: string
+      taxAssessment:
+        $ref: '#/definitions/models.TaxAssessment'
+      utilities:
+        $ref: '#/definitions/models.Utilities'
+    type: object
+  models.PropertyResponse:
+    properties:
+      property:
+        $ref: '#/definitions/models.Property'
+    type: object
+  models.Roof:
+    properties:
+      coverTypeCode:
+        type: string
+      typeCode:
+        type: string
+    type: object
+  models.SchoolDistrict:
+    properties:
+      code:
+        type: string
+      name:
+        type: string
+    type: object
+  models.Seller:
+    properties:
+      fullName:
+        type: string
+    type: object
+  models.StreetAddressParsed:
+    properties:
+      houseNumber:
+        type: string
+      streetName:
+        type: string
+      streetNameSuffix:
+        type: string
+    type: object
+  models.StructureID:
+    properties:
+      buildingNumber:
+        type: string
+      compositeBuildingLinkageKey:
+        type: string
+      sequenceNumber:
+        type: integer
+    type: object
+  models.TaxAssessment:
+    properties:
+      assessedValue:
+        $ref: '#/definitions/models.AssessedValue'
+      countyTaxAmount:
+        type: integer
+      schoolDistrict:
+        $ref: '#/definitions/models.SchoolDistrict'
+      taxRoll:
+        $ref: '#/definitions/models.TaxRoll'
+      totalTaxAmount:
+        type: integer
+      year:
+        type: integer
+    type: object
+  models.TaxRoll:
+    properties:
+      certificationDate:
+        type: string
+      lastAssessorUpdateDate:
+        type: string
+    type: object
+  models.TitleCompany:
+    properties:
+      code:
+        type: string
+      name:
+        type: string
+    type: object
+  models.User:
+    properties:
+      _id:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+    type: object
+  models.Utilities:
+    properties:
+      electricityWiringTypeCode:
+        type: string
+      fuelTypeCode:
+        type: string
+      sewerTypeCode:
+        type: string
+      utilitiesTypeCode:
+        type: string
+      waterTypeCode:
+        type: string
+    type: object
+  models.VerticalProfile:
+    properties:
+      storiesCount:
+        type: integer
+    type: object
+  models.Walls:
+    properties:
+      typeCode:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: A comprehensive property management API for real estate data
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: HomeInsight Properties API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.TokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+      tags:
+      - Authentication
+  /properties:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of all properties
+      parameters:
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: Limit for pagination
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PaginatedPropertiesResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all properties with pagination
+      tags:
+      - Properties
+    post:
+      consumes:
+      - application/json
+      description: Create a new property record
+      parameters:
+      - description: Property data
+        in: body
+        name: property
+        required: true
+        schema:
+          $ref: '#/definitions/models.Property'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Property'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new property
+      tags:
+      - Properties
+  /properties/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a property by ID
+      parameters:
+      - description: Property ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a property
+      tags:
+      - Properties
+    get:
+      consumes:
+      - application/json
+      description: Get a single property by its ID
+      parameters:
+      - description: Property ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Property'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get property by ID
+      tags:
+      - Properties
+    put:
+      consumes:
+      - application/json
+      description: Update an existing property record
+      parameters:
+      - description: Property ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated property data
+        in: body
+        name: property
+        required: true
+        schema:
+          $ref: '#/definitions/models.Property'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Property'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update a property
+      tags:
+      - Properties
+  /properties/property-search:
+    get:
+      consumes:
+      - application/json
+      description: Search for properties based on query string
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Property'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Search for a specific property
+      tags:
+      - Properties
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user account
+      parameters:
+      - description: User registration data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.TokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - Authentication
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

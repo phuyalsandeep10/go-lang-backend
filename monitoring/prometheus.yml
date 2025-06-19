@@ -1,9 +1,9 @@
 global:
-  scrape_interval: 15s  # How often to scrape metrics
-  evaluation_interval: 15s  # How often to evaluate rules
+  scrape_interval: 15s # How often to scrape metrics
+  evaluation_interval: 15s # How often to evaluate rules
 
 scrape_configs:
-  - job_name: 'homeinsight-api'
+  - job_name: "homeinsight-api"
     static_configs:
-      - targets: ['localhost:8080']  # Your API's address and port
-    metrics_path: /metrics  # Endpoint exposed by your API
+      - targets: ["localhost:8000"] # Your API's address and port
+    metrics_path: /metrics # Endpoint exposed by your API

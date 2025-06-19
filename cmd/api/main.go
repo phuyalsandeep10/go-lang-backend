@@ -19,12 +19,40 @@ import (
 	"homeinsight-properties/pkg/logger"
 	"homeinsight-properties/pkg/metrics"
 
+	_ "net/http/pprof"
+
+	"github.com/gin-contrib/cors" // Add CORS middleware
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/time/rate"
-	_ "net/http/pprof"
+
+	// Swagger imports
+	_ "homeinsight-properties/docs"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// @title HomeInsight Properties API
+// @version 1.0
+// @description A comprehensive property management API for real estate data
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8000
+// @BasePath /api
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 
 func main() {
 	// Load .env file
@@ -67,11 +95,30 @@ func main() {
 	// Set up Gin router
 	r := gin.New()
 
-	// Apply middleware
+	// Configure CORS middleware
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true // Temporary for debugging; restrict in production
+	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "Accept", "X-Requested-With"}
+	corsConfig.AllowCredentials = true
+	corsConfig.ExposeHeaders = []string{"Content-Length"}
+	corsConfig.MaxAge = 12 * time.Hour
+
+	// Log requests for debugging CORS issues
+	r.Use(func(c *gin.Context) {
+		log.Printf("Handling request: %s %s, Origin: %s", c.Request.Method, c.Request.URL.Path, c.Request.Header.Get("Origin"))
+		c.Next()
+	})
+	r.Use(cors.New(corsConfig))
+
+	// Apply other middleware
 	r.Use(middleware.MetricsMiddleware())
 	r.Use(middleware.LoggingMiddleware())
 	r.Use(middleware.RateLimitMiddleware(rl))
 	r.Use(gin.Recovery())
+
+	// Add Swagger endpoint
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Expose pprof profiling endpoints
 	r.GET("/debug/pprof/*any", gin.WrapH(http.DefaultServeMux))
@@ -112,8 +159,8 @@ func main() {
 		protected := api.Group("/properties")
 		protected.Use(middleware.AuthMiddleware())
 		{
-			protected.GET("", propertyHandler.GetProperties) // Only lists all properties
-			protected.GET("/property-search", propertyHandler.SearchProperty) // New route for specific searches
+			protected.GET("", propertyHandler.GetProperties)
+			protected.GET("/property-search", propertyHandler.SearchProperty)
 			protected.GET("/:id", propertyHandler.GetPropertyByID)
 			protected.POST("", propertyHandler.CreateProperty)
 			protected.PUT("/:id", propertyHandler.UpdateProperty)
@@ -131,6 +178,7 @@ func main() {
 	// Start server in a goroutine
 	go func() {
 		log.Printf("Starting server on %s", addr)
+		log.Printf("Swagger documentation available at: http://localhost%s/swagger/index.html", addr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Failed to start server: %v", err)
 		}
