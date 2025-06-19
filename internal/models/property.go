@@ -9,7 +9,6 @@ type Property struct {
 	PropertyID         string             `json:"propertyId" bson:"propertyId"`
 	AVMPropertyID      string             `json:"avmPropertyId" bson:"avmPropertyId"`
 	Address            Address            `json:"address" bson:"address"`
-	NormalizedAddress  NormalizedAddress  `json:"normalizedAddress" bson:"normalizedAddress"`
 	Location           Location           `json:"location" bson:"location"`
 	Lot                Lot                `json:"lot" bson:"lot"`
 	LandUseAndZoning   LandUseAndZoning   `json:"landUseAndZoning" bson:"landUseAndZoning"`
@@ -29,13 +28,6 @@ type Address struct {
 	ZipPlus4           string             `json:"zipPlus4" bson:"zipPlus4"`
 	County             string             `json:"county" bson:"county"`
 	CarrierRoute       string             `json:"carrierRoute" bson:"carrierRoute"`
-}
-
-type NormalizedAddress struct {
-	StreetAddress string `json:"normalizedStreetAddress" bson:"normalizedStreetAddress"`
-	City          string `json:"normalizedCity" bson:"normalizedCity"`
-	State         string `json:"normalizedState" bson:"normalizedState"`
-	ZipCode       string `json:"normalizedZipCode" bson:"normalizedZipCode"`
 }
 
 type StreetAddressParsed struct {

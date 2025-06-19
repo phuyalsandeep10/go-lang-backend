@@ -143,21 +143,21 @@ func (s *PropertyService) SearchSpecificProperty(ginCtx *gin.Context, req *model
 			return &property, nil
 		}
 	}
-	if err := cache.Get(ctx, cacheKey, &propertyID); err != nil && err != redis.Nil {
+	if err := cache.Get(ctx, cacheKey, &propertyID); err != redis.Nil {
 		fmt.Printf("Cache error for search key %s: %v\n", cacheKey, err)
 	}
 
 	// Query MongoDB
 	collection := database.DB.Collection("properties")
 	filter := bson.M{
-		"normalizedAddress.normalizedStreetAddress": street,
-		"normalizedAddress.normalizedCity":          city,
+		"address.streetAddress": street,
+		"address.city":          city,
 	}
 	if state != "" {
-		filter["normalizedAddress.normalizedState"] = state
+		filter["address.state"] = state
 	}
 	if zip != "" {
-		filter["normalizedAddress.normalizedZipCode"] = zip
+		filter["address.zipCode"] = zip
 	}
 
 	err := collection.FindOne(ctx, filter).Decode(&property)
@@ -203,12 +203,6 @@ func (s *PropertyService) SearchSpecificProperty(ginCtx *gin.Context, req *model
 	property.Address.City = city
 	property.Address.State = state
 	property.Address.ZipCode = zip
-	property.NormalizedAddress = models.NormalizedAddress{
-		StreetAddress: street,
-		City:          city,
-		State:         state,
-		ZipCode:       zip,
-	}
 
 	_, err = collection.InsertOne(ctx, property)
 	if err != nil {
@@ -360,21 +354,7 @@ func (s *PropertyService) GetPropertyByID(ginCtx *gin.Context, id string) (*mode
 	collection := database.DB.Collection("properties")
 	err := collection.FindOne(ctx, bson.M{"propertyId": id}).Decode(&property)
 	if err == nil {
-		if property.NormalizedAddress.StreetAddress == "" {
-			property.NormalizedAddress = models.NormalizedAddress{
-				StreetAddress: s.normalizeAddressComponent(property.Address.StreetAddress),
-				City:          s.normalizeAddressComponent(property.Address.City),
-				State:         s.normalizeAddressComponent(property.Address.State),
-				ZipCode:       s.normalizeAddressComponent(property.Address.ZipCode),
-			}
-			_, err := collection.UpdateOne(ctx, bson.M{"propertyId": id}, bson.M{
-				"$set": bson.M{"normalizedAddress": property.NormalizedAddress},
-			})
-			if err != nil {
-				fmt.Printf("Failed to update normalized address for property %s: %v\n", id, err)
-			}
-		}
-		if err := cache.Set(ctx, propertyKey, &property, 1*Month); err != nil {
+		if err := cache.Set(ctx, propertyKey, property, 1*Month); err != nil {
 			fmt.Printf("Failed to cache property %s: %v\n", id, err)
 		}
 		s.setDataSource(ginCtx, "MONGODB", false)
@@ -409,12 +389,6 @@ func (s *PropertyService) GetPropertyByID(ginCtx *gin.Context, id string) (*mode
 	if property.Address.ZipCode != "" {
 		property.Address.ZipCode = s.normalizeAddressComponent(property.Address.ZipCode)
 	}
-	property.NormalizedAddress = models.NormalizedAddress{
-		StreetAddress: property.Address.StreetAddress,
-		City:          property.Address.City,
-		State:         property.Address.State,
-		ZipCode:       property.Address.ZipCode,
-	}
 
 	_, err = collection.InsertOne(ctx, property)
 	if err != nil {
@@ -445,13 +419,6 @@ func (s *PropertyService) CreateProperty(ginCtx *gin.Context, property *models.P
 	}
 	if property.Address.ZipCode != "" {
 		property.Address.ZipCode = s.normalizeAddressComponent(property.Address.ZipCode)
-	}
-
-	property.NormalizedAddress = models.NormalizedAddress{
-		StreetAddress: property.Address.StreetAddress,
-		City:          property.Address.City,
-		State:         property.Address.State,
-		ZipCode:       property.Address.ZipCode,
 	}
 
 	property.ID = primitive.NewObjectID()
@@ -489,29 +456,21 @@ func (s *PropertyService) UpdateProperty(ginCtx *gin.Context, property *models.P
 		property.Address.ZipCode = s.normalizeAddressComponent(property.Address.ZipCode)
 	}
 
-	property.NormalizedAddress = models.NormalizedAddress{
-		StreetAddress: property.Address.StreetAddress,
-		City:          property.Address.City,
-		State:         property.Address.State,
-		ZipCode:       property.Address.ZipCode,
-	}
-
 	ctx := context.Background()
 	collection := database.DB.Collection("properties")
 
 	update := bson.M{
 		"$set": bson.M{
-			"avmPropertyId":     property.AVMPropertyID,
-			"address":           property.Address,
-			"normalizedAddress": property.NormalizedAddress,
-			"location":          property.Location,
-			"lot":               property.Lot,
-			"landUseAndZoning":  property.LandUseAndZoning,
-			"utilities":         property.Utilities,
-			"building":          property.Building,
-			"ownership":         property.Ownership,
-			"taxAssessment":     property.TaxAssessment,
-			"lastMarketSale":    property.LastMarketSale,
+			"avmPropertyId":    property.AVMPropertyID,
+			"address":          property.Address,
+			"location":         property.Location,
+			"lot":              property.Lot,
+			"landUseAndZoning": property.LandUseAndZoning,
+			"utilities":        property.Utilities,
+			"building":         property.Building,
+			"ownership":        property.Ownership,
+			"taxAssessment":    property.TaxAssessment,
+			"lastMarketSale":   property.LastMarketSale,
 		},
 	}
 
@@ -573,14 +532,14 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 			property.Address.State = getString(mailing, "state")
 			property.Address.ZipCode = getString(mailing, "zipCode")
 			property.Address.StreetAddress = s.normalizeAddressComponent(property.Address.StreetAddress)
-			property.Address.City = s.normalizeAddressComponent(property.Address.City)
-			property.Address.State = s.normalizeAddressComponent(property.Address.State)
-			property.Address.ZipCode = s.normalizeAddressComponent(property.Address.ZipCode)
-			property.NormalizedAddress = models.NormalizedAddress{
-				StreetAddress: property.Address.StreetAddress,
-				City:          property.Address.City,
-				State:         property.Address.State,
-				ZipCode:       property.Address.ZipCode,
+			if property.Address.City != "" {
+				property.Address.City = s.normalizeAddressComponent(property.Address.City)
+			}
+			if property.Address.State != "" {
+				property.Address.State = s.normalizeAddressComponent(property.Address.State)
+			}
+			if property.Address.ZipCode != "" {
+				property.Address.ZipCode = s.normalizeAddressComponent(property.Address.ZipCode)
 			}
 		}
 	}
