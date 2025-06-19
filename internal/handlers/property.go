@@ -126,20 +126,6 @@ func (h *PropertyHandler) CreateProperty(c *gin.Context) {
 	c.JSON(http.StatusCreated, property)
 }
 
-// UpdateProperty godoc
-// @Summary Update a property
-// @Description Update an existing property record
-// @Tags Properties
-// @Accept json
-// @Produce json
-// @Param id path string true "Property ID"
-// @Param property body models.Property true "Updated property data"
-// @Security BearerAuth
-// @Success 200 {object} models.Property
-// @Failure 400 {object} map[string]string
-// @Failure 401 {object} map[string]string
-// @Failure 500 {object} map[string]string
-// @Router /properties/{id} [put]
 func (h *PropertyHandler) UpdateProperty(c *gin.Context) {
 	var property models.Property
 	if err := c.ShouldBindJSON(&property); err != nil {
@@ -154,18 +140,6 @@ func (h *PropertyHandler) UpdateProperty(c *gin.Context) {
 	c.JSON(http.StatusOK, property)
 }
 
-// DeleteProperty godoc
-// @Summary Delete a property
-// @Description Delete a property by ID
-// @Tags Properties
-// @Accept json
-// @Produce json
-// @Param id path string true "Property ID"
-// @Security BearerAuth
-// @Success 204
-// @Failure 401 {object} map[string]string
-// @Failure 404 {object} map[string]string
-// @Router /properties/{id} [delete]
 func (h *PropertyHandler) DeleteProperty(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.propertyService.DeleteProperty(c, id); err != nil {

@@ -19,19 +19,17 @@ import (
 	"homeinsight-properties/pkg/logger"
 	"homeinsight-properties/pkg/metrics"
 
-	_ "net/http/pprof"
-
-	"github.com/gin-contrib/cors" // Add CORS middleware
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/time/rate"
+	_ "net/http/pprof"
 
 	// Swagger imports
-	_ "homeinsight-properties/docs"
-
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "homeinsight-properties/docs"
 )
 
 // @title HomeInsight Properties API
@@ -104,7 +102,7 @@ func main() {
 	corsConfig.ExposeHeaders = []string{"Content-Length"}
 	corsConfig.MaxAge = 12 * time.Hour
 
-	// Log requests for debugging CORS issues
+	// Log requests for debugging
 	r.Use(func(c *gin.Context) {
 		log.Printf("Handling request: %s %s, Origin: %s", c.Request.Method, c.Request.URL.Path, c.Request.Header.Get("Origin"))
 		c.Next()
@@ -117,8 +115,18 @@ func main() {
 	r.Use(middleware.RateLimitMiddleware(rl))
 	r.Use(gin.Recovery())
 
-	// Add Swagger endpoint
+	// Serve Redoc UI
+	r.Static("/redoc", "./static/redoc")
+	r.StaticFile("/favicon.png", "./static/redoc/favicon.png")
+	r.GET("/redoc", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/redoc/index.html")
+	})
+
+	// Serve Swagger UI
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	// Serve swagger.json
+	r.StaticFile("/swagger.json", "./docs/swagger.json")
 
 	// Expose pprof profiling endpoints
 	r.GET("/debug/pprof/*any", gin.WrapH(http.DefaultServeMux))
@@ -178,7 +186,8 @@ func main() {
 	// Start server in a goroutine
 	go func() {
 		log.Printf("Starting server on %s", addr)
-		log.Printf("Swagger documentation available at: http://localhost%s/swagger/index.html", addr)
+		log.Printf("Redoc documentation available at: http://localhost%s/redoc", addr)
+		log.Printf("Swagger UI available at: http://localhost%s/swagger/index.html", addr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Failed to start server: %v", err)
 		}
