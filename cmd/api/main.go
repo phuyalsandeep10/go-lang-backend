@@ -117,7 +117,7 @@ func main() {
 
 	// Serve Redoc UI
 	r.Static("/redoc", "./static/redoc")
-	r.StaticFile("/favicon.png", "./static/redoc/favicon.png")
+	r.StaticFile("/favicon.ico", "./static/redoc/favicon.ico")
 	r.GET("/redoc", func(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "/redoc/index.html")
 	})

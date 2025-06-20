@@ -1,5 +1,7 @@
 # Makefile for HomeInsight Properties API
 
+swag init -g cmd/api/main.go
+
 .PHONY: swagger-install swagger-gen swagger-serve docs-gen clean help
 
 # Install swagger tools
