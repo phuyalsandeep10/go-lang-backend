@@ -14,6 +14,7 @@ import (
 	"homeinsight-properties/internal/models"
 	"homeinsight-properties/pkg/cache"
 	"homeinsight-properties/pkg/database"
+	"homeinsight-properties/pkg/metrics"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -59,18 +60,31 @@ func (s *PropertyService) buildPaginationURL(baseURL string, offset, limit int, 
 }
 
 func (s *PropertyService) readMockData(_ string) (map[string]interface{}, error) {
+	start := time.Now()
 	filePath, err := filepath.Abs("data/coreLogic/property-detail.json")
+	duration := time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("read_mock_file_path", "").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("read_mock_file_path", "").Inc()
 		return nil, fmt.Errorf("failed to resolve mock data file path: %v", err)
 	}
 
+	start = time.Now()
 	file, err := os.ReadFile(filePath)
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("read_mock_file", "").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("read_mock_file", "").Inc()
 		return nil, fmt.Errorf("failed to read mock data file %s: %v", filePath, err)
 	}
 
 	var data map[string]interface{}
-	if err := json.Unmarshal(file, &data); err != nil {
+	start = time.Now()
+	err = json.Unmarshal(file, &data)
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("unmarshal_mock_data", "").Observe(duration)
+	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("unmarshal_mock_data", "").Inc()
 		return nil, fmt.Errorf("failed to parse mock data from %s: %v", filePath, err)
 	}
 
@@ -136,14 +150,23 @@ func (s *PropertyService) SearchSpecificProperty(ginCtx *gin.Context, req *model
 	// Try cache first
 	var propertyID string
 	var property models.Property
-	if err := cache.Get(ctx, cacheKey, &propertyID); err == nil {
-		if err := cache.Get(ctx, cache.PropertyKey(propertyID), &property); err == nil {
+	start := time.Now()
+	err := cache.Get(ctx, cacheKey, &propertyID)
+	duration := time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("get_search_cache").Observe(duration)
+	if err == nil {
+		start = time.Now()
+		err = cache.Get(ctx, cache.PropertyKey(propertyID), &property)
+		duration = time.Since(start).Seconds()
+		metrics.RedisOperationDuration.WithLabelValues("get_property_cache").Observe(duration)
+		if err == nil {
 			s.setDataSource(ginCtx, "REDIS_CACHE", true)
 			fmt.Printf("Cache hit for search key %s, property ID %s\n", cacheKey, propertyID)
 			return &property, nil
 		}
 	}
-	if err := cache.Get(ctx, cacheKey, &propertyID); err != redis.Nil {
+	if err != redis.Nil {
+		metrics.RedisErrorsTotal.WithLabelValues("get_search_cache", "").Inc()
 		fmt.Printf("Cache error for search key %s: %v\n", cacheKey, err)
 	}
 
@@ -151,7 +174,7 @@ func (s *PropertyService) SearchSpecificProperty(ginCtx *gin.Context, req *model
 	collection := database.DB.Collection("properties")
 	filter := bson.M{
 		"address.streetAddress": street,
-		"address.city":          city,
+		"address.city":         city,
 	}
 	if state != "" {
 		filter["address.state"] = state
@@ -160,29 +183,55 @@ func (s *PropertyService) SearchSpecificProperty(ginCtx *gin.Context, req *model
 		filter["address.zipCode"] = zip
 	}
 
-	err := collection.FindOne(ctx, filter).Decode(&property)
+	start = time.Now()
+	err = collection.FindOne(ctx, filter).Decode(&property)
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("find_one", "properties").Observe(duration)
 	if err == nil {
 		// Cache property
 		propertyKey := cache.PropertyKey(property.PropertyID)
-		if err := cache.Set(ctx, propertyKey, property, 1*Month); err != nil {
+		start = time.Now()
+		err = cache.Set(ctx, propertyKey, property, Month)
+		duration = time.Since(start).Seconds()
+		metrics.RedisOperationDuration.WithLabelValues("set_property").Observe(duration)
+		if err != nil {
+			metrics.RedisErrorsTotal.WithLabelValues("set_property", "").Inc()
 			fmt.Printf("Failed to cache property %s: %v\n", property.PropertyID, err)
 		}
 		// Cache search key with property ID
-		if err := cache.Set(ctx, cacheKey, property.PropertyID, 1*Month); err != nil {
+		start = time.Now()
+		err = cache.Set(ctx, cacheKey, property.PropertyID, Month)
+		duration = time.Since(start).Seconds()
+		metrics.RedisOperationDuration.WithLabelValues("set_search_key").Observe(duration)
+		if err != nil {
+			metrics.RedisErrorsTotal.WithLabelValues("set_search_key", "").Inc()
 			fmt.Printf("Failed to cache search key %s: %v\n", cacheKey, err)
 		}
 		// Add search key to property:keys set
-		if err := cache.AddCacheKeyToPropertySet(ctx, property.PropertyID, cacheKey); err != nil {
-			fmt.Printf("Failed to add search key %s to property set %s: %v\n", cacheKey, property.PropertyID, err)
+		start = time.Now()
+		err = cache.AddCacheKeyToPropertySet(ctx, property.PropertyID, cacheKey)
+		duration = time.Since(start).Seconds()
+		metrics.RedisOperationDuration.WithLabelValues("add_cache_key").Observe(duration)
+		if err != nil {
+			metrics.RedisErrorsTotal.WithLabelValues("add_cache_key", "").Inc()
+			fmt.Printf("Failed to add cache key %s to property set %s: %v\n", cacheKey, property.PropertyID, err)
 		}
 		// Set expiration for property:keys set
-		cache.RedisClient.Expire(ctx, cache.PropertyKeysSetKey(property.PropertyID), 1*Month)
+		start = time.Now()
+		_, err = cache.RedisClient.Expire(ctx, cache.PropertyKeysSetKey(property.PropertyID), Month).Result()
+		duration = time.Since(start).Seconds()
+		metrics.RedisOperationDuration.WithLabelValues("expire").Observe(duration)
+		if err != nil {
+			metrics.RedisErrorsTotal.WithLabelValues("expire", "").Inc()
+			fmt.Printf("Failed to set expiry for %s: %v\n", cache.PropertyKeysSetKey(property.PropertyID), err)
+		}
 		s.setDataSource(ginCtx, "MONGODB", false)
 		fmt.Printf("Cached property %s with search key %s\n", property.PropertyID, cacheKey)
 		return &property, nil
 	}
 
 	if err != mongo.ErrNoDocuments {
+		metrics.MongoErrorsTotal.WithLabelValues("find_one", "properties").Inc()
 		return nil, fmt.Errorf("failed to query property: %v", err)
 	}
 
@@ -192,33 +241,64 @@ func (s *PropertyService) SearchSpecificProperty(ginCtx *gin.Context, req *model
 		return nil, fmt.Errorf("failed to fetch mock data: %v", err)
 	}
 
+	start = time.Now()
 	propertyPtr, err := s.TransformAPIResponse(mockData)
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("transform_mock_data", "").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("transform_mock_data", "").Inc()
 		return nil, fmt.Errorf("failed to transform mock data: %v", err)
 	}
 	property = *propertyPtr
 
 	property.ID = primitive.NewObjectID()
 
+	start = time.Now()
 	_, err = collection.InsertOne(ctx, property)
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("insert", "properties").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("insert", "properties").Inc()
 		return nil, fmt.Errorf("failed to insert mock property: %v", err)
 	}
 
 	// Cache property
 	propertyKey := cache.PropertyKey(property.PropertyID)
-	if err := cache.Set(ctx, propertyKey, property, 1*Month); err != nil {
+	start = time.Now()
+	err = cache.Set(ctx, propertyKey, property, Month)
+	duration = time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("set_property").Observe(duration)
+	if err != nil {
+		metrics.RedisErrorsTotal.WithLabelValues("set_property", "").Inc()
 		fmt.Printf("Failed to cache property %s: %v\n", property.PropertyID, err)
 	}
 	// Cache search key
-	if err := cache.Set(ctx, cacheKey, property.PropertyID, 1*Month); err != nil {
+	start = time.Now()
+	err = cache.Set(ctx, cacheKey, property.PropertyID, Month)
+	duration = time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("set_search_key").Observe(duration)
+	if err != nil {
+		metrics.RedisErrorsTotal.WithLabelValues("set_search_key", "").Inc()
 		fmt.Printf("Failed to cache search key %s: %v\n", cacheKey, err)
 	}
 	// Add search key to property:keys set
-	if err := cache.AddCacheKeyToPropertySet(ctx, property.PropertyID, cacheKey); err != nil {
-		fmt.Printf("Failed to add search key %s to property set %s: %v\n", cacheKey, property.PropertyID, err)
+	start = time.Now()
+	err = cache.AddCacheKeyToPropertySet(ctx, property.PropertyID, cacheKey)
+	duration = time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("add_cache_key").Observe(duration)
+	if err != nil {
+		metrics.RedisErrorsTotal.WithLabelValues("add_cache_key", "").Inc()
+		fmt.Printf("Failed to add cache key %s to property set %s: %v\n", cacheKey, property.PropertyID, err)
 	}
-	cache.RedisClient.Expire(ctx, cache.PropertyKeysSetKey(property.PropertyID), 1*Month)
+	// Set expiration for property:keys set
+	start = time.Now()
+	_, err = cache.RedisClient.Expire(ctx, cache.PropertyKeysSetKey(property.PropertyID), Month).Result()
+	duration = time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("expire").Observe(duration)
+	if err != nil {
+		metrics.RedisErrorsTotal.WithLabelValues("expire", "").Inc()
+		fmt.Printf("Failed to set expiry for %s: %v\n", cache.PropertyKeysSetKey(property.PropertyID), err)
+	}
 
 	s.setDataSource(ginCtx, "MOCK_DATA", false)
 	fmt.Printf("Inserted and cached mock property %s with search key %s\n", property.PropertyID, cacheKey)
@@ -238,16 +318,28 @@ func (s *PropertyService) GetPropertiesWithPagination(ginCtx *gin.Context, offse
 	// Try cache
 	cacheKey := cache.PropertyListPaginatedKey(offset, limit)
 	var response models.PaginatedPropertiesResponse
-	if err := cache.Get(ctx, cacheKey, &response); err == nil {
+	start := time.Now()
+	err := cache.Get(ctx, cacheKey, &response)
+	duration := time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("get_paginated_list").Observe(duration)
+	if err == nil {
 		s.setDataSource(ginCtx, "REDIS_CACHE", true)
 		fmt.Printf("Cache hit for list key %s\n", cacheKey)
 		return &response, nil
 	}
+	if err != redis.Nil {
+		metrics.RedisErrorsTotal.WithLabelValues("get_paginated_list", "").Inc()
+		fmt.Printf("Cache error for list key %s: %v\n", cacheKey, err)
+	}
 
 	// Query MongoDB
 	collection := database.DB.Collection("properties")
+	start = time.Now()
 	total, err := collection.CountDocuments(ctx, bson.M{})
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("count_documents", "properties").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("count_documents", "properties").Inc()
 		return nil, fmt.Errorf("failed to get total count: %v", err)
 	}
 
@@ -256,21 +348,35 @@ func (s *PropertyService) GetPropertiesWithPagination(ginCtx *gin.Context, offse
 		SetSkip(int64(offset)).
 		SetLimit(int64(limit))
 
+	start = time.Now()
 	cursor, err := collection.Find(ctx, bson.M{}, findOptions)
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("find", "properties").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("find", "properties").Inc()
 		return nil, fmt.Errorf("failed to query properties: %v", err)
 	}
 	defer cursor.Close(ctx)
 
 	properties := []models.Property{}
-	if err := cursor.All(ctx, &properties); err != nil {
+	start = time.Now()
+	err = cursor.All(ctx, &properties)
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("cursor_all", "properties").Observe(duration)
+	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("cursor_all", "properties").Inc()
 		return nil, fmt.Errorf("failed to decode properties: %v", err)
 	}
 
 	// Cache properties
 	for _, property := range properties {
 		propertyKey := cache.PropertyKey(property.PropertyID)
-		if err := cache.Set(ctx, propertyKey, property, 1*Month); err != nil {
+		start = time.Now()
+		err = cache.Set(ctx, propertyKey, property, Month)
+		duration = time.Since(start).Seconds()
+		metrics.RedisOperationDuration.WithLabelValues("set_property").Observe(duration)
+		if err != nil {
+			metrics.RedisErrorsTotal.WithLabelValues("set_property", "").Inc()
 			fmt.Printf("Failed to cache property %s: %v\n", property.PropertyID, err)
 		}
 	}
@@ -302,7 +408,12 @@ func (s *PropertyService) GetPropertiesWithPagination(ginCtx *gin.Context, offse
 	}
 
 	// Cache response
-	if err := cache.Set(ctx, cacheKey, response, 1*Month); err != nil {
+	start = time.Now()
+	err = cache.Set(ctx, cacheKey, response, Month)
+	duration = time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("set_paginated_list").Observe(duration)
+	if err != nil {
+		metrics.RedisErrorsTotal.WithLabelValues("set_paginated_list", "").Inc()
 		fmt.Printf("Failed to cache list key %s: %v\n", cacheKey, err)
 	}
 
@@ -312,8 +423,12 @@ func (s *PropertyService) GetPropertiesWithPagination(ginCtx *gin.Context, offse
 }
 
 func (s *PropertyService) GetAllProperties(ginCtx *gin.Context) ([]models.Property, error) {
+	start := time.Now()
 	response, err := s.GetPropertiesWithPagination(ginCtx, 0, 1000)
+	duration := time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("get_all_properties", "properties").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("get_all_properties", "properties").Inc()
 		return nil, err
 	}
 	properties := make([]models.Property, len(response.Data))
@@ -324,11 +439,21 @@ func (s *PropertyService) GetAllProperties(ginCtx *gin.Context) ([]models.Proper
 }
 
 func (s *PropertyService) invalidatePropertiesCache(ctx context.Context, propertyID string) error {
-	if err := cache.InvalidatePropertyCacheKeys(ctx, propertyID); err != nil {
+	start := time.Now()
+	err := cache.InvalidatePropertyCacheKeys(ctx, propertyID)
+	duration := time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("invalidate_cache").Observe(duration)
+	if err != nil {
+		metrics.RedisErrorsTotal.WithLabelValues("invalidate_cache", "").Inc()
 		return fmt.Errorf("failed to invalidate cache keys for property %s: %v", propertyID, err)
 	}
 	listKey := cache.PropertyListKey()
-	if err := cache.Delete(ctx, listKey); err != nil {
+	start = time.Now()
+	err = cache.Delete(ctx, listKey)
+	duration = time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("delete_list_cache").Observe(duration)
+	if err != nil {
+		metrics.RedisErrorsTotal.WithLabelValues("delete_list_cache", "").Inc()
 		fmt.Printf("Failed to invalidate properties list cache: %v\n", err)
 	}
 	return nil
@@ -339,18 +464,32 @@ func (s *PropertyService) GetPropertyByID(ginCtx *gin.Context, id string) (*mode
 	propertyKey := cache.PropertyKey(id)
 
 	var property models.Property
-	if err := cache.Get(ctx, propertyKey, &property); err == nil {
+	start := time.Now()
+	err := cache.Get(ctx, propertyKey, &property)
+	duration := time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("get_property").Observe(duration)
+	if err == nil {
 		s.setDataSource(ginCtx, "REDIS_CACHE", true)
 		fmt.Printf("Cache hit for property %s\n", id)
 		return &property, nil
-	} else if err != redis.Nil {
+	}
+	if err != redis.Nil {
+		metrics.RedisErrorsTotal.WithLabelValues("get_property", "").Inc()
 		fmt.Printf("Cache error for property %s: %v\n", id, err)
 	}
 
 	collection := database.DB.Collection("properties")
-	err := collection.FindOne(ctx, bson.M{"propertyId": id}).Decode(&property)
+	start = time.Now()
+	err = collection.FindOne(ctx, bson.M{"propertyId": id}).Decode(&property)
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("find_one", "properties").Observe(duration)
 	if err == nil {
-		if err := cache.Set(ctx, propertyKey, property, 1*Month); err != nil {
+		start = time.Now()
+		err = cache.Set(ctx, propertyKey, property, Month)
+		duration = time.Since(start).Seconds()
+		metrics.RedisOperationDuration.WithLabelValues("set_property").Observe(duration)
+		if err != nil {
+			metrics.RedisErrorsTotal.WithLabelValues("set_property", "").Inc()
 			fmt.Printf("Failed to cache property %s: %v\n", id, err)
 		}
 		s.setDataSource(ginCtx, "MONGODB", false)
@@ -359,32 +498,58 @@ func (s *PropertyService) GetPropertyByID(ginCtx *gin.Context, id string) (*mode
 	}
 
 	if err != mongo.ErrNoDocuments {
+		metrics.MongoErrorsTotal.WithLabelValues("find_one", "properties").Inc()
 		return nil, fmt.Errorf("failed to query property: %v", err)
 	}
 
+	start = time.Now()
 	mockData, err := s.readMockData(id)
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("read_mock_data", "").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("read_mock_data", "").Inc()
 		return nil, fmt.Errorf("failed to fetch mock data: %v", err)
 	}
 
+	start = time.Now()
 	tempProperty, err := s.TransformAPIResponse(mockData)
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("transform_mock_data", "").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("transform_mock_data", "").Inc()
 		return nil, fmt.Errorf("failed to transform mock data: %v", err)
 	}
 	property = *tempProperty
 
 	property.ID = primitive.NewObjectID()
 
+	start = time.Now()
 	_, err = collection.InsertOne(ctx, property)
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("insert", "properties").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("insert", "properties").Inc()
 		return nil, fmt.Errorf("failed to insert property to MongoDB: %v", err)
 	}
 
-	if err := cache.Set(ctx, propertyKey, property, 1*Month); err != nil {
+	start = time.Now()
+	err = cache.Set(ctx, propertyKey, property, Month)
+	duration = time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("set_property").Observe(duration)
+	if err != nil {
+		metrics.RedisErrorsTotal.WithLabelValues("set_property", "").Inc()
 		fmt.Printf("Failed to cache property %s: %v\n", id, err)
 	}
 
-	s.invalidatePropertiesCache(ctx, id)
+	start = time.Now()
+	err = s.invalidatePropertiesCache(ctx, id)
+	duration = time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("invalidate_cache").Observe(duration)
+	if err != nil {
+		metrics.RedisErrorsTotal.WithLabelValues("invalidate_cache", "").Inc()
+		fmt.Printf("Failed to invalidate cache for %s: %v\n", id, err)
+	}
+
 	s.setDataSource(ginCtx, "MOCK_DATA", false)
 	fmt.Printf("Inserted and cached mock property %s\n", id)
 	return &property, nil
@@ -410,17 +575,34 @@ func (s *PropertyService) CreateProperty(ginCtx *gin.Context, property *models.P
 	ctx := context.Background()
 	collection := database.DB.Collection("properties")
 
+	start := time.Now()
 	_, err := collection.InsertOne(ctx, property)
+	duration := time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("insert", "properties").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("insert", "properties").Inc()
 		return fmt.Errorf("failed to insert property: %v", err)
 	}
 
 	propertyKey := cache.PropertyKey(property.PropertyID)
-	if err := cache.Set(ctx, propertyKey, property, 1*Month); err != nil {
+	start = time.Now()
+	err = cache.Set(ctx, propertyKey, property, Month)
+	duration = time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("set_property").Observe(duration)
+	if err != nil {
+		metrics.RedisErrorsTotal.WithLabelValues("set_property", "").Inc()
 		fmt.Printf("Failed to cache property %s: %v\n", property.PropertyID, err)
 	}
 
-	s.invalidatePropertiesCache(ctx, property.PropertyID)
+	start = time.Now()
+	err = s.invalidatePropertiesCache(ctx, property.PropertyID)
+	duration = time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("invalidate_cache").Observe(duration)
+	if err != nil {
+		metrics.RedisErrorsTotal.WithLabelValues("invalidate_cache", "").Inc()
+		fmt.Printf("Failed to invalidate cache for %s: %v\n", property.PropertyID, err)
+	}
+
 	s.setDataSource(ginCtx, "MONGODB_INSERT", false)
 	return nil
 }
@@ -459,20 +641,38 @@ func (s *PropertyService) UpdateProperty(ginCtx *gin.Context, property *models.P
 		},
 	}
 
+	start := time.Now()
 	result, err := collection.UpdateOne(ctx, bson.M{"propertyId": property.PropertyID}, update)
+	duration := time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("update_one", "properties").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("update_one", "properties").Inc()
 		return fmt.Errorf("failed to update property: %v", err)
 	}
 	if result.MatchedCount == 0 {
+		metrics.MongoErrorsTotal.WithLabelValues("update_one", "properties").Inc()
 		return fmt.Errorf("property not found")
 	}
 
 	propertyKey := cache.PropertyKey(property.PropertyID)
-	if err := cache.Set(ctx, propertyKey, property, 1*Month); err != nil {
+	start = time.Now()
+	err = cache.Set(ctx, propertyKey, property, Month)
+	duration = time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("set_property").Observe(duration)
+	if err != nil {
+		metrics.RedisErrorsTotal.WithLabelValues("set_property", "").Inc()
 		fmt.Printf("Failed to update property cache %s: %v\n", property.PropertyID, err)
 	}
 
-	s.invalidatePropertiesCache(ctx, property.PropertyID)
+	start = time.Now()
+	err = s.invalidatePropertiesCache(ctx, property.PropertyID)
+	duration = time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("invalidate_cache").Observe(duration)
+	if err != nil {
+		metrics.RedisErrorsTotal.WithLabelValues("invalidate_cache", "").Inc()
+		fmt.Printf("Failed to invalidate cache for %s: %v\n", property.PropertyID, err)
+	}
+
 	s.setDataSource(ginCtx, "MONGODB_UPDATE", false)
 	return nil
 }
@@ -481,20 +681,34 @@ func (s *PropertyService) DeleteProperty(ginCtx *gin.Context, id string) error {
 	ctx := context.Background()
 	collection := database.DB.Collection("properties")
 
+	start := time.Now()
 	result, err := collection.DeleteOne(ctx, bson.M{"propertyId": id})
+	duration := time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("delete_one", "properties").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("delete_one", "properties").Inc()
 		return fmt.Errorf("failed to delete property: %v", err)
 	}
 	if result.DeletedCount == 0 {
+		metrics.MongoErrorsTotal.WithLabelValues("delete_one", "properties").Inc()
 		return fmt.Errorf("property not found")
 	}
 
-	s.invalidatePropertiesCache(ctx, id)
+	start = time.Now()
+	err = s.invalidatePropertiesCache(ctx, id)
+	duration = time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("invalidate_cache").Observe(duration)
+	if err != nil {
+		metrics.RedisErrorsTotal.WithLabelValues("invalidate_cache", "").Inc()
+		fmt.Printf("Failed to invalidate cache for %s: %v\n", id, err)
+	}
+
 	s.setDataSource(ginCtx, "MONGODB_DELETE", false)
 	return nil
 }
 
 func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{}) (*models.Property, error) {
+	start := time.Now()
 	property := &models.Property{}
 
 	// Extract clip and set PropertyID and AVMPropertyID
@@ -503,9 +717,11 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 			property.PropertyID = clip
 			property.AVMPropertyID = fmt.Sprintf("47149:%s", clip)
 		} else {
+			metrics.MongoErrorsTotal.WithLabelValues("transform_mock_data", "").Inc()
 			return nil, fmt.Errorf("clip field is missing or invalid in mock data")
 		}
 	} else {
+		metrics.MongoErrorsTotal.WithLabelValues("transform_mock_data", "").Inc()
 		return nil, fmt.Errorf("buildings.data field is missing in mock data")
 	}
 
@@ -543,7 +759,7 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 				},
 			},
 			Legal: models.Legal{
-				SubdivisionName:          getString(siteLocation, "locationLegal.subdivisionName"),
+				SubdivisionName:           getString(siteLocation, "locationLegal.subdivisionName"),
 				SubdivisionPlatBookNumber: getString(siteLocation, "locationLegal.subdivisionPlatBookNumber"),
 				SubdivisionPlatPageNumber: getString(siteLocation, "locationLegal.subdivisionPlatPageNumber"),
 			},
@@ -560,19 +776,19 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 	// Map Lot
 	if siteLocation, ok := apiResponse["siteLocation"].(map[string]interface{})["data"].(map[string]interface{}); ok {
 		property.Lot = models.Lot{
-			AreaAcres:          getFloat64(siteLocation, "lot.areaAcres"),
-			AreaSquareFeet:     getInt(siteLocation, "lot.areaSquareFeet"),
+			AreaAcres:            getFloat64(siteLocation, "lot.areaAcres"),
+			AreaSquareFeet:       getInt(siteLocation, "lot.areaSquareFeet"),
 			AreaSquareFeetUsable: getInt(siteLocation, "lot.areaSquareFeetUsable"),
-			TopographyType:     getString(siteLocation, "lot.topographyType"),
+			TopographyType:       getString(siteLocation, "lot.topographyType"),
 		}
 	}
 
 	// Map LandUseAndZoning
 	if siteLocation, ok := apiResponse["siteLocation"].(map[string]interface{})["data"].(map[string]interface{}); ok {
 		property.LandUseAndZoning = models.LandUseAndZoning{
-			PropertyTypeCode:      getString(siteLocation, "landUseAndZoningCodes.propertyTypeCode"),
-			LandUseCode:           getString(siteLocation, "landUseAndZoningCodes.landUseCode"),
-			StateLandUseCode:      getString(siteLocation, "landUseAndZoningCodes.stateLandUseCode"),
+			PropertyTypeCode:        getString(siteLocation, "landUseAndZoningCodes.propertyTypeCode"),
+			LandUseCode:             getString(siteLocation, "landUseAndZoningCodes.landUseCode"),
+			StateLandUseCode:        getString(siteLocation, "landUseAndZoningCodes.stateLandUseCode"),
 			StateLandUseDescription: getString(siteLocation, "landUseAndZoningCodes.stateLandUseDescription"),
 		}
 	}
@@ -580,11 +796,11 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 	// Map Utilities
 	if siteLocation, ok := apiResponse["siteLocation"].(map[string]interface{})["data"].(map[string]interface{}); ok {
 		property.Utilities = models.Utilities{
-			FuelTypeCode:          getString(siteLocation, "utilities.fuelTypeCode"),
+			FuelTypeCode:             getString(siteLocation, "utilities.fuelTypeCode"),
 			ElectricityWiringTypeCode: getString(siteLocation, "utilities.electricityWiringTypeCode"),
-			SewerTypeCode:         getString(siteLocation, "utilities.sewerTypeCode"),
-			UtilitiesTypeCode:     getString(siteLocation, "utilities.utilitiesTypeCode"),
-			WaterTypeCode:         getString(siteLocation, "utilities.waterTypeCode"),
+			SewerTypeCode:            getString(siteLocation, "utilities.sewerTypeCode"),
+			UtilitiesTypeCode:        getString(siteLocation, "utilities.utilitiesTypeCode"),
+			WaterTypeCode:            getString(siteLocation, "utilities.waterTypeCode"),
 		}
 	}
 
@@ -592,23 +808,23 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 	if buildings, ok := apiResponse["buildings"].(map[string]interface{})["data"].(map[string]interface{}); ok {
 		property.Building = models.Building{
 			Summary: models.BuildingSummary{
-				BuildingsCount:      getInt(buildings, "allBuildingsSummary.buildingsCount"),
-				BathroomsCount:      getInt(buildings, "allBuildingsSummary.bathroomsCount"),
-				FullBathroomsCount:  getInt(buildings, "allBuildingsSummary.fullBathroomsCount"),
-				HalfBathroomsCount:  getInt(buildings, "allBuildingsSummary.halfBathroomsCount"),
+				BuildingsCount:        getInt(buildings, "allBuildingsSummary.buildingsCount"),
+				BathroomsCount:        getInt(buildings, "allBuildingsSummary.bathroomsCount"),
+				FullBathroomsCount:    getInt(buildings, "allBuildingsSummary.fullBathroomsCount"),
+				HalfBathroomsCount:    getInt(buildings, "allBuildingsSummary.halfBathroomsCount"),
 				BathroomFixturesCount: getInt(buildings, "allBuildingsSummary.bathroomFixturesCount"),
-				FireplacesCount:     getInt(buildings, "allBuildingsSummary.fireplacesCount"),
-				LivingAreaSquareFeet: getInt(buildings, "allBuildingsSummary.livingAreaSquareFeet"),
-				TotalAreaSquareFeet: getInt(buildings, "allBuildingsSummary.totalAreaSquareFeet"),
+				FireplacesCount:       getInt(buildings, "allBuildingsSummary.fireplacesCount"),
+				LivingAreaSquareFeet:  getInt(buildings, "allBuildingsSummary.livingAreaSquareFeet"),
+				TotalAreaSquareFeet:   getInt(buildings, "allBuildingsSummary.totalAreaSquareFeet"),
 			},
 		}
 		if buildingList, ok := buildings["buildings"].([]interface{}); ok && len(buildingList) > 0 {
 			if building, ok := buildingList[0].(map[string]interface{}); ok {
 				property.Building.Details = models.BuildingDetails{
 					StructureID: models.StructureID{
-						SequenceNumber:         getInt(building, "structureId.sequenceNumber"),
+						SequenceNumber:              getInt(building, "structureId.sequenceNumber"),
 						CompositeBuildingLinkageKey: getString(building, "structureId.compositeBuildingLinkageKey"),
-						BuildingNumber:         getString(building, "structureId.buildingNumber"),
+						BuildingNumber:              getString(building, "structureId.buildingNumber"),
 					},
 					Classification: models.Classification{
 						BuildingTypeCode: getString(building, "structureClassification.buildingTypeCode"),
@@ -618,46 +834,46 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 						StoriesCount: getInt(building, "structureVerticalProfile.storiesCount"),
 					},
 					Construction: models.Construction{
-						YearBuilt:                getInt(building, "constructionDetails.yearBuilt"),
-						EffectiveYearBuilt:       getInt(building, "constructionDetails.effectiveYearBuilt"),
-						BuildingQualityTypeCode:  getString(building, "constructionDetails.buildingQualityTypeCode"),
-						FrameTypeCode:            getString(building, "constructionDetails.frameTypeCode"),
-						FoundationTypeCode:       getString(building, "constructionDetails.foundationTypeCode"),
+						YearBuilt:                       getInt(building, "constructionDetails.yearBuilt"),
+						EffectiveYearBuilt:              getInt(building, "constructionDetails.effectiveYearBuilt"),
+						BuildingQualityTypeCode:         getString(building, "constructionDetails.buildingQualityTypeCode"),
+						FrameTypeCode:                   getString(building, "constructionDetails.frameTypeCode"),
+						FoundationTypeCode:              getString(building, "constructionDetails.foundationTypeCode"),
 						BuildingImprovementConditionCode: getString(building, "constructionDetails.buildingImprovementConditionCode"),
 					},
 					Exterior: models.Exterior{
 						Patios: models.Patios{
-							Count:         getInt(building, "structureExterior.patios.count"),
-							TypeCode:      getString(building, "structureExterior.patios.typeCode"),
+							Count:          getInt(building, "structureExterior.patios.count"),
+							TypeCode:       getString(building, "structureExterior.patios.typeCode"),
 							AreaSquareFeet: getInt(building, "structureExterior.patios.areaSquareFeet"),
 						},
 						Porches: models.Porches{
-							Count:         getInt(building, "structureExterior.porches.count"),
-							TypeCode:      getString(building, "structureExterior.porches.typeCode"),
+							Count:          getInt(building, "structureExterior.porches.count"),
+							TypeCode:       getString(building, "structureExterior.porches.typeCode"),
 							AreaSquareFeet: getInt(building, "structureExterior.porches.areaSquareFeet"),
 						},
 						Pool: models.Pool{
-							TypeCode:      getString(building, "structureExterior.pool.typeCode"),
+							TypeCode:       getString(building, "structureExterior.pool.typeCode"),
 							AreaSquareFeet: getInt(building, "structureExterior.pool.areaSquareFeet"),
 						},
 						Walls: models.Walls{
 							TypeCode: getString(building, "structureExterior.walls.typeCode"),
 						},
 						Roof: models.Roof{
-							TypeCode:     getString(building, "structureExterior.roof.typeCode"),
+							TypeCode:      getString(building, "structureExterior.roof.typeCode"),
 							CoverTypeCode: getString(building, "structureExterior.roof.coverTypeCode"),
 						},
 					},
 					Interior: models.Interior{
 						Area: models.InteriorArea{
-							UniversalBuildingAreaSquareFeet: getInt(building, "interiorArea.universalBuildingAreaSquareFeet"),
-							LivingAreaSquareFeet:           getInt(building, "interiorArea.livingAreaSquareFeet"),
-							AboveGradeAreaSquareFeet:       getInt(building, "interiorArea.aboveGradeAreaSquareFeet"),
-							GroundFloorAreaSquareFeet:      getInt(building, "interiorArea.groundFloorAreaSquareFeet"),
-							BasementAreaSquareFeet:         getInt(building, "interiorArea.basementAreaSquareFeet"),
+							UniversalBuildingAreaSquareFeet:  getInt(building, "interiorArea.universalBuildingAreaSquareFeet"),
+							LivingAreaSquareFeet:             getInt(building, "interiorArea.livingAreaSquareFeet"),
+							AboveGradeAreaSquareFeet:         getInt(building, "interiorArea.aboveGradeAreaSquareFeet"),
+							GroundFloorAreaSquareFeet:        getInt(building, "interiorArea.groundFloorAreaSquareFeet"),
+							BasementAreaSquareFeet:           getInt(building, "interiorArea.basementAreaSquareFeet"),
 							UnfinishedBasementAreaSquareFeet: getInt(building, "interiorArea.unfinishedBasementAreaSquareFeet"),
-							AboveGroundFloorAreaSquareFeet:  getInt(building, "interiorArea.aboveGroundFloorAreaSquareFeet"),
-							BuildingAdditionsAreaSquareFeet: getInt(building, "interiorArea.buildingAdditionsAreaSquareFeet"),
+							AboveGroundFloorAreaSquareFeet:   getInt(building, "interiorArea.aboveGroundFloorAreaSquareFeet"),
+							BuildingAdditionsAreaSquareFeet:  getInt(building, "interiorArea.buildingAdditionsAreaSquareFeet"),
 						},
 						Walls: models.Walls{
 							TypeCode: getString(building, "structureInterior.walls.typeCode"),
@@ -727,14 +943,14 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 				TotalTaxAmount: getInt(item, "taxAmount.totalTaxAmount"),
 				CountyTaxAmount: getInt(item, "taxAmount.countyTaxAmount"),
 				AssessedValue: models.AssessedValue{
-					TotalValue:            getInt(item, "assessedValue.calculatedTotalValue"),
-					LandValue:             getInt(item, "assessedValue.calculatedLandValue"),
-					ImprovementValue:      getInt(item, "assessedValue.calculatedImprovementValue"),
+					TotalValue:                 getInt(item, "assessedValue.calculatedTotalValue"),
+					LandValue:                  getInt(item, "assessedValue.calculatedLandValue"),
+					ImprovementValue:           getInt(item, "assessedValue.calculatedImprovementValue"),
 					ImprovementValuePercentage: getInt(item, "assessedValue.calculatedImprovementValuePercentage"),
 				},
 				TaxRoll: models.TaxRoll{
 					LastAssessorUpdateDate: getString(item, "taxrollUpdate.lastAssessorUpdateDate"),
-					CertificationDate:     getString(item, "taxrollUpdate.taxrollCertificationDate"),
+					CertificationDate:      getString(item, "taxrollUpdate.taxrollCertificationDate"),
 				},
 				SchoolDistrict: models.SchoolDistrict{
 					Code: getString(item, "schoolDistricts.school.code"),
@@ -748,16 +964,16 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 	if lastMarketSale, ok := apiResponse["lastMarketSale"].(map[string]interface{})["items"].([]interface{}); ok && len(lastMarketSale) > 0 {
 		if item, ok := lastMarketSale[0].(map[string]interface{}); ok {
 			property.LastMarketSale = models.LastMarketSale{
-				Date:               getString(item, "transactionDetails.saleDateDerived"),
-				RecordingDate:      getString(item, "transactionDetails.saleRecordingDateDerived"),
-				Amount:             getInt(item, "transactionDetails.saleAmount"),
-				DocumentTypeCode:   getString(item, "transactionDetails.saleDocumentTypeCode"),
-				DocumentNumber:     getString(item, "transactionDetails.saleDocumentNumber"),
-				BookNumber:         getString(item, "transactionDetails.saleBookNumber"),
-				PageNumber:         getString(item, "transactionDetails.salePageNumber"),
+				Date:                   getString(item, "transactionDetails.saleDateDerived"),
+				RecordingDate:          getString(item, "transactionDetails.saleRecordingDateDerived"),
+				Amount:                 getInt(item, "transactionDetails.saleAmount"),
+				DocumentTypeCode:       getString(item, "transactionDetails.saleDocumentTypeCode"),
+				DocumentNumber:         getString(item, "transactionDetails.saleDocumentNumber"),
+				BookNumber:             getString(item, "transactionDetails.saleBookNumber"),
+				PageNumber:             getString(item, "transactionDetails.salePageNumber"),
 				MultiOrSplitParcelCode: getString(item, "transactionDetails.multiOrSplitParcelCode"),
-				IsMortgagePurchase: getBool(item, "transactionDetails.isMortgagePurchase"),
-				IsResale:           getBool(item, "transactionDetails.isResale"),
+				IsMortgagePurchase:     getBool(item, "transactionDetails.isMortgagePurchase"),
+				IsResale:               getBool(item, "transactionDetails.isResale"),
 				TitleCompany: models.TitleCompany{
 					Name: getString(item, "titleCompany.name"),
 					Code: getString(item, "titleCompany.code"),
@@ -767,8 +983,8 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 				for _, buyer := range buyerNames {
 					if buyerMap, ok := buyer.(map[string]interface{}); ok {
 						property.LastMarketSale.Buyers = append(property.LastMarketSale.Buyers, models.Buyer{
-							FullName:             getString(buyerMap, "fullName"),
-							LastName:             getString(buyerMap, "lastName"),
+							FullName:                  getString(buyerMap, "fullName"),
+							LastName:                  getString(buyerMap, "lastName"),
 							FirstNameAndMiddleInitial: getString(buyerMap, "firstNameAndMiddleInitial"),
 						})
 					}
@@ -786,6 +1002,8 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 		}
 	}
 
+	duration := time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("transform_mock_data", "").Observe(duration)
 	return property, nil
 }
 

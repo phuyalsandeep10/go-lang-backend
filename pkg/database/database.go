@@ -7,10 +7,12 @@ import (
 	"os"
 	"time"
 
+	"homeinsight-properties/pkg/metrics" // Import the metrics package
+
 	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 var MongoClient *mongo.Client
@@ -52,13 +54,20 @@ func InitDB() error {
 		SetConnectTimeout(10 * time.Second).
 		SetMaxPoolSize(100)
 
+	start := time.Now()
 	client, err := mongo.Connect(ctx, clientOptions)
+	duration := time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("connect", "").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("connect", "").Inc()
 		return fmt.Errorf("failed to connect to MongoDB: %v", err)
 	}
 
 	err = client.Ping(ctx, nil)
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("ping", "").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("ping", "").Inc()
 		client.Disconnect(ctx)
 		return fmt.Errorf("failed to ping MongoDB: %v", err)
 	}
@@ -68,6 +77,7 @@ func InitDB() error {
 
 	// Create indexes for search performance
 	collection := DB.Collection("properties")
+	start = time.Now()
 	_, err = collection.Indexes().CreateMany(ctx, []mongo.IndexModel{
 		{
 			Keys: bson.D{{Key: "propertyId", Value: 1}},
@@ -86,7 +96,10 @@ func InitDB() error {
 			Keys: bson.D{{Key: "address.zipCode", Value: 1}},
 		},
 	})
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("create_indexes", "properties").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("create_indexes", "properties").Inc()
 		log.Printf("Failed to create indexes: %v", err)
 	}
 
@@ -98,7 +111,12 @@ func CloseDB() {
 	if MongoClient != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		if err := MongoClient.Disconnect(ctx); err != nil {
+		start := time.Now()
+		err := MongoClient.Disconnect(ctx)
+		duration := time.Since(start).Seconds()
+		metrics.MongoOperationDuration.WithLabelValues("disconnect", "").Observe(duration)
+		if err != nil {
+			metrics.MongoErrorsTotal.WithLabelValues("disconnect", "").Inc()
 			log.Printf("Error closing MongoDB: %v", err)
 		} else {
 			log.Println("MongoDB connection closed")

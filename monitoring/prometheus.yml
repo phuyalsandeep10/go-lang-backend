@@ -1,9 +1,28 @@
 global:
-  scrape_interval: 15s # How often to scrape metrics
-  evaluation_interval: 15s # How often to evaluate rules
+  scrape_interval: 15s  # How often to scrape targets (default is fine)
+  evaluation_interval: 15s  # How often to evaluate rules (default is fine)
 
 scrape_configs:
+  # Scrape Prometheus itself for self-monitoring
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+    metrics_path: /metrics
+
+  # Scrape the homeinsight-api application
   - job_name: "homeinsight-api"
     static_configs:
-      - targets: ["localhost:8000"] # Your API's address and port
-    metrics_path: /metrics # Endpoint exposed by your API
+      - targets: ["host.docker.internal:9090"]
+    metrics_path: /metrics
+
+  # Scrape the Redis exporter
+  - job_name: "redis"
+    static_configs:
+      - targets: ["host.docker.internal:9121"]
+    metrics_path: /metrics
+
+  # Scrape the MongoDB exporter
+  - job_name: "mongodb"
+    static_configs:
+      - targets: ["host.docker.internal:9216"]
+    metrics_path: /metrics

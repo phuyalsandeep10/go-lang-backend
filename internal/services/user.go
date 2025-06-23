@@ -5,14 +5,17 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"time"
+
+	"homeinsight-properties/pkg/auth"
+	"homeinsight-properties/pkg/config"
+	"homeinsight-properties/pkg/metrics" // Import metrics package
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 	"homeinsight-properties/internal/models"
-	"homeinsight-properties/pkg/auth"
-	"homeinsight-properties/pkg/config"
 )
 
 type UserService struct {
@@ -42,8 +45,12 @@ func (s *UserService) Register(user *models.User) (string, error) {
 	// Check if email already exists
 	ctx := context.Background()
 	collection := s.db.Collection("users")
+	start := time.Now()
 	count, err := collection.CountDocuments(ctx, bson.M{"email": user.Email})
+	duration := time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("count_documents", "users").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("count_documents", "users").Inc()
 		return "", fmt.Errorf("failed to check email existence: %v", err)
 	}
 	if count > 0 {
@@ -51,8 +58,12 @@ func (s *UserService) Register(user *models.User) (string, error) {
 	}
 
 	// Hash the password
+	start = time.Now()
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("hash_password", "").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("hash_password", "").Inc()
 		return "", fmt.Errorf("failed to hash password: %v", err)
 	}
 
@@ -61,18 +72,30 @@ func (s *UserService) Register(user *models.User) (string, error) {
 	user.Password = string(hashedPassword)
 
 	// Insert user into MongoDB
+	start = time.Now()
 	_, err = collection.InsertOne(ctx, user)
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("insert", "users").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("insert", "users").Inc()
 		return "", fmt.Errorf("failed to register user: %v", err)
 	}
 
 	// Generate JWT
+	start = time.Now()
 	cfg, err := config.LoadConfig("configs/config.yaml")
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("load_config", "").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("load_config", "").Inc()
 		return "", fmt.Errorf("failed to load config: %v", err)
 	}
+	start = time.Now()
 	token, err := auth.GenerateJWT(user.ID.Hex(), user.FullName, user.Email, user.Phone, cfg.JWT.Secret)
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("generate_jwt", "").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("generate_jwt", "").Inc()
 		return "", fmt.Errorf("failed to generate token: %v", err)
 	}
 
@@ -84,26 +107,45 @@ func (s *UserService) Login(email, password string) (string, error) {
 	collection := s.db.Collection("users")
 
 	var user models.User
+	start := time.Now()
 	err := collection.FindOne(ctx, bson.M{"email": email}).Decode(&user)
+	duration := time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("find_one", "users").Observe(duration)
 	if err == mongo.ErrNoDocuments {
+		metrics.MongoErrorsTotal.WithLabelValues("find_one", "users").Inc()
 		return "", errors.New("invalid email or password")
 	}
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("find_one", "users").Inc()
 		return "", fmt.Errorf("failed to query user: %v", err)
 	}
 
 	// Verify password
+	start = time.Now()
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		duration = time.Since(start).Seconds()
+		metrics.MongoOperationDuration.WithLabelValues("verify_password", "").Observe(duration)
+		metrics.MongoErrorsTotal.WithLabelValues("verify_password", "").Inc()
 		return "", errors.New("invalid email or password")
 	}
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("verify_password", "").Observe(duration)
 
 	// Generate JWT
+	start = time.Now()
 	cfg, err := config.LoadConfig("configs/config.yaml")
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("load_config", "").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("load_config", "").Inc()
 		return "", fmt.Errorf("failed to load config: %v", err)
 	}
+	start = time.Now()
 	token, err := auth.GenerateJWT(user.ID.Hex(), user.FullName, user.Email, user.Phone, cfg.JWT.Secret)
+	duration = time.Since(start).Seconds()
+	metrics.MongoOperationDuration.WithLabelValues("generate_jwt", "").Observe(duration)
 	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("generate_jwt", "").Inc()
 		return "", fmt.Errorf("failed to generate token: %v", err)
 	}
 
