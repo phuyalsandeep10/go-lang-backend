@@ -3,7 +3,8 @@ package auth
 import (
 	"fmt"
 	"time"
-	"github.com/dgrijalva/jwt-go"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type Claims struct {
@@ -11,18 +12,27 @@ type Claims struct {
 	FullName string `json:"full_name"`
 	Email    string `json:"email"`
 	Phone    string `json:"phone"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 func GenerateJWT(userID, fullName, email, phone, secret string) (string, error) {
+	if secret == "" {
+		return "", fmt.Errorf("secret key cannot be empty")
+	}
+	if userID == "" {
+		return "", fmt.Errorf("user ID cannot be empty")
+	}
+
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &Claims{
 		UserID:   userID,
 		FullName: fullName,
 		Email:    email,
 		Phone:    phone,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
 		},
 	}
 
@@ -35,8 +45,18 @@ func GenerateJWT(userID, fullName, email, phone, secret string) (string, error) 
 }
 
 func ValidateJWT(tokenString, secret string) (*Claims, error) {
+	if secret == "" {
+		return nil, fmt.Errorf("secret key cannot be empty")
+	}
+	if tokenString == "" {
+		return nil, fmt.Errorf("token string cannot be empty")
+	}
+
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
 		return []byte(secret), nil
 	})
 	if err != nil {
