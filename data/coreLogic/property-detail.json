@@ -1,7 +1,7 @@
  {
     "buildings": {
       "data": {
-        "clip": "1029223221",
+        "clip": "1029223551",
         "allBuildingsSummary": {
           "buildingsCount": 1,
           "unitsCount": 1,
@@ -178,7 +178,7 @@
     },
     "ownership": {
       "data": {
-        "clip": "1029223221",
+        "clip": "1029223551",
         "currentOwners": {
           "ownerNames": [
             {
@@ -226,20 +226,20 @@
         "currentOwnerMailingInfo": {
           "mailingAddress": {
             "careOfName": null,
-            "streetAddress": "415 W NORTHFIELD BLVD",
+            "streetAddress": "3416 Nightshade Dr",
             "streetAddressParsed": {
-              "houseNumber": "415",
+              "houseNumber": "3416",
               "houseNumberSuffix": null,
               "houseNumber2": null,
               "direction": "W",
-              "streetName": "NORTHFIELD",
+              "streetName": "Murfreesboro",
               "mailingMode": "BLVD",
               "quadrant": null,
               "unitNumber": null
             },
             "city": "MURFREESBORO",
             "state": "TN",
-            "zipCode": "37129",
+            "zipCode": "37128",
             "carrierRoute": "C026",
             "foreignAddress": null
           },

@@ -6,9 +6,9 @@ import (
 
 type Property struct {
 	ID                 primitive.ObjectID `json:"_id" bson:"_id"`
-	PropertyID         string             `json:"propertyId" bson:"propertyId"`
-	AVMPropertyID      string             `json:"avmPropertyId" bson:"avmPropertyId"`
-	Address            Address            `json:"address" bson:"address"`
+	PropertyID         string             `json:"propertyId" bson:"propertyId" validate:"required"`
+	AVMPropertyID      string             `json:"avmPropertyId" bson:"avmPropertyId" validate:"required"`
+	Address            Address            `json:"address" bson:"address" validate:"required,dive"`
 	Location           Location           `json:"location" bson:"location"`
 	Lot                Lot                `json:"lot" bson:"lot"`
 	LandUseAndZoning   LandUseAndZoning   `json:"landUseAndZoning" bson:"landUseAndZoning"`
@@ -20,14 +20,14 @@ type Property struct {
 }
 
 type Address struct {
-	StreetAddress      string             `json:"streetAddress" bson:"streetAddress"`
+	StreetAddress       string             `json:"streetAddress" bson:"streetAddress" validate:"required"`
 	StreetAddressParsed StreetAddressParsed `json:"streetAddressParsed" bson:"streetAddressParsed"`
-	City               string             `json:"city" bson:"city"`
-	State              string             `json:"state" bson:"state"`
-	ZipCode            string             `json:"zipCode" bson:"zipCode"`
-	ZipPlus4           string             `json:"zipPlus4" bson:"zipPlus4"`
-	County             string             `json:"county" bson:"county"`
-	CarrierRoute       string             `json:"carrierRoute" bson:"carrierRoute"`
+	City                string             `json:"city" bson:"city" validate:"required"`
+	State               string             `json:"state" bson:"state" validate:"required,len=2"`
+	ZipCode             string             `json:"zipCode" bson:"zipCode" validate:"required,regex=^[0-9]{5}$"`
+	ZipPlus4            string             `json:"zipPlus4" bson:"zipPlus4"`
+	County              string             `json:"county" bson:"county"`
+	CarrierRoute        string             `json:"carrierRoute" bson:"carrierRoute"`
 }
 
 type StreetAddressParsed struct {
@@ -49,8 +49,8 @@ type Coordinates struct {
 }
 
 type CoordinatesPoint struct {
-	Lat float64 `json:"lat" bson:"lat"`
-	Lng float64 `json:"lng" bson:"lng"`
+	Lat float64 `json:"lat" bson:"lat" validate:"gte=-90,lte=90"`
+	Lng float64 `json:"lng" bson:"lng" validate:"gte=-180,lte=180"`
 }
 
 type Legal struct {
@@ -69,9 +69,9 @@ type CensusTract struct {
 }
 
 type Lot struct {
-	AreaAcres          float64 `json:"areaAcres" bson:"areaAcres"`
-	AreaSquareFeet     int     `json:"areaSquareFeet" bson:"areaSquareFeet"`
-	AreaSquareFeetUsable int   `json:"areaSquareFeetUsable" bson:"areaSquareFeetUsable"`
+	AreaAcres          float64 `json:"areaAcres" bson:"areaAcres" validate:"gte=0"`
+	AreaSquareFeet     int     `json:"areaSquareFeet" bson:"areaSquareFeet" validate:"gte=0"`
+	AreaSquareFeetUsable int   `json:"areaSquareFeetUsable" bson:"areaSquareFeetUsable" validate:"gte=0"`
 	TopographyType     string  `json:"topographyType" bson:"topographyType"`
 }
 
@@ -91,19 +91,19 @@ type Utilities struct {
 }
 
 type Building struct {
-	Summary  BuildingSummary  `json:"summary" bson:"summary"`
-	Details  BuildingDetails  `json:"details" bson:"details"`
+	Summary BuildingSummary `json:"summary" bson:"summary"`
+	Details BuildingDetails `json:"details" bson:"details"`
 }
 
 type BuildingSummary struct {
-	BuildingsCount      int `json:"buildingsCount" bson:"buildingsCount"`
-	BathroomsCount      int `json:"bathroomsCount" bson:"bathroomsCount"`
-	FullBathroomsCount  int `json:"fullBathroomsCount" bson:"fullBathroomsCount"`
-	HalfBathroomsCount  int `json:"halfBathroomsCount" bson:"halfBathroomsCount"`
-	BathroomFixturesCount int `json:"bathroomFixturesCount" bson:"bathroomFixturesCount"`
-	FireplacesCount     int `json:"fireplacesCount" bson:"fireplacesCount"`
-	LivingAreaSquareFeet int `json:"livingAreaSquareFeet" bson:"livingAreaSquareFeet"`
-	TotalAreaSquareFeet int  `json:"totalAreaSquareFeet" bson:"totalAreaSquareFeet"`
+	BuildingsCount      int `json:"buildingsCount" bson:"buildingsCount" validate:"gte=0"`
+	BathroomsCount      int `json:"bathroomsCount" bson:"bathroomsCount" validate:"gte=0"`
+	FullBathroomsCount  int `json:"fullBathroomsCount" bson:"fullBathroomsCount" validate:"gte=0"`
+	HalfBathroomsCount  int `json:"halfBathroomsCount" bson:"halfBathroomsCount" validate:"gte=0"`
+	BathroomFixturesCount int `json:"bathroomFixturesCount" bson:"bathroomFixturesCount" validate:"gte=0"`
+	FireplacesCount     int `json:"fireplacesCount" bson:"fireplacesCount" validate:"gte=0"`
+	LivingAreaSquareFeet int `json:"livingAreaSquareFeet" bson:"livingAreaSquareFeet" validate:"gte=0"`
+	TotalAreaSquareFeet int `json:"totalAreaSquareFeet" bson:"totalAreaSquareFeet" validate:"gte=0"`
 }
 
 type BuildingDetails struct {
@@ -116,7 +116,7 @@ type BuildingDetails struct {
 }
 
 type StructureID struct {
-	SequenceNumber         int    `json:"sequenceNumber" bson:"sequenceNumber"`
+	SequenceNumber         int    `json:"sequenceNumber" bson:"sequenceNumber" validate:"gte=0"`
 	CompositeBuildingLinkageKey string `json:"compositeBuildingLinkageKey" bson:"compositeBuildingLinkageKey"`
 	BuildingNumber         string `json:"buildingNumber" bson:"buildingNumber"`
 }
@@ -127,12 +127,12 @@ type Classification struct {
 }
 
 type VerticalProfile struct {
-	StoriesCount int `json:"storiesCount" bson:"storiesCount"`
+	StoriesCount int `json:"storiesCount" bson:"storiesCount" validate:"gte=0"`
 }
 
 type Construction struct {
-	YearBuilt                int    `json:"yearBuilt" bson:"yearBuilt"`
-	EffectiveYearBuilt       int    `json:"effectiveYearBuilt" bson:"effectiveYearBuilt"`
+	YearBuilt                int    `json:"yearBuilt" bson:"yearBuilt" validate:"gte=0"`
+	EffectiveYearBuilt       int    `json:"effectiveYearBuilt" bson:"effectiveYearBuilt" validate:"gte=0"`
 	BuildingQualityTypeCode  string `json:"buildingQualityTypeCode" bson:"buildingQualityTypeCode"`
 	FrameTypeCode            string `json:"frameTypeCode" bson:"frameTypeCode"`
 	FoundationTypeCode       string `json:"foundationTypeCode" bson:"foundationTypeCode"`
@@ -140,28 +140,28 @@ type Construction struct {
 }
 
 type Exterior struct {
-	Patios Patios `json:"patios" bson:"patios"`
+	Patios  Patios  `json:"patios" bson:"patios"`
 	Porches Porches `json:"porches" bson:"porches"`
-	Pool   Pool   `json:"pool" bson:"pool"`
-	Walls  Walls  `json:"walls" bson:"walls"`
-	Roof   Roof   `json:"roof" bson:"roof"`
+	Pool    Pool    `json:"pool" bson:"pool"`
+	Walls   Walls   `json:"walls" bson:"walls"`
+	Roof    Roof    `json:"roof" bson:"roof"`
 }
 
 type Patios struct {
-	Count         int    `json:"count" bson:"count"`
+	Count         int    `json:"count" bson:"count" validate:"gte=0"`
 	TypeCode      string `json:"typeCode" bson:"typeCode"`
-	AreaSquareFeet int    `json:"areaSquareFeet" bson:"areaSquareFeet"`
+	AreaSquareFeet int    `json:"areaSquareFeet" bson:"areaSquareFeet" validate:"gte=0"`
 }
 
 type Porches struct {
-	Count         int    `json:"count" bson:"count"`
+	Count         int    `json:"count" bson:"count" validate:"gte=0"`
 	TypeCode      string `json:"typeCode" bson:"typeCode"`
-	AreaSquareFeet int    `json:"areaSquareFeet" bson:"areaSquareFeet"`
+	AreaSquareFeet int    `json:"areaSquareFeet" bson:"areaSquareFeet" validate:"gte=0"`
 }
 
 type Pool struct {
 	TypeCode      string `json:"typeCode" bson:"typeCode"`
-	AreaSquareFeet int    `json:"areaSquareFeet" bson:"areaSquareFeet"`
+	AreaSquareFeet int    `json:"areaSquareFeet" bson:"areaSquareFeet" validate:"gte=0"`
 }
 
 type Walls struct {
@@ -182,14 +182,14 @@ type Interior struct {
 }
 
 type InteriorArea struct {
-	UniversalBuildingAreaSquareFeet int `json:"universalBuildingAreaSquareFeet" bson:"universalBuildingAreaSquareFeet"`
-	LivingAreaSquareFeet           int `json:"livingAreaSquareFeet" bson:"livingAreaSquareFeet"`
-	AboveGradeAreaSquareFeet       int `json:"aboveGradeAreaSquareFeet" bson:"aboveGradeAreaSquareFeet"`
-	GroundFloorAreaSquareFeet      int `json:"groundFloorAreaSquareFeet" bson:"groundFloorAreaSquareFeet"`
-	BasementAreaSquareFeet         int `json:"basementAreaSquareFeet" bson:"basementAreaSquareFeet"`
-	UnfinishedBasementAreaSquareFeet int `json:"unfinishedBasementAreaSquareFeet" bson:"unfinishedBasementAreaSquareFeet"`
-	AboveGroundFloorAreaSquareFeet  int `json:"aboveGroundFloorAreaSquareFeet" bson:"aboveGroundFloorAreaSquareFeet"`
-	BuildingAdditionsAreaSquareFeet int `json:"buildingAdditionsAreaSquareFeet" bson:"buildingAdditionsAreaSquareFeet"`
+	UniversalBuildingAreaSquareFeet int `json:"universalBuildingAreaSquareFeet" bson:"universalBuildingAreaSquareFeet" validate:"gte=0"`
+	LivingAreaSquareFeet           int `json:"livingAreaSquareFeet" bson:"livingAreaSquareFeet" validate:"gte=0"`
+	AboveGradeAreaSquareFeet       int `json:"aboveGradeAreaSquareFeet" bson:"aboveGradeAreaSquareFeet" validate:"gte=0"`
+	GroundFloorAreaSquareFeet      int `json:"groundFloorAreaSquareFeet" bson:"groundFloorAreaSquareFeet" validate:"gte=0"`
+	BasementAreaSquareFeet         int `json:"basementAreaSquareFeet" bson:"basementAreaSquareFeet" validate:"gte=0"`
+	UnfinishedBasementAreaSquareFeet int `json:"unfinishedBasementAreaSquareFeet" bson:"unfinishedBasementAreaSquareFeet" validate:"gte=0"`
+	AboveGroundFloorAreaSquareFeet  int `json:"aboveGroundFloorAreaSquareFeet" bson:"aboveGroundFloorAreaSquareFeet" validate:"gte=0"`
+	BuildingAdditionsAreaSquareFeet int `json:"buildingAdditionsAreaSquareFeet" bson:"buildingAdditionsAreaSquareFeet" validate:"gte=0"`
 }
 
 type Basement struct {
@@ -216,7 +216,7 @@ type Heating struct {
 
 type Fireplaces struct {
 	TypeCode string `json:"typeCode" bson:"typeCode"`
-	Count    int    `json:"count" bson:"count"`
+	Count    int    `json:"count" bson:"count" validate:"gte=0"`
 }
 
 type Ownership struct {
@@ -227,7 +227,7 @@ type Ownership struct {
 }
 
 type Owner struct {
-	SequenceNumber int    `json:"sequenceNumber" bson:"sequenceNumber"`
+	SequenceNumber int    `json:"sequenceNumber" bson:"sequenceNumber" validate:"gte=0"`
 	FullName       string `json:"fullName" bson:"fullName"`
 	FirstName      string `json:"firstName" bson:"firstName"`
 	MiddleName     string `json:"middleName" bson:"middleName"`
@@ -238,25 +238,25 @@ type Owner struct {
 type MailingAddress struct {
 	StreetAddress string `json:"streetAddress" bson:"streetAddress"`
 	City         string `json:"city" bson:"city"`
-	State        string `json:"state" bson:"state"`
-	ZipCode      string `json:"zipCode" bson:"zipCode"`
+	State        string `json:"state" bson:"state" validate:"len=2"`
+	ZipCode      string `json:"zipCode" bson:"zipCode" validate:"regex=^[0-9]{5}$"`
 	CarrierRoute string `json:"carrierRoute" bson:"carrierRoute"`
 }
 
 type TaxAssessment struct {
-	Year         int         `json:"year" bson:"year"`
-	TotalTaxAmount int       `json:"totalTaxAmount" bson:"totalTaxAmount"`
-	CountyTaxAmount int      `json:"countyTaxAmount" bson:"countyTaxAmount"`
+	Year         int         `json:"year" bson:"year" validate:"gte=0"`
+	TotalTaxAmount int       `json:"totalTaxAmount" bson:"totalTaxAmount" validate:"gte=0"`
+	CountyTaxAmount int      `json:"countyTaxAmount" bson:"countyTaxAmount" validate:"gte=0"`
 	AssessedValue AssessedValue `json:"assessedValue" bson:"assessedValue"`
 	TaxRoll       TaxRoll      `json:"taxRoll" bson:"taxRoll"`
 	SchoolDistrict SchoolDistrict `json:"schoolDistrict" bson:"schoolDistrict"`
 }
 
 type AssessedValue struct {
-	TotalValue            int `json:"totalValue" bson:"totalValue"`
-	LandValue             int `json:"landValue" bson:"landValue"`
-	ImprovementValue      int `json:"improvementValue" bson:"improvementValue"`
-	ImprovementValuePercentage int `json:"improvementValuePercentage" bson:"improvementValuePercentage"`
+	TotalValue            int `json:"totalValue" bson:"totalValue" validate:"gte=0"`
+	LandValue             int `json:"landValue" bson:"landValue" validate:"gte=0"`
+	ImprovementValue      int `json:"improvementValue" bson:"improvementValue" validate:"gte=0"`
+	ImprovementValuePercentage int `json:"improvementValuePercentage" bson:"improvementValuePercentage" validate:"gte=0,lte=100"`
 }
 
 type TaxRoll struct {
@@ -272,7 +272,7 @@ type SchoolDistrict struct {
 type LastMarketSale struct {
 	Date               string         `json:"date" bson:"date"`
 	RecordingDate      string         `json:"recordingDate" bson:"recordingDate"`
-	Amount             int            `json:"amount" bson:"amount"`
+	Amount             int            `json:"amount" bson:"amount" validate:"gte=0"`
 	DocumentTypeCode   string         `json:"documentTypeCode" bson:"documentTypeCode"`
 	DocumentNumber     string         `json:"documentNumber" bson:"documentNumber"`
 	BookNumber         string         `json:"bookNumber" bson:"bookNumber"`
@@ -300,14 +300,13 @@ type TitleCompany struct {
 	Code string `json:"code" bson:"code"`
 }
 
+
 type SearchRequest struct {
-	Search        string `json:"search" bson:"search"`
-	StreetAddress string `json:"streetAddress" bson:"streetAddress"`
-	City          string `json:"city" bson:"city"`
-	State         string `json:"state" bson:"state"`
-	ZipCode       string `json:"zipCode" bson:"zipCode"`
-	Offset        int    `json:"offset" bson:"offset"`
-	Limit         int    `json:"limit" bson:"limit"`
+    Search        string `json:"search" bson:"search" validate:"required"`
+    StreetAddress string `json:"streetAddress" bson:"streetAddress"`
+    City          string `json:"city" bson:"city"`
+    State         string `json:"state" bson:"state"`
+    ZipCode       string `json:"zipCode" bson:"zipCode"`
 }
 
 type PropertyResponse struct {

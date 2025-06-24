@@ -14,6 +14,7 @@ import (
 	"homeinsight-properties/internal/models"
 	"homeinsight-properties/pkg/cache"
 	"homeinsight-properties/pkg/database"
+	"homeinsight-properties/pkg/logger"
 	"homeinsight-properties/pkg/metrics"
 
 	"github.com/gin-gonic/gin"
@@ -24,7 +25,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// TTL Period (30 days).
 const Month = 30 * 24 * time.Hour
 
 type PropertyService struct{}
@@ -42,19 +42,22 @@ func (s *PropertyService) setDataSource(ginCtx *gin.Context, source string, cach
 
 func (s *PropertyService) buildPaginationURL(baseURL string, offset, limit int, params url.Values) string {
 	u, _ := url.Parse(baseURL)
-	q := u.Query()
+	q := url.Values{}
 
+	// Set offset and limit as query parameters
 	q.Set("offset", fmt.Sprintf("%d", offset))
 	q.Set("limit", fmt.Sprintf("%d", limit))
 
+	// Copy other query parameters and ensure they are URL-encoded
 	for key, values := range params {
 		if key != "offset" && key != "limit" {
 			for _, value := range values {
-				q.Add(key, value)
+				q.Add(key, value) // Values are automatically encoded by url.Values
 			}
 		}
 	}
 
+	// Encode the query string
 	u.RawQuery = q.Encode()
 	return u.String()
 }
@@ -92,16 +95,16 @@ func (s *PropertyService) readMockData(_ string) (map[string]interface{}, error)
 }
 
 func (s *PropertyService) normalizeAddressComponent(input string) string {
-	return cache.NormalizeAddressComponent(input)
+	return strings.ToUpper(strings.TrimSpace(input))
 }
 
 func (s *PropertyService) parseAddress(search string) (streetAddress, city, state, zipCode string) {
-	search = strings.TrimSpace(search)
+	search = s.normalizeAddressComponent(search)
 	if search == "" {
 		return "", "", "", ""
 	}
 
-	// Regex for full address: street, city, state zip
+	// Primary regex for full address: street, city, state, zip
 	re := regexp.MustCompile(`^(.*?),\s*([^,]+),\s*([A-Z]{2})\s*(\d{5})$`)
 	matches := re.FindStringSubmatch(search)
 	if len(matches) == 5 {
@@ -109,24 +112,29 @@ func (s *PropertyService) parseAddress(search string) (streetAddress, city, stat
 			s.normalizeAddressComponent(matches[3]), s.normalizeAddressComponent(matches[4])
 	}
 
-	// Try street, city
+	// Fallback for street, city
 	parts := strings.Split(search, ",")
 	for i, part := range parts {
 		parts[i] = strings.TrimSpace(part)
 	}
-	if len(parts) == 2 {
-		return s.normalizeAddressComponent(parts[0]), s.normalizeAddressComponent(parts[1]), "", ""
-	}
-
-	// Try street, city, state
-	if len(parts) == 3 {
-		stateZip := strings.Split(parts[2], " ")
-		if len(stateZip) >= 2 {
-			return s.normalizeAddressComponent(parts[0]), s.normalizeAddressComponent(parts[1]),
-				s.normalizeAddressComponent(stateZip[0]), s.normalizeAddressComponent(stateZip[1])
+	if len(parts) >= 2 {
+		street := s.normalizeAddressComponent(parts[0])
+		city := s.normalizeAddressComponent(parts[1])
+		var state, zip string
+		if len(parts) > 2 {
+			stateZip := strings.Fields(parts[2])
+			if len(stateZip) >= 2 {
+				state = s.normalizeAddressComponent(stateZip[0])
+				zip = s.normalizeAddressComponent(stateZip[1])
+			} else if len(stateZip) == 1 {
+				if regexp.MustCompile(`^[A-Z]{2}$`).MatchString(stateZip[0]) {
+					state = s.normalizeAddressComponent(stateZip[0])
+				} else if regexp.MustCompile(`^\d{5}$`).MatchString(stateZip[0]) {
+					zip = s.normalizeAddressComponent(stateZip[0])
+				}
+			}
 		}
-		return s.normalizeAddressComponent(parts[0]), s.normalizeAddressComponent(parts[1]),
-			s.normalizeAddressComponent(parts[2]), ""
+		return street, city, state, zip
 	}
 
 	return s.normalizeAddressComponent(search), "", "", ""
@@ -135,19 +143,15 @@ func (s *PropertyService) parseAddress(search string) (streetAddress, city, stat
 func (s *PropertyService) SearchSpecificProperty(ginCtx *gin.Context, req *models.SearchRequest) (*models.Property, error) {
 	ctx := context.Background()
 
-	// Normalize search query
+	// Rely on handler for query validation; use req.Search directly
 	req.Search = s.normalizeAddressComponent(req.Search)
-
-	// Parse address components
 	street, city, state, zip := s.parseAddress(req.Search)
 	if street == "" || city == "" {
 		return nil, fmt.Errorf("street address and city are required")
 	}
 
-	// Generate cache key based on street and city only
 	cacheKey := cache.PropertySpecificSearchKey(street, city)
 
-	// Try cache first
 	var propertyID string
 	var property models.Property
 	start := time.Now()
@@ -161,16 +165,13 @@ func (s *PropertyService) SearchSpecificProperty(ginCtx *gin.Context, req *model
 		metrics.RedisOperationDuration.WithLabelValues("get_property_cache").Observe(duration)
 		if err == nil {
 			s.setDataSource(ginCtx, "REDIS_CACHE", true)
-			fmt.Printf("Cache hit for search key %s, property ID %s\n", cacheKey, propertyID)
 			return &property, nil
 		}
 	}
 	if err != redis.Nil {
 		metrics.RedisErrorsTotal.WithLabelValues("get_search_cache", "").Inc()
-		fmt.Printf("Cache error for search key %s: %v\n", cacheKey, err)
 	}
 
-	// Query MongoDB
 	collection := database.DB.Collection("properties")
 	filter := bson.M{
 		"address.streetAddress": street,
@@ -188,7 +189,6 @@ func (s *PropertyService) SearchSpecificProperty(ginCtx *gin.Context, req *model
 	duration = time.Since(start).Seconds()
 	metrics.MongoOperationDuration.WithLabelValues("find_one", "properties").Observe(duration)
 	if err == nil {
-		// Cache property
 		propertyKey := cache.PropertyKey(property.PropertyID)
 		start = time.Now()
 		err = cache.Set(ctx, propertyKey, property, Month)
@@ -196,37 +196,29 @@ func (s *PropertyService) SearchSpecificProperty(ginCtx *gin.Context, req *model
 		metrics.RedisOperationDuration.WithLabelValues("set_property").Observe(duration)
 		if err != nil {
 			metrics.RedisErrorsTotal.WithLabelValues("set_property", "").Inc()
-			fmt.Printf("Failed to cache property %s: %v\n", property.PropertyID, err)
 		}
-		// Cache search key with property ID
 		start = time.Now()
 		err = cache.Set(ctx, cacheKey, property.PropertyID, Month)
 		duration = time.Since(start).Seconds()
 		metrics.RedisOperationDuration.WithLabelValues("set_search_key").Observe(duration)
 		if err != nil {
 			metrics.RedisErrorsTotal.WithLabelValues("set_search_key", "").Inc()
-			fmt.Printf("Failed to cache search key %s: %v\n", cacheKey, err)
 		}
-		// Add search key to property:keys set
 		start = time.Now()
 		err = cache.AddCacheKeyToPropertySet(ctx, property.PropertyID, cacheKey)
 		duration = time.Since(start).Seconds()
 		metrics.RedisOperationDuration.WithLabelValues("add_cache_key").Observe(duration)
 		if err != nil {
 			metrics.RedisErrorsTotal.WithLabelValues("add_cache_key", "").Inc()
-			fmt.Printf("Failed to add cache key %s to property set %s: %v\n", cacheKey, property.PropertyID, err)
 		}
-		// Set expiration for property:keys set
 		start = time.Now()
 		_, err = cache.RedisClient.Expire(ctx, cache.PropertyKeysSetKey(property.PropertyID), Month).Result()
 		duration = time.Since(start).Seconds()
 		metrics.RedisOperationDuration.WithLabelValues("expire").Observe(duration)
 		if err != nil {
 			metrics.RedisErrorsTotal.WithLabelValues("expire", "").Inc()
-			fmt.Printf("Failed to set expiry for %s: %v\n", cache.PropertyKeysSetKey(property.PropertyID), err)
 		}
 		s.setDataSource(ginCtx, "MONGODB", false)
-		fmt.Printf("Cached property %s with search key %s\n", property.PropertyID, cacheKey)
 		return &property, nil
 	}
 
@@ -235,7 +227,7 @@ func (s *PropertyService) SearchSpecificProperty(ginCtx *gin.Context, req *model
 		return nil, fmt.Errorf("failed to query property: %v", err)
 	}
 
-	// Try mock data
+	logger.Logger.Printf("Property not found in MongoDB, attempting to load mock data")
 	mockData, err := s.readMockData("default")
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch mock data: %v", err)
@@ -251,8 +243,18 @@ func (s *PropertyService) SearchSpecificProperty(ginCtx *gin.Context, req *model
 	}
 	property = *propertyPtr
 
+	// Override address fields to match search query
+	property.Address.StreetAddress = street
+	property.Address.City = city
+	if state != "" {
+		property.Address.State = state
+	}
+	if zip != "" {
+		property.Address.ZipCode = zip
+	}
 	property.ID = primitive.NewObjectID()
 
+	logger.Logger.Printf("Inserting mock property into MongoDB: %s", property.PropertyID)
 	start = time.Now()
 	_, err = collection.InsertOne(ctx, property)
 	duration = time.Since(start).Seconds()
@@ -262,7 +264,6 @@ func (s *PropertyService) SearchSpecificProperty(ginCtx *gin.Context, req *model
 		return nil, fmt.Errorf("failed to insert mock property: %v", err)
 	}
 
-	// Cache property
 	propertyKey := cache.PropertyKey(property.PropertyID)
 	start = time.Now()
 	err = cache.Set(ctx, propertyKey, property, Month)
@@ -270,38 +271,30 @@ func (s *PropertyService) SearchSpecificProperty(ginCtx *gin.Context, req *model
 	metrics.RedisOperationDuration.WithLabelValues("set_property").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("set_property", "").Inc()
-		fmt.Printf("Failed to cache property %s: %v\n", property.PropertyID, err)
 	}
-	// Cache search key
 	start = time.Now()
 	err = cache.Set(ctx, cacheKey, property.PropertyID, Month)
 	duration = time.Since(start).Seconds()
 	metrics.RedisOperationDuration.WithLabelValues("set_search_key").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("set_search_key", "").Inc()
-		fmt.Printf("Failed to cache search key %s: %v\n", cacheKey, err)
 	}
-	// Add search key to property:keys set
 	start = time.Now()
 	err = cache.AddCacheKeyToPropertySet(ctx, property.PropertyID, cacheKey)
 	duration = time.Since(start).Seconds()
 	metrics.RedisOperationDuration.WithLabelValues("add_cache_key").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("add_cache_key", "").Inc()
-		fmt.Printf("Failed to add cache key %s to property set %s: %v\n", cacheKey, property.PropertyID, err)
 	}
-	// Set expiration for property:keys set
 	start = time.Now()
 	_, err = cache.RedisClient.Expire(ctx, cache.PropertyKeysSetKey(property.PropertyID), Month).Result()
 	duration = time.Since(start).Seconds()
 	metrics.RedisOperationDuration.WithLabelValues("expire").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("expire", "").Inc()
-		fmt.Printf("Failed to set expiry for %s: %v\n", cache.PropertyKeysSetKey(property.PropertyID), err)
 	}
 
 	s.setDataSource(ginCtx, "MOCK_DATA", false)
-	fmt.Printf("Inserted and cached mock property %s with search key %s\n", property.PropertyID, cacheKey)
 	return &property, nil
 }
 
@@ -315,7 +308,6 @@ func (s *PropertyService) GetPropertiesWithPagination(ginCtx *gin.Context, offse
 		offset = 0
 	}
 
-	// Try cache
 	cacheKey := cache.PropertyListPaginatedKey(offset, limit)
 	var response models.PaginatedPropertiesResponse
 	start := time.Now()
@@ -324,15 +316,12 @@ func (s *PropertyService) GetPropertiesWithPagination(ginCtx *gin.Context, offse
 	metrics.RedisOperationDuration.WithLabelValues("get_paginated_list").Observe(duration)
 	if err == nil {
 		s.setDataSource(ginCtx, "REDIS_CACHE", true)
-		fmt.Printf("Cache hit for list key %s\n", cacheKey)
 		return &response, nil
 	}
 	if err != redis.Nil {
 		metrics.RedisErrorsTotal.WithLabelValues("get_paginated_list", "").Inc()
-		fmt.Printf("Cache error for list key %s: %v\n", cacheKey, err)
 	}
 
-	// Query MongoDB
 	collection := database.DB.Collection("properties")
 	start = time.Now()
 	total, err := collection.CountDocuments(ctx, bson.M{})
@@ -340,7 +329,7 @@ func (s *PropertyService) GetPropertiesWithPagination(ginCtx *gin.Context, offse
 	metrics.MongoOperationDuration.WithLabelValues("count_documents", "properties").Observe(duration)
 	if err != nil {
 		metrics.MongoErrorsTotal.WithLabelValues("count_documents", "properties").Inc()
-		return nil, fmt.Errorf("failed to get total count: %v", err)
+		return nil, fmt.Errorf("failed to get total count")
 	}
 
 	findOptions := options.Find().
@@ -354,7 +343,7 @@ func (s *PropertyService) GetPropertiesWithPagination(ginCtx *gin.Context, offse
 	metrics.MongoOperationDuration.WithLabelValues("find", "properties").Observe(duration)
 	if err != nil {
 		metrics.MongoErrorsTotal.WithLabelValues("find", "properties").Inc()
-		return nil, fmt.Errorf("failed to query properties: %v", err)
+		return nil, fmt.Errorf("failed to query properties")
 	}
 	defer cursor.Close(ctx)
 
@@ -365,10 +354,9 @@ func (s *PropertyService) GetPropertiesWithPagination(ginCtx *gin.Context, offse
 	metrics.MongoOperationDuration.WithLabelValues("cursor_all", "properties").Observe(duration)
 	if err != nil {
 		metrics.MongoErrorsTotal.WithLabelValues("cursor_all", "properties").Inc()
-		return nil, fmt.Errorf("failed to decode properties: %v", err)
+		return nil, fmt.Errorf("failed to decode properties")
 	}
 
-	// Cache properties
 	for _, property := range properties {
 		propertyKey := cache.PropertyKey(property.PropertyID)
 		start = time.Now()
@@ -377,7 +365,6 @@ func (s *PropertyService) GetPropertiesWithPagination(ginCtx *gin.Context, offse
 		metrics.RedisOperationDuration.WithLabelValues("set_property").Observe(duration)
 		if err != nil {
 			metrics.RedisErrorsTotal.WithLabelValues("set_property", "").Inc()
-			fmt.Printf("Failed to cache property %s: %v\n", property.PropertyID, err)
 		}
 	}
 
@@ -407,18 +394,15 @@ func (s *PropertyService) GetPropertiesWithPagination(ginCtx *gin.Context, offse
 		response.Data[i] = models.PropertyResponse{Property: &prop}
 	}
 
-	// Cache response
 	start = time.Now()
 	err = cache.Set(ctx, cacheKey, response, Month)
 	duration = time.Since(start).Seconds()
 	metrics.RedisOperationDuration.WithLabelValues("set_paginated_list").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("set_paginated_list", "").Inc()
-		fmt.Printf("Failed to cache list key %s: %v\n", cacheKey, err)
 	}
 
 	s.setDataSource(ginCtx, "MONGODB", false)
-	fmt.Printf("Retrieved %d properties for list key %s\n", len(properties), cacheKey)
 	return &response, nil
 }
 
@@ -445,7 +429,7 @@ func (s *PropertyService) invalidatePropertiesCache(ctx context.Context, propert
 	metrics.RedisOperationDuration.WithLabelValues("invalidate_cache").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("invalidate_cache", "").Inc()
-		return fmt.Errorf("failed to invalidate cache keys for property %s: %v", propertyID, err)
+		return fmt.Errorf("failed to invalidate cache keys for property %s", propertyID)
 	}
 	listKey := cache.PropertyListKey()
 	start = time.Now()
@@ -454,7 +438,6 @@ func (s *PropertyService) invalidatePropertiesCache(ctx context.Context, propert
 	metrics.RedisOperationDuration.WithLabelValues("delete_list_cache").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("delete_list_cache", "").Inc()
-		fmt.Printf("Failed to invalidate properties list cache: %v\n", err)
 	}
 	return nil
 }
@@ -470,12 +453,10 @@ func (s *PropertyService) GetPropertyByID(ginCtx *gin.Context, id string) (*mode
 	metrics.RedisOperationDuration.WithLabelValues("get_property").Observe(duration)
 	if err == nil {
 		s.setDataSource(ginCtx, "REDIS_CACHE", true)
-		fmt.Printf("Cache hit for property %s\n", id)
 		return &property, nil
 	}
 	if err != redis.Nil {
 		metrics.RedisErrorsTotal.WithLabelValues("get_property", "").Inc()
-		fmt.Printf("Cache error for property %s: %v\n", id, err)
 	}
 
 	collection := database.DB.Collection("properties")
@@ -490,16 +471,14 @@ func (s *PropertyService) GetPropertyByID(ginCtx *gin.Context, id string) (*mode
 		metrics.RedisOperationDuration.WithLabelValues("set_property").Observe(duration)
 		if err != nil {
 			metrics.RedisErrorsTotal.WithLabelValues("set_property", "").Inc()
-			fmt.Printf("Failed to cache property %s: %v\n", id, err)
 		}
 		s.setDataSource(ginCtx, "MONGODB", false)
-		fmt.Printf("Retrieved and cached property %s from MongoDB\n", id)
 		return &property, nil
 	}
 
 	if err != mongo.ErrNoDocuments {
 		metrics.MongoErrorsTotal.WithLabelValues("find_one", "properties").Inc()
-		return nil, fmt.Errorf("failed to query property: %v", err)
+		return nil, fmt.Errorf("failed to query property")
 	}
 
 	start = time.Now()
@@ -508,7 +487,7 @@ func (s *PropertyService) GetPropertyByID(ginCtx *gin.Context, id string) (*mode
 	metrics.MongoOperationDuration.WithLabelValues("read_mock_data", "").Observe(duration)
 	if err != nil {
 		metrics.MongoErrorsTotal.WithLabelValues("read_mock_data", "").Inc()
-		return nil, fmt.Errorf("failed to fetch mock data: %v", err)
+		return nil, fmt.Errorf("failed to fetch mock data")
 	}
 
 	start = time.Now()
@@ -517,7 +496,7 @@ func (s *PropertyService) GetPropertyByID(ginCtx *gin.Context, id string) (*mode
 	metrics.MongoOperationDuration.WithLabelValues("transform_mock_data", "").Observe(duration)
 	if err != nil {
 		metrics.MongoErrorsTotal.WithLabelValues("transform_mock_data", "").Inc()
-		return nil, fmt.Errorf("failed to transform mock data: %v", err)
+		return nil, fmt.Errorf("failed to transform mock data")
 	}
 	property = *tempProperty
 
@@ -529,7 +508,7 @@ func (s *PropertyService) GetPropertyByID(ginCtx *gin.Context, id string) (*mode
 	metrics.MongoOperationDuration.WithLabelValues("insert", "properties").Observe(duration)
 	if err != nil {
 		metrics.MongoErrorsTotal.WithLabelValues("insert", "properties").Inc()
-		return nil, fmt.Errorf("failed to insert property to MongoDB: %v", err)
+		return nil, fmt.Errorf("failed to insert property to MongoDB")
 	}
 
 	start = time.Now()
@@ -538,7 +517,6 @@ func (s *PropertyService) GetPropertyByID(ginCtx *gin.Context, id string) (*mode
 	metrics.RedisOperationDuration.WithLabelValues("set_property").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("set_property", "").Inc()
-		fmt.Printf("Failed to cache property %s: %v\n", id, err)
 	}
 
 	start = time.Now()
@@ -547,11 +525,9 @@ func (s *PropertyService) GetPropertyByID(ginCtx *gin.Context, id string) (*mode
 	metrics.RedisOperationDuration.WithLabelValues("invalidate_cache").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("invalidate_cache", "").Inc()
-		fmt.Printf("Failed to invalidate cache for %s: %v\n", id, err)
 	}
 
 	s.setDataSource(ginCtx, "MOCK_DATA", false)
-	fmt.Printf("Inserted and cached mock property %s\n", id)
 	return &property, nil
 }
 
@@ -581,7 +557,7 @@ func (s *PropertyService) CreateProperty(ginCtx *gin.Context, property *models.P
 	metrics.MongoOperationDuration.WithLabelValues("insert", "properties").Observe(duration)
 	if err != nil {
 		metrics.MongoErrorsTotal.WithLabelValues("insert", "properties").Inc()
-		return fmt.Errorf("failed to insert property: %v", err)
+		return fmt.Errorf("failed to insert property")
 	}
 
 	propertyKey := cache.PropertyKey(property.PropertyID)
@@ -591,7 +567,6 @@ func (s *PropertyService) CreateProperty(ginCtx *gin.Context, property *models.P
 	metrics.RedisOperationDuration.WithLabelValues("set_property").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("set_property", "").Inc()
-		fmt.Printf("Failed to cache property %s: %v\n", property.PropertyID, err)
 	}
 
 	start = time.Now()
@@ -600,7 +575,6 @@ func (s *PropertyService) CreateProperty(ginCtx *gin.Context, property *models.P
 	metrics.RedisOperationDuration.WithLabelValues("invalidate_cache").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("invalidate_cache", "").Inc()
-		fmt.Printf("Failed to invalidate cache for %s: %v\n", property.PropertyID, err)
 	}
 
 	s.setDataSource(ginCtx, "MONGODB_INSERT", false)
@@ -647,7 +621,7 @@ func (s *PropertyService) UpdateProperty(ginCtx *gin.Context, property *models.P
 	metrics.MongoOperationDuration.WithLabelValues("update_one", "properties").Observe(duration)
 	if err != nil {
 		metrics.MongoErrorsTotal.WithLabelValues("update_one", "properties").Inc()
-		return fmt.Errorf("failed to update property: %v", err)
+		return fmt.Errorf("failed to update property")
 	}
 	if result.MatchedCount == 0 {
 		metrics.MongoErrorsTotal.WithLabelValues("update_one", "properties").Inc()
@@ -661,7 +635,6 @@ func (s *PropertyService) UpdateProperty(ginCtx *gin.Context, property *models.P
 	metrics.RedisOperationDuration.WithLabelValues("set_property").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("set_property", "").Inc()
-		fmt.Printf("Failed to update property cache %s: %v\n", property.PropertyID, err)
 	}
 
 	start = time.Now()
@@ -670,7 +643,6 @@ func (s *PropertyService) UpdateProperty(ginCtx *gin.Context, property *models.P
 	metrics.RedisOperationDuration.WithLabelValues("invalidate_cache").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("invalidate_cache", "").Inc()
-		fmt.Printf("Failed to invalidate cache for %s: %v\n", property.PropertyID, err)
 	}
 
 	s.setDataSource(ginCtx, "MONGODB_UPDATE", false)
@@ -687,7 +659,7 @@ func (s *PropertyService) DeleteProperty(ginCtx *gin.Context, id string) error {
 	metrics.MongoOperationDuration.WithLabelValues("delete_one", "properties").Observe(duration)
 	if err != nil {
 		metrics.MongoErrorsTotal.WithLabelValues("delete_one", "properties").Inc()
-		return fmt.Errorf("failed to delete property: %v", err)
+		return fmt.Errorf("failed to delete property")
 	}
 	if result.DeletedCount == 0 {
 		metrics.MongoErrorsTotal.WithLabelValues("delete_one", "properties").Inc()
@@ -700,10 +672,123 @@ func (s *PropertyService) DeleteProperty(ginCtx *gin.Context, id string) error {
 	metrics.RedisOperationDuration.WithLabelValues("invalidate_cache").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("invalidate_cache", "").Inc()
-		fmt.Printf("Failed to invalidate cache for %s: %v\n", id, err)
 	}
 
 	s.setDataSource(ginCtx, "MONGODB_DELETE", false)
+	return nil
+}
+
+func (s *PropertyService) MigrateAddressesToUppercase(ctx context.Context) error {
+	collection := database.DB.Collection("properties")
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("find", "properties").Inc()
+		return fmt.Errorf("failed to query properties for migration: %v", err)
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var property models.Property
+		if err := cursor.Decode(&property); err != nil {
+			metrics.MongoErrorsTotal.WithLabelValues("cursor_decode", "properties").Inc()
+			continue
+		}
+
+		// Normalize address fields to uppercase
+		property.Address.StreetAddress = s.normalizeAddressComponent(property.Address.StreetAddress)
+		if property.Address.City != "" {
+			property.Address.City = s.normalizeAddressComponent(property.Address.City)
+		}
+		if property.Address.State != "" {
+			property.Address.State = s.normalizeAddressComponent(property.Address.State)
+		}
+		if property.Address.ZipCode != "" {
+			property.Address.ZipCode = s.normalizeAddressComponent(property.Address.ZipCode)
+		}
+		if property.Address.CarrierRoute != "" {
+			property.Address.CarrierRoute = s.normalizeAddressComponent(property.Address.CarrierRoute)
+		}
+		if property.Address.StreetAddressParsed.HouseNumber != "" {
+			property.Address.StreetAddressParsed.HouseNumber = s.normalizeAddressComponent(property.Address.StreetAddressParsed.HouseNumber)
+		}
+		if property.Address.StreetAddressParsed.StreetName != "" {
+			property.Address.StreetAddressParsed.StreetName = s.normalizeAddressComponent(property.Address.StreetAddressParsed.StreetName)
+		}
+		if property.Address.StreetAddressParsed.StreetNameSuffix != "" {
+			property.Address.StreetAddressParsed.StreetNameSuffix = s.normalizeAddressComponent(property.Address.StreetAddressParsed.StreetNameSuffix)
+		}
+		if property.Ownership.MailingAddress.StreetAddress != "" {
+			property.Ownership.MailingAddress.StreetAddress = s.normalizeAddressComponent(property.Ownership.MailingAddress.StreetAddress)
+		}
+		if property.Ownership.MailingAddress.City != "" {
+			property.Ownership.MailingAddress.City = s.normalizeAddressComponent(property.Ownership.MailingAddress.City)
+		}
+		if property.Ownership.MailingAddress.State != "" {
+			property.Ownership.MailingAddress.State = s.normalizeAddressComponent(property.Ownership.MailingAddress.State)
+		}
+		if property.Ownership.MailingAddress.ZipCode != "" {
+			property.Ownership.MailingAddress.ZipCode = s.normalizeAddressComponent(property.Ownership.MailingAddress.ZipCode)
+		}
+		if property.Ownership.MailingAddress.CarrierRoute != "" {
+			property.Ownership.MailingAddress.CarrierRoute = s.normalizeAddressComponent(property.Ownership.MailingAddress.CarrierRoute)
+		}
+
+		// Update the document in MongoDB
+		update := bson.M{
+			"$set": bson.M{
+				"address":   property.Address,
+				"ownership": property.Ownership,
+			},
+		}
+		start := time.Now()
+		result, err := collection.UpdateOne(ctx, bson.M{"_id": property.ID}, update)
+		duration := time.Since(start).Seconds()
+		metrics.MongoOperationDuration.WithLabelValues("update_one", "properties").Observe(duration)
+		if err != nil {
+			metrics.MongoErrorsTotal.WithLabelValues("update_one", "properties").Inc()
+			continue
+		}
+		if result.MatchedCount == 0 {
+			continue
+		}
+
+		// Update cache
+		propertyKey := cache.PropertyKey(property.PropertyID)
+		start = time.Now()
+		err = cache.Set(ctx, propertyKey, property, Month)
+		duration = time.Since(start).Seconds()
+		metrics.RedisOperationDuration.WithLabelValues("set_property").Observe(duration)
+		if err != nil {
+			metrics.RedisErrorsTotal.WithLabelValues("set_property", "").Inc()
+		}
+
+		// Invalidate related cache keys
+		start = time.Now()
+		err = s.invalidatePropertiesCache(ctx, property.PropertyID)
+		duration = time.Since(start).Seconds()
+		metrics.RedisOperationDuration.WithLabelValues("invalidate_cache").Observe(duration)
+		if err != nil {
+			metrics.RedisErrorsTotal.WithLabelValues("invalidate_cache", "").Inc()
+		}
+	}
+
+	if err := cursor.Err(); err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("cursor", "properties").Inc()
+		return fmt.Errorf("cursor error during migration: %v", err)
+	}
+
+	return nil
+}
+
+func (s *PropertyService) ClearAllCache(ctx context.Context) error {
+	start := time.Now()
+	err := cache.RedisClient.FlushAll(ctx).Err()
+	duration := time.Since(start).Seconds()
+	metrics.RedisOperationDuration.WithLabelValues("flush_all").Observe(duration)
+	if err != nil {
+		metrics.RedisErrorsTotal.WithLabelValues("flush_all", "").Inc()
+		return fmt.Errorf("failed to clear Redis cache: %v", err)
+	}
 	return nil
 }
 
@@ -711,7 +796,6 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 	start := time.Now()
 	property := &models.Property{}
 
-	// Extract clip and set PropertyID and AVMPropertyID
 	if buildings, ok := apiResponse["buildings"].(map[string]interface{})["data"].(map[string]interface{}); ok {
 		if clip, ok := buildings["clip"].(string); ok && clip != "" {
 			property.PropertyID = clip
@@ -725,7 +809,6 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 		return nil, fmt.Errorf("buildings.data field is missing in mock data")
 	}
 
-	// Map Address
 	if ownership, ok := apiResponse["ownership"].(map[string]interface{})["data"].(map[string]interface{}); ok {
 		if mailing, ok := ownership["currentOwnerMailingInfo"].(map[string]interface{})["mailingAddress"].(map[string]interface{}); ok {
 			property.Address = models.Address{
@@ -733,19 +816,18 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 				City:          s.normalizeAddressComponent(getString(mailing, "city")),
 				State:         s.normalizeAddressComponent(getString(mailing, "state")),
 				ZipCode:       s.normalizeAddressComponent(getString(mailing, "zipCode")),
-				CarrierRoute:  getString(mailing, "carrierRoute"),
+				CarrierRoute:  s.normalizeAddressComponent(getString(mailing, "carrierRoute")),
 			}
 			if parsed, ok := mailing["streetAddressParsed"].(map[string]interface{}); ok {
 				property.Address.StreetAddressParsed = models.StreetAddressParsed{
-					HouseNumber:      getString(parsed, "houseNumber"),
-					StreetName:       getString(parsed, "streetName"),
-					StreetNameSuffix: getString(parsed, "mailingMode"),
+					HouseNumber:      s.normalizeAddressComponent(getString(parsed, "houseNumber")),
+					StreetName:       s.normalizeAddressComponent(getString(parsed, "streetName")),
+					StreetNameSuffix: s.normalizeAddressComponent(getString(parsed, "mailingMode")),
 				}
 			}
 		}
 	}
 
-	// Map Location
 	if siteLocation, ok := apiResponse["siteLocation"].(map[string]interface{})["data"].(map[string]interface{}); ok {
 		property.Location = models.Location{
 			Coordinates: models.Coordinates{
@@ -773,7 +855,6 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 		}
 	}
 
-	// Map Lot
 	if siteLocation, ok := apiResponse["siteLocation"].(map[string]interface{})["data"].(map[string]interface{}); ok {
 		property.Lot = models.Lot{
 			AreaAcres:            getFloat64(siteLocation, "lot.areaAcres"),
@@ -783,7 +864,6 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 		}
 	}
 
-	// Map LandUseAndZoning
 	if siteLocation, ok := apiResponse["siteLocation"].(map[string]interface{})["data"].(map[string]interface{}); ok {
 		property.LandUseAndZoning = models.LandUseAndZoning{
 			PropertyTypeCode:        getString(siteLocation, "landUseAndZoningCodes.propertyTypeCode"),
@@ -793,7 +873,6 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 		}
 	}
 
-	// Map Utilities
 	if siteLocation, ok := apiResponse["siteLocation"].(map[string]interface{})["data"].(map[string]interface{}); ok {
 		property.Utilities = models.Utilities{
 			FuelTypeCode:             getString(siteLocation, "utilities.fuelTypeCode"),
@@ -804,7 +883,6 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 		}
 	}
 
-	// Map Building
 	if buildings, ok := apiResponse["buildings"].(map[string]interface{})["data"].(map[string]interface{}); ok {
 		property.Building = models.Building{
 			Summary: models.BuildingSummary{
@@ -902,7 +980,6 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 		}
 	}
 
-	// Map Ownership
 	if ownership, ok := apiResponse["ownership"].(map[string]interface{})["data"].(map[string]interface{}); ok {
 		if currentOwners, ok := ownership["currentOwners"].(map[string]interface{}); ok {
 			property.Ownership = models.Ownership{
@@ -925,17 +1002,16 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 			}
 			if mailing, ok := ownership["currentOwnerMailingInfo"].(map[string]interface{})["mailingAddress"].(map[string]interface{}); ok {
 				property.Ownership.MailingAddress = models.MailingAddress{
-					StreetAddress: getString(mailing, "streetAddress"),
-					City:          getString(mailing, "city"),
-					State:         getString(mailing, "state"),
-					ZipCode:       getString(mailing, "zipCode"),
-					CarrierRoute:  getString(mailing, "carrierRoute"),
+					StreetAddress: s.normalizeAddressComponent(getString(mailing, "streetAddress")),
+					City:          s.normalizeAddressComponent(getString(mailing, "city")),
+					State:         s.normalizeAddressComponent(getString(mailing, "state")),
+					ZipCode:       s.normalizeAddressComponent(getString(mailing, "zipCode")),
+					CarrierRoute:  s.normalizeAddressComponent(getString(mailing, "carrierRoute")),
 				}
 			}
 		}
 	}
 
-	// Map TaxAssessment
 	if taxAssessment, ok := apiResponse["taxAssessment"].(map[string]interface{})["items"].([]interface{}); ok && len(taxAssessment) > 0 {
 		if item, ok := taxAssessment[0].(map[string]interface{}); ok {
 			property.TaxAssessment = models.TaxAssessment{
@@ -953,14 +1029,13 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 					CertificationDate:      getString(item, "taxrollUpdate.taxrollCertificationDate"),
 				},
 				SchoolDistrict: models.SchoolDistrict{
-					Code: getString(item, "schoolDistricts.school.code"),
-					Name: getString(item, "schoolDistricts.school.name"),
+					Code: getString(item, "schoolDistricts.code"),
+					Name: getString(item, "schoolDistricts.name"),
 				},
 			}
 		}
 	}
 
-	// Map LastMarketSale
 	if lastMarketSale, ok := apiResponse["lastMarketSale"].(map[string]interface{})["items"].([]interface{}); ok && len(lastMarketSale) > 0 {
 		if item, ok := lastMarketSale[0].(map[string]interface{}); ok {
 			property.LastMarketSale = models.LastMarketSale{
@@ -974,7 +1049,7 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 				MultiOrSplitParcelCode: getString(item, "transactionDetails.multiOrSplitParcelCode"),
 				IsMortgagePurchase:     getBool(item, "transactionDetails.isMortgagePurchase"),
 				IsResale:               getBool(item, "transactionDetails.isResale"),
-				TitleCompany: models.TitleCompany{
+				TitleCompany:           models.TitleCompany{
 					Name: getString(item, "titleCompany.name"),
 					Code: getString(item, "titleCompany.code"),
 				},
@@ -994,7 +1069,7 @@ func (s *PropertyService) TransformAPIResponse(apiResponse map[string]interface{
 				for _, seller := range sellerNames {
 					if sellerMap, ok := seller.(map[string]interface{}); ok {
 						property.LastMarketSale.Sellers = append(property.LastMarketSale.Sellers, models.Seller{
-							FullName: getString(sellerMap, "fullName"),
+							FullName: getString(sellerMap, "seller"),
 						})
 					}
 				}

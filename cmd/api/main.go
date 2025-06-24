@@ -68,18 +68,18 @@ func main() {
 	}
 	cfg, err := config.LoadConfig(configPath)
 	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
+		logger.Logger.Fatalf("Failed to load config: %v", err)
 	}
 
 	// Initialize database
 	if err := database.InitDB(); err != nil {
-		log.Fatalf("Failed to initialize database: %v", err)
+		logger.Logger.Fatalf("Failed to initialize database: %v", err)
 	}
 	defer database.CloseDB()
 
 	// Initialize Redis cache
 	if err := cache.InitRedis(); err != nil {
-		log.Fatalf("Failed to initialize Redis: %v", err)
+		logger.Logger.Fatalf("Failed to initialize Redis: %v", err)
 	}
 	defer cache.CloseRedis()
 
@@ -95,7 +95,14 @@ func main() {
 
 	// Configure CORS middleware
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowAllOrigins = true // Temporary for debugging; restrict in production
+	// Restrict origins in production; list specific domains
+	allowedOrigins := []string{"http://localhost:3000"}
+	if os.Getenv("ENV") == "production" {
+		corsConfig.AllowAllOrigins = false
+		corsConfig.AllowOrigins = allowedOrigins
+	} else {
+		corsConfig.AllowAllOrigins = true // Allow all for development
+	}
 	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "Accept", "X-Requested-With"}
 	corsConfig.AllowCredentials = true
@@ -104,7 +111,7 @@ func main() {
 
 	// Log requests for debugging
 	r.Use(func(c *gin.Context) {
-		log.Printf("Handling request: %s %s, Origin: %s", c.Request.Method, c.Request.URL.Path, c.Request.Header.Get("Origin"))
+		logger.Logger.Printf("Handling request: %s %s, Origin: %s", c.Request.Method, c.Request.URL.Path, c.Request.Header.Get("Origin"))
 		c.Next()
 	})
 	r.Use(cors.New(corsConfig))
@@ -113,6 +120,7 @@ func main() {
 	r.Use(middleware.MetricsMiddleware())
 	r.Use(middleware.LoggingMiddleware())
 	r.Use(middleware.RateLimitMiddleware(rl))
+	r.Use(middleware.SecureHeaders())
 	r.Use(gin.Recovery())
 
 	// Serve Redoc UI
@@ -128,8 +136,10 @@ func main() {
 	// Serve swagger.json
 	r.StaticFile("/swagger.json", "./docs/swagger.json")
 
-	// Expose pprof profiling endpoints
-	r.GET("/debug/pprof/*any", gin.WrapH(http.DefaultServeMux))
+	// Expose pprof profiling endpoints (disable in production)
+	if os.Getenv("ENV") != "production" {
+		r.GET("/debug/pprof/*any", gin.WrapH(http.DefaultServeMux))
+	}
 
 	// Expose Prometheus metrics endpoint
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
@@ -139,10 +149,12 @@ func main() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		if err := database.MongoClient.Ping(ctx, nil); err != nil {
+			logger.Logger.Printf("MongoDB ping failed: %v", err)
 			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "error", "message": "MongoDB unavailable"})
 			return
 		}
 		if _, err := cache.RedisClient.Ping(ctx).Result(); err != nil {
+			logger.Logger.Printf("Redis ping failed: %v", err)
 			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "error", "message": "Redis unavailable"})
 			return
 		}
@@ -171,7 +183,7 @@ func main() {
 			protected.GET("/property-search", propertyHandler.SearchProperty)
 			protected.GET("/:id", propertyHandler.GetPropertyByID)
 			protected.POST("", propertyHandler.CreateProperty)
-			protected.PUT("/:id", propertyHandler.UpdateProperty)
+			protected.PUT("", propertyHandler.UpdateProperty) 
 			protected.DELETE("/:id", propertyHandler.DeleteProperty)
 		}
 	}
@@ -185,11 +197,11 @@ func main() {
 
 	// Start server in a goroutine
 	go func() {
-		log.Printf("Starting server on %s", addr)
-		log.Printf("Redoc documentation available at: http://localhost%s/redoc", addr)
-		log.Printf("Swagger UI available at: http://localhost%s/swagger/index.html", addr)
+		logger.Logger.Printf("Starting server on %s", addr)
+		logger.Logger.Printf("Redoc documentation available at: http://localhost%s/redoc", addr)
+		logger.Logger.Printf("Swagger UI available at: http://localhost%s/swagger/index.html", addr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Failed to start server: %v", err)
+			logger.Logger.Fatalf("Failed to start server: %v", err)
 		}
 	}()
 
@@ -197,12 +209,12 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Println("Shutting down server...")
+	logger.Logger.Println("Shutting down server...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf("Server forced to shutdown: %v", err)
+		logger.Logger.Fatalf("Server forced to shutdown: %v", err)
 	}
-	log.Println("Server exited")
+	logger.Logger.Println("Server exited")
 }
