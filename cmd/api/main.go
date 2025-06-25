@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -12,7 +13,10 @@ import (
 
 	"homeinsight-properties/internal/handlers"
 	"homeinsight-properties/internal/middleware"
+	"homeinsight-properties/internal/repositories"
 	"homeinsight-properties/internal/services"
+	"homeinsight-properties/internal/transformers"
+	"homeinsight-properties/internal/validators"
 	"homeinsight-properties/pkg/cache"
 	"homeinsight-properties/pkg/config"
 	"homeinsight-properties/pkg/database"
@@ -23,13 +27,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"golang.org/x/time/rate"
-	_ "net/http/pprof"
-
-	// Swagger imports
-	swaggerFiles "github.com/swaggo/files"
+	"github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"golang.org/x/time/rate"
 	_ "homeinsight-properties/docs"
+	_ "net/http/pprof"
 )
 
 // @title HomeInsight Properties API
@@ -90,12 +92,31 @@ func main() {
 	// Initialize Prometheus metrics
 	metrics.Init()
 
+	// Initialize repositories
+	propertyRepo := repositories.NewPropertyRepository()
+	propertyCache := repositories.NewPropertyCache()
+
+	// Initialize transformers
+	addrTrans := transformers.NewAddressTransformer()
+	propTrans := transformers.NewPropertyTransformer()
+
+	// Initialize validators
+	validator := validators.NewPropertyValidator()
+
+	// Initialize services
+	propertyService := services.NewPropertyService(propertyRepo, propertyCache, propTrans, addrTrans, validator)
+	searchService := services.NewPropertySearchService(propertyRepo, propertyCache, addrTrans, validator)
+	// migrationService := services.NewPropertyMigrationService(propertyRepo, propertyCache, addrTrans) // Uncomment if needed
+
+	// Initialize handlers
+	propertyHandler := handlers.NewPropertyHandler(propertyService, searchService)
+	userHandler := handlers.NewUserHandler(database.DB)
+
 	// Set up Gin router
 	r := gin.New()
 
 	// Configure CORS middleware
 	corsConfig := cors.DefaultConfig()
-	// Restrict origins in production; list specific domains
 	allowedOrigins := []string{"http://localhost:3000"}
 	if os.Getenv("ENV") == "production" {
 		corsConfig.AllowAllOrigins = false
@@ -161,13 +182,6 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	// Initialize services
-	propertyService := services.NewPropertyService()
-
-	// Initialize handlers
-	propertyHandler := handlers.NewPropertyHandler(propertyService)
-	userHandler := handlers.NewUserHandler(database.DB)
-
 	// Define routes
 	api := r.Group("/api")
 	{
@@ -183,7 +197,7 @@ func main() {
 			protected.GET("/property-search", propertyHandler.SearchProperty)
 			protected.GET("/:id", propertyHandler.GetPropertyByID)
 			protected.POST("", propertyHandler.CreateProperty)
-			protected.PUT("", propertyHandler.UpdateProperty) 
+			protected.PUT("", propertyHandler.UpdateProperty)
 			protected.DELETE("/:id", propertyHandler.DeleteProperty)
 		}
 	}

@@ -19,10 +19,14 @@ func init() {
 
 type PropertyHandler struct {
 	propertyService *services.PropertyService
+	searchService   *services.PropertySearchService
 }
 
-func NewPropertyHandler(propertyService *services.PropertyService) *PropertyHandler {
-	return &PropertyHandler{propertyService: propertyService}
+func NewPropertyHandler(propertyService *services.PropertyService, searchService *services.PropertySearchService) *PropertyHandler {
+	return &PropertyHandler{
+		propertyService: propertyService,
+		searchService:   searchService,
+	}
 }
 
 func (h *PropertyHandler) GetProperties(c *gin.Context) {
@@ -41,7 +45,7 @@ func (h *PropertyHandler) GetProperties(c *gin.Context) {
 		return
 	}
 
-	response, err := h.propertyService.GetPropertiesWithPagination(c, offset, limit)
+	response, err := h.searchService.GetPropertiesWithPagination(c, offset, limit, "/api/properties", c.Request.URL.Query())
 	if err != nil {
 		logger.Logger.Printf("Error fetching properties: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
@@ -57,24 +61,15 @@ func (h *PropertyHandler) SearchProperty(c *gin.Context) {
 		return
 	}
 	if len(query) > 100 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "query parameter 'q' exceeds maximum length of 100 characters"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "query parameter 'q' exceeds maximum length"})
 		return
 	}
 
 	req := &models.SearchRequest{Search: query}
-	if err := validate.Struct(req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	property, err := h.propertyService.SearchSpecificProperty(c, req)
+	property, err := h.searchService.SearchSpecificProperty(c, req)
 	if err != nil {
 		logger.Logger.Printf("Error searching property: %v", err)
-		if err.Error() == "property not found" {
-			c.JSON(http.StatusNotFound, gin.H{"error": "property not found"})
-		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		}
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, property)
@@ -103,11 +98,6 @@ func (h *PropertyHandler) CreateProperty(c *gin.Context) {
 		return
 	}
 
-	if err := validate.Struct(&property); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
 	if err := h.propertyService.CreateProperty(c, &property); err != nil {
 		logger.Logger.Printf("Error creating property: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
@@ -120,11 +110,6 @@ func (h *PropertyHandler) UpdateProperty(c *gin.Context) {
 	var property models.Property
 	if err := c.ShouldBindJSON(&property); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
-		return
-	}
-
-	if err := validate.Struct(&property); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
