@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"fmt"
+	"encoding/json"
 	"time"
 
 	"homeinsight-properties/pkg/logger"
@@ -19,29 +19,36 @@ func LoggingMiddleware() gin.HandlerFunc {
 		// Process request
 		c.Next()
 
-		// Log after request
-		latency := time.Since(start)
-		status := c.Writer.Status()
-
-		// Get data source information if available
-		dataSource := c.GetString("data_source")
-		cacheHit := c.GetBool("cache_hit")
-
-		// Build log message with data source info
-		logMsg := ""
-		if dataSource != "" {
-			if cacheHit {
-				logMsg = fmt.Sprintf("%s %s %d %v [%s] - DATA_SOURCE: %s (CACHE_HIT)",
-					method, path, status, latency, clientIP, dataSource)
-			} else {
-				logMsg = fmt.Sprintf("%s %s %d %v [%s] - DATA_SOURCE: %s (CACHE_MISS)",
-					method, path, status, latency, clientIP, dataSource)
-			}
-		} else {
-			logMsg = fmt.Sprintf("%s %s %d %v [%s]",
-				method, path, status, latency, clientIP)
+		// Core log fields
+		logFields := map[string]interface{}{
+			"ts":   time.Now().UTC().Format(time.RFC3339),
+			"m":    method,
+			"p":    path,
+			"s":    c.Writer.Status(),
+			"l_ms": time.Since(start).Milliseconds(),
+			"ip":   clientIP,
 		}
 
-		logger.Logger.Println(logMsg)
+		// Conditionally add route-specific fields
+		if ds, exists := c.Get("data_source"); exists && ds != "" {
+			logFields["ds"] = ds
+		}
+		if ch, exists := c.Get("cache_hit"); exists {
+			logFields["ch"] = ch
+		}
+		if q, exists := c.Get("query"); exists && q != "" {
+			logFields["q"] = q
+		}
+		if pid, exists := c.Get("property_id"); exists && pid != "" {
+			logFields["pid"] = pid
+		}
+
+		logJSON, err := json.Marshal(logFields)
+		if err != nil {
+			logger.Logger.Printf("Failed to marshal log: %v", err)
+			return
+		}
+
+		logger.Logger.Println(string(logJSON))
 	}
 }

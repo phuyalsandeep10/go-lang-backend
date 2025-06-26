@@ -105,7 +105,7 @@ func main() {
 
 	// Initialize services
 	propertyService := services.NewPropertyService(propertyRepo, propertyCache, propTrans, addrTrans, validator)
-	searchService := services.NewPropertySearchService(propertyRepo, propertyCache, addrTrans, validator)
+searchService := services.NewPropertySearchService(propertyRepo, propertyCache, addrTrans, propTrans, validator)
 	// migrationService := services.NewPropertyMigrationService(propertyRepo, propertyCache, addrTrans) // Uncomment if needed
 
 	// Initialize handlers
@@ -131,10 +131,10 @@ func main() {
 	corsConfig.MaxAge = 12 * time.Hour
 
 	// Log requests for debugging
-	r.Use(func(c *gin.Context) {
-		logger.Logger.Printf("Handling request: %s %s, Origin: %s", c.Request.Method, c.Request.URL.Path, c.Request.Header.Get("Origin"))
-		c.Next()
-	})
+	// r.Use(func(c *gin.Context) {
+	// 	logger.Logger.Printf("Handling request: %s %s, Origin: %s", c.Request.Method, c.Request.URL.Path, c.Request.Header.Get("Origin"))
+	// 	c.Next()
+	// })
 	r.Use(cors.New(corsConfig))
 
 	// Apply other middleware
