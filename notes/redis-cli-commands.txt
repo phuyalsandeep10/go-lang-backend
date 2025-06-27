@@ -80,3 +80,18 @@ DEBUG SEGFAULT                    # Crash Redis (only for testing!)
 SHUTDOWN                          # Stop the server
 SHUTDOWN SAVE                     # Save DB before shutdown
 SHUTDOWN NOSAVE                   # Don’t save DB before shutdown
+
+
+-------------------------------------------------------------------------------------------------------------------------
+
+127.0.0.1:6379> keys *
+1) "property:keys:1029223221"
+2) "property:1029223221"
+3) "properties:search-specific:street:415 W NORTHFIELD BLVD:city:MURFREESBORO"
+
+
+1.! GET property:1029223221
+2.! SMEMBERS property:keys:1029223221
+3.! GET "properties:search-specific:street:415 W NORTHFIELD BLVD:city:MURFREESBORO"
+
+-------------------------------------------------------------------------------------------------------------------------
