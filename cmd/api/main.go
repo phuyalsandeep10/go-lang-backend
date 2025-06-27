@@ -138,21 +138,24 @@ func (a *App) initializeDependencies() {
 	// Initialize repositories
 	propertyRepo := repositories.NewPropertyRepository()
 	propertyCache := repositories.NewPropertyCache()
+	userRepo := repositories.NewUserRepository()
 
 	// Initialize transformers
 	addrTrans := transformers.NewAddressTransformer()
 	propTrans := transformers.NewPropertyTransformer()
 
 	// Initialize validators
-	validator := validators.NewPropertyValidator()
+	propertyValidator := validators.NewPropertyValidator()
+	userValidator := validators.NewUserValidator()
 
 	// Initialize services
-	propertyService := services.NewPropertyService(propertyRepo, propertyCache, propTrans, addrTrans, validator)
-	searchService := services.NewPropertySearchService(propertyRepo, propertyCache, addrTrans, propTrans, validator)
+	propertyService := services.NewPropertyService(propertyRepo, propertyCache, propTrans, addrTrans, propertyValidator)
+	searchService := services.NewPropertySearchService(propertyRepo, propertyCache, addrTrans, propTrans, propertyValidator)
+	userService := services.NewUserService(userRepo, userValidator)
 
 	// Initialize handlers
 	a.PropertyHandler = handlers.NewPropertyHandler(propertyService, searchService)
-	a.UserHandler = handlers.NewUserHandler(database.DB)
+	a.UserHandler = handlers.NewUserHandler(userService)
 }
 
 // initializeRouter sets up the Gin router with middleware and routes

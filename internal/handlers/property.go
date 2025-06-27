@@ -5,17 +5,10 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"homeinsight-properties/internal/models"
 	"homeinsight-properties/internal/services"
 	"homeinsight-properties/pkg/logger"
 )
-
-var validate *validator.Validate
-
-func init() {
-	validate = validator.New()
-}
 
 type PropertyHandler struct {
 	propertyService *services.PropertyService

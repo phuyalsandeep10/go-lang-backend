@@ -3,21 +3,21 @@ package handlers
 import (
 	"net/http"
 	"strings"
-
 	"homeinsight-properties/internal/models"
 	"homeinsight-properties/internal/services"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
+// UserHandler handles user-related HTTP requests
 type UserHandler struct {
 	userService *services.UserService
 }
 
-func NewUserHandler(db *mongo.Database) *UserHandler {
+// NewUserHandler creates a new UserHandler
+func NewUserHandler(userService *services.UserService) *UserHandler {
 	return &UserHandler{
-		userService: services.NewUserService(db),
+		userService: userService,
 	}
 }
 
@@ -49,6 +49,7 @@ type TokenResponse struct {
 // @Param user body RegisterRequest true "User registration data"
 // @Success 201 {object} TokenResponse
 // @Failure 400 {object} map[string]string
+// @Failure 409 {object} map[string]string
 // @Router /register [post]
 func (h *UserHandler) Register(c *gin.Context) {
 	var req RegisterRequest
@@ -57,14 +58,14 @@ func (h *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	user := models.User{
+	user := &models.User{
 		FullName: strings.TrimSpace(req.FullName),
 		Email:    strings.TrimSpace(req.Email),
 		Phone:    strings.TrimSpace(req.Phone),
-		Password: req.Password,
+		Password: req.Password, // Password is not trimmed to preserve exact input
 	}
 
-	token, err := h.userService.Register(&user)
+	token, err := h.userService.Register(user)
 	if err != nil {
 		if err.Error() == "email already registered" {
 			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
@@ -95,10 +96,9 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	creds.Email = strings.TrimSpace(creds.Email)
-	token, err := h.userService.Login(creds.Email, creds.Password)
+	token, err := h.userService.Login(strings.TrimSpace(creds.Email), creds.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
