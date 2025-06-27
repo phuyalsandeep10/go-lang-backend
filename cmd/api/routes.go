@@ -11,44 +11,23 @@ import (
 	"homeinsight-properties/pkg/database"
 	"homeinsight-properties/pkg/logger"
 
-	"github.com/gin-contrib/cors"
+	_ "homeinsight-properties/docs"
+	_ "net/http/pprof"
+
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	_ "homeinsight-properties/docs"
-	_ "net/http/pprof"
 )
 
-// setupCORS configures CORS middleware
-func setupCORS() gin.HandlerFunc {
-	corsConfig := cors.DefaultConfig()
-	allowedOrigins := []string{"http://localhost:3000"}
-
-	if os.Getenv("ENV") == "production" {
-		corsConfig.AllowAllOrigins = false
-		corsConfig.AllowOrigins = allowedOrigins
-	} else {
-		corsConfig.AllowAllOrigins = true
-	}
-
-	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-	corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "Accept", "X-Requested-With"}
-	corsConfig.AllowCredentials = true
-	corsConfig.ExposeHeaders = []string{"Content-Length"}
-	corsConfig.MaxAge = 12 * time.Hour
-
-	return cors.New(corsConfig)
-}
-
-// setupRoutes configures all routes
+// configure all API routes
 func (a *App) setupRoutes() {
 	a.setupStaticRoutes()
 	a.setupHealthCheck()
 	a.setupAPIRoutes()
 }
 
-// setupStaticRoutes configures static routes and documentation
+// static routes and documentation endpoints
 func (a *App) setupStaticRoutes() {
 	// Serve Redoc UI
 	a.Router.Static("/redoc", "./static/redoc")
@@ -72,7 +51,7 @@ func (a *App) setupStaticRoutes() {
 	a.Router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 }
 
-// setupHealthCheck configures health check endpoint
+// health check endpoint
 func (a *App) setupHealthCheck() {
 	a.Router.GET("/health", func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -94,7 +73,7 @@ func (a *App) setupHealthCheck() {
 	})
 }
 
-// setupAPIRoutes configures API routes
+// API routes for user and property operations
 func (a *App) setupAPIRoutes() {
 	api := a.Router.Group("/api")
 	{
