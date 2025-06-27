@@ -1,0 +1,46 @@
+==========================
+     PROPERTY SEARCH URLs
+==========================
+
+1. Address: 123 MAPLE DR, NASHVILLE, TN 37205
+---------------------------------------------
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=123%20MAPLE%20DR%2C%20NASHVILLE%2C%20TN%2037205
+{{base_url}}/api/properties/property-search?q=123 MAPLE DR, NASHVILLE, TN 37205
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=123%20maple%20dr%2C%20nashville%2C%20tn%2037205
+{{base_url}}/api/properties/property-search?q=123 maple dr, nashville, tn 37205
+
+
+2. Address: 1234 ELM ST, NASHVILLE, TN 37203
+---------------------------------------------
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=1234%20ELM%20ST%2C%20NASHVILLE%2C%20TN%2037203
+{{base_url}}/api/properties/property-search?q=1234 ELM ST, NASHVILLE, TN 37203
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=1234%20elm%20st%2C%20nashville%2C%20tn%2037203
+{{base_url}}/api/properties/property-search?q=1234 elm st, nashville, tn 37203
+
+
+3. Address: 3416 NIGHTSHADE DR, MURFREESBORO, TN 37128
+--------------------------------------------------------
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=3416%20NIGHTSHADE%20DR%2C%20MURFREESBORO%2C%20TN%2037128
+{{base_url}}/api/properties/property-search?q=3416 NIGHTSHADE DR, MURFREESBORO, TN 37128
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=3416%20nightshade%20dr%2C%20murfreesboro%2C%20tn%2037128
+{{base_url}}/api/properties/property-search?q=3416 nightshade dr, murfreesboro, tn 37128
+
+
+4. Address: 415 W NORTHFIELD BLVD, MURFREESBORO, TN 37129
+-----------------------------------------------------------
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=415%20W%20NORTHFIELD%20BLVD%2C%20MURFREESBORO%2C%20TN%2037129
+{{base_url}}/api/properties/property-search?q=415 W NORTHFIELD BLVD, MURFREESBORO, TN 37129
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=415%20w%20northfield%20blvd%2C%20murfreesboro%2C%20tn%2037129
+{{base_url}}/api/properties/property-search?q=415 w northfield blvd, murfreesboro, tn 37129
