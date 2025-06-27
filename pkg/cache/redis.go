@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	"homeinsight-properties/pkg/logger" // Import the custom logger
 	"homeinsight-properties/pkg/metrics"
 
 	"github.com/go-redis/redis/v8"
@@ -74,6 +74,7 @@ func InitRedis() error {
 	metrics.RedisOperationDuration.WithLabelValues("ping").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("ping").Inc()
+		logger.GlobalLogger.Errorf("failed to connect to Redis: %v", err)
 		return fmt.Errorf("failed to connect to Redis: %v", err)
 	}
 
@@ -102,16 +103,16 @@ func InitRedis() error {
 		return 1
 	`)
 
-	log.Println("Redis connected successfully")
+	logger.GlobalLogger.Println("Redis connected successfully")
 	return nil
 }
 
 func CloseRedis() {
 	if RedisClient != nil {
 		if err := RedisClient.Close(); err != nil {
-			log.Printf("Error closing Redis: %v", err)
+			logger.GlobalLogger.Errorf("Error closing Redis: %v", err)
 		} else {
-			log.Println("Redis connection closed")
+			logger.GlobalLogger.Println("Redis connection closed")
 		}
 	}
 }
@@ -121,6 +122,7 @@ func Set(ctx context.Context, key string, value interface{}, expiration time.Dur
 	data, err := json.Marshal(value)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("set_marshal").Inc()
+		logger.GlobalLogger.Errorf("failed to marshal value for key %s: %v", key, err)
 		return fmt.Errorf("failed to marshal value: %v", err)
 	}
 	err = RedisClient.Set(ctx, key, data, expiration).Err()
@@ -128,6 +130,7 @@ func Set(ctx context.Context, key string, value interface{}, expiration time.Dur
 	metrics.RedisOperationDuration.WithLabelValues("set").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("set").Inc()
+		logger.GlobalLogger.Errorf("failed to set key %s: %v", key, err)
 		return err
 	}
 	return nil
@@ -140,11 +143,13 @@ func Get(ctx context.Context, key string, dest interface{}) error {
 	metrics.RedisOperationDuration.WithLabelValues("get").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("get").Inc()
+		logger.GlobalLogger.Errorf("failed to get key %s: %v", key, err)
 		return err
 	}
 	err = json.Unmarshal([]byte(val), dest)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("get_unmarshal").Inc()
+		logger.GlobalLogger.Errorf("failed to unmarshal value for key %s: %v", key, err)
 		return fmt.Errorf("failed to unmarshal value: %v", err)
 	}
 	return nil
@@ -157,6 +162,7 @@ func Delete(ctx context.Context, key string) error {
 	metrics.RedisOperationDuration.WithLabelValues("delete").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("delete").Inc()
+		logger.GlobalLogger.Errorf("failed to delete key %s: %v", key, err)
 		return err
 	}
 	return nil
@@ -169,6 +175,7 @@ func Exists(ctx context.Context, key string) (bool, error) {
 	metrics.RedisOperationDuration.WithLabelValues("exists").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("exists").Inc()
+		logger.GlobalLogger.Errorf("failed to check existence of key %s: %v", key, err)
 		return false, err
 	}
 	return count > 0, nil
@@ -179,6 +186,7 @@ func SetSearchResult(ctx context.Context, key string, propertyIDs []string, expi
 	propertyIDsJSON, err := json.Marshal(propertyIDs)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("set_search_marshal").Inc()
+		logger.GlobalLogger.Errorf("failed to marshal property IDs for key %s: %v", key, err)
 		return fmt.Errorf("failed to marshal property IDs: %v", err)
 	}
 
@@ -192,6 +200,7 @@ func SetSearchResult(ctx context.Context, key string, propertyIDs []string, expi
 	metrics.RedisOperationDuration.WithLabelValues("set_search_result").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("set_search_result").Inc()
+		logger.GlobalLogger.Errorf("failed to execute set search result script for key %s: %v", key, err)
 		return fmt.Errorf("failed to execute set search result script: %v", err)
 	}
 	return nil
@@ -204,11 +213,13 @@ func GetSearchResult(ctx context.Context, key string) ([]string, error) {
 	metrics.RedisOperationDuration.WithLabelValues("get_search_result").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("get_search_result").Inc()
+		logger.GlobalLogger.Errorf("failed to get search result for key %s: %v", key, err)
 		return nil, err
 	}
 	var propertyIDs []string
 	if err := json.Unmarshal([]byte(val), &propertyIDs); err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("get_search_unmarshal").Inc()
+		logger.GlobalLogger.Errorf("failed to unmarshal property IDs for key %s: %v", key, err)
 		return nil, fmt.Errorf("failed to unmarshal property IDs: %v", err)
 	}
 	return propertyIDs, nil
@@ -222,6 +233,7 @@ func AddCacheKeyToPropertySet(ctx context.Context, propertyID, cacheKey string) 
 	metrics.RedisOperationDuration.WithLabelValues("sadd").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("sadd").Inc()
+		logger.GlobalLogger.Errorf("failed to add cache key %s to set %s: %v", cacheKey, setKey, err)
 		return fmt.Errorf("failed to add cache key %s to set %s: %v", cacheKey, setKey, err)
 	}
 	return nil
@@ -235,6 +247,7 @@ func GetCacheKeysForProperty(ctx context.Context, propertyID string) ([]string, 
 	metrics.RedisOperationDuration.WithLabelValues("smembers").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("smembers").Inc()
+		logger.GlobalLogger.Errorf("failed to get cache keys for property %s: %v", propertyID, err)
 		return nil, fmt.Errorf("failed to get cache keys for property %s: %v", propertyID, err)
 	}
 	return cacheKeys, nil
@@ -247,6 +260,7 @@ func InvalidatePropertyCacheKeys(ctx context.Context, propertyID string) error {
 	metrics.RedisOperationDuration.WithLabelValues("invalidate_cache").Observe(duration)
 	if err != nil {
 		metrics.RedisErrorsTotal.WithLabelValues("invalidate_cache").Inc()
+		logger.GlobalLogger.Errorf("failed to execute invalidate property cache script for property %s: %v", propertyID, err)
 		return fmt.Errorf("failed to execute invalidate property cache script: %v", err)
 	}
 	return nil

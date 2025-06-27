@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"homeinsight-properties/internal/handlers"
 	"homeinsight-properties/internal/middleware"
@@ -51,14 +52,16 @@ func NewApp(cfg *config.Config) *App {
 // initialize the database connection
 func (a *App) initializeDatabase() {
 	if err := database.InitDB(); err != nil {
-		logger.Logger.Fatalf("Failed to initialize database: %v", err)
+		logger.GlobalLogger.Errorf("Failed to initialize database: %v", err)
+		os.Exit(1)
 	}
 }
 
 // initialize the Redis cache
 func (a *App) initializeCache() {
 	if err := cache.InitRedis(); err != nil {
-		logger.Logger.Fatalf("Failed to initialize Redis: %v", err)
+		logger.GlobalLogger.Errorf("Failed to initialize Redis: %v", err)
+		os.Exit(1)
 	}
 }
 

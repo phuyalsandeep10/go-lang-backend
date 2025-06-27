@@ -3,11 +3,11 @@ package database
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
-	"homeinsight-properties/pkg/metrics" // Import the metrics package
+	"homeinsight-properties/pkg/logger"
+	"homeinsight-properties/pkg/metrics"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
@@ -25,7 +25,7 @@ type Config struct {
 
 func LoadConfig() (*Config, error) {
 	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, relying on system environment variables")
+		logger.GlobalLogger.Println("No .env file found, relying on system environment variables")
 	}
 
 	uri := os.Getenv("MONGO_URI")
@@ -60,6 +60,7 @@ func InitDB() error {
 	metrics.MongoOperationDuration.WithLabelValues("connect", "").Observe(duration)
 	if err != nil {
 		metrics.MongoErrorsTotal.WithLabelValues("connect", "").Inc()
+		logger.GlobalLogger.Errorf("failed to connect to MongoDB: %v", err)
 		return fmt.Errorf("failed to connect to MongoDB: %v", err)
 	}
 
@@ -69,6 +70,7 @@ func InitDB() error {
 	if err != nil {
 		metrics.MongoErrorsTotal.WithLabelValues("ping", "").Inc()
 		client.Disconnect(ctx)
+		logger.GlobalLogger.Errorf("failed to ping MongoDB: %v", err)
 		return fmt.Errorf("failed to ping MongoDB: %v", err)
 	}
 
@@ -100,10 +102,10 @@ func InitDB() error {
 	metrics.MongoOperationDuration.WithLabelValues("create_indexes", "properties").Observe(duration)
 	if err != nil {
 		metrics.MongoErrorsTotal.WithLabelValues("create_indexes", "properties").Inc()
-		log.Printf("Failed to create indexes: %v", err)
+		logger.GlobalLogger.Errorf("Failed to create indexes: %v", err)
 	}
 
-	log.Println("MongoDB connected successfully.")
+	logger.GlobalLogger.Println("MongoDB connected successfully.")
 	return nil
 }
 
@@ -117,9 +119,9 @@ func CloseDB() {
 		metrics.MongoOperationDuration.WithLabelValues("disconnect", "").Observe(duration)
 		if err != nil {
 			metrics.MongoErrorsTotal.WithLabelValues("disconnect", "").Inc()
-			log.Printf("Error closing MongoDB: %v", err)
+			logger.GlobalLogger.Errorf("Error closing MongoDB: %v", err)
 		} else {
-			log.Println("MongoDB connection closed")
+			logger.GlobalLogger.Println("MongoDB connection closed")
 		}
 	}
 }

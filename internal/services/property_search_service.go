@@ -50,13 +50,13 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 	}
 
 	if err := s.validator.ValidateSearch(req); err != nil {
-		logger.Logger.Printf("Invalid search: query=%s, error=%v", req.Search, err)
+		logger.GlobalLogger.Errorf("Invalid search: query=%s, error=%v", req.Search, err)
 		return nil, err
 	}
 
 	street, city, state, zip := s.addrTrans.ParseAddress(req.Search)
 	if street == "" || city == "" {
-		logger.Logger.Printf("Missing address fields: query=%s", req.Search)
+		logger.GlobalLogger.Errorf("Missing address fields: query=%s", req.Search)
 		return nil, fmt.Errorf("street address and city are required")
 	}
 
@@ -80,7 +80,7 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 	// Query database
 	property, err := s.repo.FindByAddress(ctx, street, city, state, zip)
 	if err != nil {
-		logger.Logger.Printf("DB query failed: query=%s, error=%v", req.Search, err)
+		logger.GlobalLogger.Errorf("DB query failed: query=%s, error=%v", req.Search, err)
 		return nil, err
 	}
 	if property != nil {
@@ -97,13 +97,13 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 	ginCtx.Set("data_source", "MOCK")
 	mockData, err := utils.ReadMockData("property-detail.json")
 	if err != nil {
-		logger.Logger.Printf("Failed to read mock data: query=%s, error=%v", req.Search, err)
+		logger.GlobalLogger.Errorf("Failed to read mock data: query=%s, error=%v", req.Search, err)
 		return nil, fmt.Errorf("failed to read mock data: %v", err)
 	}
 
 	property, err = s.propTrans.TransformAPIResponse(mockData)
 	if err != nil {
-		logger.Logger.Printf("Failed to transform mock data: query=%s, error=%v", req.Search, err)
+		logger.GlobalLogger.Errorf("Failed to transform mock data: query=%s, error=%v", req.Search, err)
 		return nil, fmt.Errorf("failed to transform mock data: %v", err)
 	}
 
@@ -117,7 +117,7 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 
 	// Insert into database
 	if err := s.repo.Create(ctx, property); err != nil {
-		logger.Logger.Printf("Failed to create property: query=%s, error=%v", req.Search, err)
+		logger.GlobalLogger.Errorf("Failed to create property: query=%s, error=%v", req.Search, err)
 		return nil, fmt.Errorf("failed to create property: %v", err)
 	}
 
@@ -142,29 +142,14 @@ func (s *PropertySearchService) GetPropertiesWithPagination(ctx context.Context,
 		offset = 0
 	}
 
-	cacheKey := cache.PropertyListPaginatedKey(offset, limit)
-	if cached, err := s.cache.GetProperty(ctx, cacheKey); err == nil && cached != nil {
-		metrics.CacheHitsTotal.Inc()
-		// Assuming cached is serialized PaginatedPropertiesResponse; adjust as needed
-	}
-
 	ginCtx.Set("data_source", "DATABASE")
 	ginCtx.Set("query", fmt.Sprintf("offset=%d,limit=%d", offset, limit))
-	ginCtx.Set("property_id", "")
-	ginCtx.Set("cache_hit", false)
-
-	// Skip cache check since GetProperty doesn't support PaginatedPropertiesResponse
-	metrics.CacheMissesTotal.Inc()
 
 	// Query database
 	properties, total, err := s.repo.FindWithPagination(ctx, offset, limit)
 	if err != nil {
-		logger.Logger.Printf("DB query failed: offset=%d, limit=%d, error=%v", offset, limit, err)
+		logger.GlobalLogger.Errorf("DB query failed: offset=%d, limit=%d, error=%v", offset, limit, err)
 		return nil, err
-	}
-
-	for _, prop := range properties {
-		_ = s.cache.SetProperty(ctx, cache.PropertyKey(prop.PropertyID), &prop, Month)
 	}
 
 	metadata := models.PaginationMeta{
@@ -193,6 +178,5 @@ func (s *PropertySearchService) GetPropertiesWithPagination(ctx context.Context,
 		response.Data[i] = models.PropertyResponse{Property: &prop}
 	}
 
-	_ = s.cache.SetProperty(ctx, cacheKey, &models.Property{}, Month) // Adjust serialization
 	return response, nil
 }

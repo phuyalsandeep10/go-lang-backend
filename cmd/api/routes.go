@@ -58,13 +58,13 @@ func (a *App) setupHealthCheck() {
 		defer cancel()
 
 		if err := database.MongoClient.Ping(ctx, nil); err != nil {
-			logger.Logger.Printf("MongoDB ping failed: %v", err)
+			logger.GlobalLogger.Errorf("MongoDB ping failed: %v", err)
 			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "error", "message": "MongoDB unavailable"})
 			return
 		}
 
 		if _, err := cache.RedisClient.Ping(ctx).Result(); err != nil {
-			logger.Logger.Printf("Redis ping failed: %v", err)
+			logger.GlobalLogger.Errorf("Redis ping failed: %v", err)
 			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "error", "message": "Redis unavailable"})
 			return
 		}
