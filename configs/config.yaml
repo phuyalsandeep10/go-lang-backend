@@ -9,7 +9,7 @@ server:
   port: 8000
 
 database:
-  uri: "mongodb+srv://<username>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority"
+  uri: "mongodb+srv://homeinsightcore:Zj3l6zfaM43K3PpG@cluster0.9kecynk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
   dbname: "homeinsight"
 
 redis:
