@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"os"
-	"strconv"
 
 	"gopkg.in/yaml.v3"
 )
@@ -13,8 +12,8 @@ type Config struct {
 		Port int `yaml:"port"`
 	} `yaml:"server"`
 	Database struct {
-		URI    string `yaml:"uri"`
-		DBName string `yaml:"dbname"`
+		URI      string `yaml:"uri"`
+		DBName   string `yaml:"dbname"`
 	} `yaml:"database"`
 	Redis struct {
 		Host        string `yaml:"host" validate:"required,hostname"`
@@ -22,7 +21,6 @@ type Config struct {
 		Password    string `yaml:"password"`
 		DB          int    `yaml:"db" validate:"gte=0"`
 		TLSEnabled  bool   `yaml:"tls_enabled"`
-		TLSCertFile string `yaml:"tls_cert_file"`
 	} `yaml:"redis"`
 	JWT struct {
 		Secret string `yaml:"secret"`
@@ -30,62 +28,51 @@ type Config struct {
 }
 
 func LoadConfig(path string) (*Config, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read config file: %v", err)
+	// Initialize config with hardcoded values for testing
+	cfg := &Config{
+		Server: struct {
+			Port int `yaml:"port"`
+		}{
+			Port: 8000, // SERVER_PORT
+		},
+		Database: struct {
+			URI      string `yaml:"uri"`
+			DBName   string `yaml:"dbname"`
+
+		}{
+			URI:      "mongodb+srv://homeinsightcore:Zj3l6zfaM43K3PpG@cluster0.9kecynk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", // MONGO_URI
+			DBName:   "homeinsight",                                                                                                                     // DB_NAME
+		                                                                                                                  // DB_PASSWORD
+		},
+		Redis: struct {
+			Host        string `yaml:"host" validate:"required,hostname"`
+			Port        int    `yaml:"port" validate:"required,gt=0,lte=65535"`
+			Password    string `yaml:"password"`
+			DB          int    `yaml:"db" validate:"gte=0"`
+			TLSEnabled  bool   `yaml:"tls_enabled"`
+		}{
+			Host:       "clustercfg.homeinsight-core-cache.dxz4rf.use1.cache.amazonaws.com", // REDIS_HOST
+			Port:       6379,                                                                // REDIS_PORT
+			Password:   "",                                                                  // REDIS_PASSWORD
+			DB:         0,                                                                   // REDIS_DB
+			TLSEnabled: true,                                                                // REDIS_TLS_ENABLED
+		},
+		JWT: struct {
+			Secret string `yaml:"secret"`
+		}{
+			Secret: "your_jwt_secret_key", // JWT_SECRET
+		},
 	}
 
-	var cfg Config
-	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal config: %v", err)
-	}
-
-	// Override with environment variables if set
-	if uri := os.Getenv("MONGO_URI"); uri != "" {
-		cfg.Database.URI = uri
-	}
-	if dbname := os.Getenv("DB_NAME"); dbname != "" {
-		cfg.Database.DBName = dbname
-	}
-	if host := os.Getenv("REDIS_HOST"); host != "" {
-		cfg.Redis.Host = host
-	}
-	if port := os.Getenv("REDIS_PORT"); port != "" {
-		portNum, err := strconv.Atoi(port)
+	// Optionally load from YAML file if provided
+	if path != "" {
+		data, err := os.ReadFile(path)
 		if err != nil {
-			return nil, fmt.Errorf("invalid REDIS_PORT value: %v", err)
+			return nil, fmt.Errorf("failed to read config file: %v", err)
 		}
-		cfg.Redis.Port = portNum
-	}
-	if password := os.Getenv("REDIS_PASSWORD"); password != "" {
-		cfg.Redis.Password = password
-	}
-	if db := os.Getenv("REDIS_DB"); db != "" {
-		dbNum, err := strconv.Atoi(db)
-		if err != nil {
-			return nil, fmt.Errorf("invalid REDIS_DB value: %v", err)
+		if err := yaml.Unmarshal(data, cfg); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal config: %v", err)
 		}
-		cfg.Redis.DB = dbNum
-	}
-	if tlsEnabled := os.Getenv("REDIS_TLS_ENABLED"); tlsEnabled != "" {
-		cfg.Redis.TLSEnabled = tlsEnabled == "true"
-	}
-	if tlsCertFile := os.Getenv("REDIS_TLS_CERT_FILE"); tlsCertFile != "" {
-		cfg.Redis.TLSCertFile = tlsCertFile
-	}
-	if secret := os.Getenv("JWT_SECRET"); secret != "" {
-		cfg.JWT.Secret = secret
-	}
-
-	// Set default values
-	if cfg.Redis.Host == "" {
-		cfg.Redis.Host = "localhost"
-	}
-	if cfg.Redis.Port == 0 {
-		cfg.Redis.Port = 6379
-	}
-	if cfg.Redis.DB < 0 {
-		cfg.Redis.DB = 0
 	}
 
 	// Validation
@@ -98,11 +85,6 @@ func LoadConfig(path string) (*Config, error) {
 	if cfg.Redis.DB < 0 {
 		return nil, fmt.Errorf("REDIS_DB must be non-negative")
 	}
-	if cfg.Redis.TLSEnabled && cfg.Redis.TLSCertFile != "" {
-		if _, err := os.Stat(cfg.Redis.TLSCertFile); os.IsNotExist(err) {
-			return nil, fmt.Errorf("TLS certificate file does not exist: %s", cfg.Redis.TLSCertFile)
-		}
-	}
 
-	return &cfg, nil
+	return cfg, nil
 }
