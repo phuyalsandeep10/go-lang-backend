@@ -2,22 +2,26 @@ name: Deploy GO and Nginx to AWS EC2 via ECR
 on:
   push:
     branches:
-      - GOWithMongoDB  #Test3
+      - GOWithMongoDB  # Test4
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
+
       - name: Log in to Amazon ECR
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 882142483449.dkr.ecr.us-east-1.amazonaws.com
+
       - name: Build and Push Go Docker Image
         env:
           ECR_REPOSITORY: homeinsightcore
@@ -26,6 +30,7 @@ jobs:
           docker build -t homeinsightcore -f Dockerfile .
           docker tag homeinsightcore:latest 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
           docker push 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
+
       - name: Build and Push Nginx Docker Image
         env:
           ECR_REPOSITORY: homeinsightcore_nginx
@@ -34,16 +39,22 @@ jobs:
           docker build -t homeinsightcore_nginx -f Dockerfile.nginx .
           docker tag homeinsightcore_nginx:latest 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
           docker push 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
+
       - name: Deploy on EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: MONGO_URI
           script: |
             # Ensure Docker service is running
             sudo systemctl start docker
             sudo systemctl enable docker
+
+            # Install Docker Compose if not already installed
+            sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.7/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
 
             # Add ubuntu user to docker group
             sudo usermod -aG docker ubuntu
@@ -61,29 +72,47 @@ jobs:
             docker pull 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
 
             # Stop and remove existing containers
-            docker stop homeinsightcore || true
-            docker rm homeinsightcore || true
-            docker stop nginx || true
-            docker rm nginx || true
-
-            # Create a Docker network
-            docker network create app-network || true
+            docker stop homeinsightcore nginx || true
+            docker rm homeinsightcore nginx || true
 
             # Ensure directories exist
             sudo mkdir -p /var/www/certbot
             sudo chown -R ubuntu:ubuntu /var/www/certbot
 
-            # Run the Go container with MongoDB Atlas configuration
-            docker run -d --name homeinsightcore --network app-network \
-              -p 8000:8000 \
-              -e MONGO_URI=mongodb+srv://homeinsightcore:Zj3l6zfaM43K3PpG@cluster0.9kecynk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0 \
-              -e DB_NAME=homeinsight \
-              882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
+            # Create docker-compose.yml
+            cat << 'EOL' > docker-compose.yml
+            version: '3.8'
+            services:
+              homeinsightcore:
+                image: 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
+                container_name: homeinsightcore
+                networks:
+                  - app-network
+                ports:
+                  - "8000:8000"
+                environment:
+                  - MONGO_URI=${MONGO_URI}
+                  - DB_NAME=homeinsight
 
-            # Run the Nginx container with volume mounts
-            docker run -d --name nginx --network app-network \
-              -p 80:80 -p 443:443 \
-              -v /etc/letsencrypt:/etc/letsencrypt \
-              -v /var/www/certbot:/var/www/certbot \
-              882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
+              nginx:
+                image: 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
+                container_name: nginx
+                networks:
+                  - app-network
+                ports:
+                  - "80:80"
+                  - "443:443"
+                volumes:
+                  - /etc/letsencrypt:/etc/letsencrypt
+                  - /var/www/certbot:/var/www/certbot
+                depends_on:
+                  - homeinsightcore
+
+            networks:
+              app-network:
+                driver: bridge
+            EOL
+
+            # Run Docker Compose
+            docker-compose up -d
             EOF
