@@ -3,14 +3,12 @@ package database
 import (
 	"context"
 	"fmt"
-	"os"
 	"time"
 
+	"homeinsight-properties/pkg/config"
 	"homeinsight-properties/pkg/logger"
 	"homeinsight-properties/pkg/metrics"
 
-	"github.com/joho/godotenv"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -18,39 +16,12 @@ import (
 var MongoClient *mongo.Client
 var DB *mongo.Database
 
-type Config struct {
-	URI      string
-	DBName   string
-}
-
-func LoadConfig() (*Config, error) {
-	if err := godotenv.Load(); err != nil {
-		logger.GlobalLogger.Println("No .env file found, relying on system environment variables")
-	}
-
-	uri := os.Getenv("MONGO_URI")
-	dbName := os.Getenv("DB_NAME")
-
-	if uri == "" || dbName == "" {
-		return nil, fmt.Errorf("missing required environment variables: MONGO_URI or DB_NAME")
-	}
-
-	return &Config{
-		URI:    uri,
-		DBName: dbName,
-	}, nil
-}
-
-func InitDB() error {
-	cfg, err := LoadConfig()
-	if err != nil {
-		return fmt.Errorf("failed to load config: %v", err)
-	}
-
+// initialize the MongoDB client and database connection.
+func InitDB(cfg *config.Config) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	clientOptions := options.Client().ApplyURI(cfg.URI).
+	clientOptions := options.Client().ApplyURI(cfg.Database.URI).
 		SetConnectTimeout(10 * time.Second).
 		SetMaxPoolSize(100)
 
@@ -75,40 +46,13 @@ func InitDB() error {
 	}
 
 	MongoClient = client
-	DB = client.Database(cfg.DBName)
-
-	// Create indexes for search performance
-	collection := DB.Collection("properties")
-	start = time.Now()
-	_, err = collection.Indexes().CreateMany(ctx, []mongo.IndexModel{
-		{
-			Keys: bson.D{{Key: "propertyId", Value: 1}},
-			Options: options.Index().SetUnique(true),
-		},
-		{
-			Keys: bson.D{{Key: "address.streetAddress", Value: 1}},
-		},
-		{
-			Keys: bson.D{{Key: "address.city", Value: 1}},
-		},
-		{
-			Keys: bson.D{{Key: "address.state", Value: 1}},
-		},
-		{
-			Keys: bson.D{{Key: "address.zipCode", Value: 1}},
-		},
-	})
-	duration = time.Since(start).Seconds()
-	metrics.MongoOperationDuration.WithLabelValues("create_indexes", "properties").Observe(duration)
-	if err != nil {
-		metrics.MongoErrorsTotal.WithLabelValues("create_indexes", "properties").Inc()
-		logger.GlobalLogger.Errorf("Failed to create indexes: %v", err)
-	}
+	DB = client.Database(cfg.Database.DBName)
 
 	logger.GlobalLogger.Println("MongoDB connected successfully.")
 	return nil
 }
 
+// close the MongoDB client connection.
 func CloseDB() {
 	if MongoClient != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

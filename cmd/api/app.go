@@ -51,15 +51,19 @@ func NewApp(cfg *config.Config) *App {
 
 // initialize the database connection
 func (a *App) initializeDatabase() {
-	if err := database.InitDB(); err != nil {
+	if err := database.InitDB(a.Config); err != nil {
 		logger.GlobalLogger.Errorf("Failed to initialize database: %v", err)
+		os.Exit(1)
+	}
+	if err := database.CreatePropertyIndexes(database.DB); err != nil {
+		logger.GlobalLogger.Errorf("Failed to create database indexes: %v", err)
 		os.Exit(1)
 	}
 }
 
 // initialize the Redis cache
 func (a *App) initializeCache() {
-	if err := cache.InitRedis(); err != nil {
+	if err := cache.InitRedis(a.Config); err != nil {
 		logger.GlobalLogger.Errorf("Failed to initialize Redis: %v", err)
 		os.Exit(1)
 	}

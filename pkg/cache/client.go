@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"homeinsight-properties/pkg/config"
 	"homeinsight-properties/pkg/logger"
 	"homeinsight-properties/pkg/metrics"
 
@@ -14,17 +15,12 @@ import (
 
 var RedisClient *redis.Client
 
-// initialize the Redis client with the provided configuration.
-func InitRedis() error {
-	cfg, err := LoadRedisConfig()
-	if err != nil {
-		return fmt.Errorf("failed to load Redis config: %v", err)
-	}
-
+// Initialize the Redis client with the provided configuration.
+func InitRedis(cfg *config.Config) error {
 	var tlsConfig *tls.Config
-	if cfg.TLSEnabled {
-		if cfg.TLSCertFile != "" {
-			cert, err := tls.LoadX509KeyPair(cfg.TLSCertFile, "")
+	if cfg.Redis.TLSEnabled {
+		if cfg.Redis.TLSCertFile != "" {
+			cert, err := tls.LoadX509KeyPair(cfg.Redis.TLSCertFile, "")
 			if err != nil {
 				logger.GlobalLogger.Errorf("failed to load TLS certificate: %v", err)
 				return fmt.Errorf("failed to load TLS certificate: %v", err)
@@ -38,9 +34,9 @@ func InitRedis() error {
 	}
 
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr:         fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
-		Password:     cfg.Password,
-		DB:           cfg.DB,
+		Addr:         fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port),
+		Password:     cfg.Redis.Password,
+		DB:           cfg.Redis.DB,
 		PoolSize:     10,
 		MinIdleConns: 5,
 		TLSConfig:    tlsConfig,
@@ -53,7 +49,7 @@ func InitRedis() error {
 	defer cancel()
 
 	start := time.Now()
-	_, err = RedisClient.Ping(ctx).Result()
+	_, err := RedisClient.Ping(ctx).Result()
 	duration := time.Since(start).Seconds()
 	metrics.RedisOperationDuration.WithLabelValues("ping").Observe(duration)
 	if err != nil {
@@ -66,7 +62,7 @@ func InitRedis() error {
 	return nil
 }
 
-// close the Redis client connection.
+// Close the Redis client connection.
 func CloseRedis() {
 	if RedisClient != nil {
 		if err := RedisClient.Close(); err != nil {
