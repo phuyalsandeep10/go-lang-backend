@@ -46,7 +46,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: MONGO_URI,REDIS_HOST,REDIS_PASSWORD,JWT_SECRET
+          envs: MONGO_URI
           script: |
             # Ensure Docker service is running
             sudo systemctl start docker
@@ -58,10 +58,6 @@ jobs:
 
             # Add ubuntu user to docker group
             sudo usermod -aG docker ubuntu
-
-            # Create deployment directory
-            mkdir -p /home/ubuntu/homeinsight
-            cd /home/ubuntu/homeinsight
 
             # Apply group changes without requiring a logout
             newgrp docker << 'EOF'
@@ -83,20 +79,6 @@ jobs:
             sudo mkdir -p /var/www/certbot
             sudo chown -R ubuntu:ubuntu /var/www/certbot
 
-            # Create .env file
-            cat << 'EOL' > .env
-            ENV=development
-            MONGO_URI=${MONGO_URI}
-            DB_NAME=homeinsight
-            REDIS_HOST=${REDIS_HOST}
-            REDIS_PORT=6379
-            REDIS_PASSWORD=${REDIS_PASSWORD}
-            REDIS_DB=0
-            REDIS_TLS_ENABLED=true
-            SERVER_PORT=8000
-            JWT_SECRET=${JWT_SECRET}
-            EOL
-
             # Create docker-compose.yml
             cat << 'EOL' > docker-compose.yml
             version: '3.8'
@@ -108,13 +90,10 @@ jobs:
                   - app-network
                 ports:
                   - "8000:8000"
-                env_file:
-                  - .env
-                healthcheck:
-                  test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-                  interval: 30s
-                  timeout: 10s
-                  retries: 3
+                environment:
+                  - MONGO_URI=${MONGO_URI}
+                  - DB_NAME=homeinsight
+
               nginx:
                 image: 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
                 container_name: nginx
@@ -122,11 +101,13 @@ jobs:
                   - app-network
                 ports:
                   - "80:80"
+                  - "443:443"
                 volumes:
+                  - /etc/letsencrypt:/etc/letsencrypt
                   - /var/www/certbot:/var/www/certbot
                 depends_on:
-                  homeinsightcore:
-                    condition: service_healthy
+                  - homeinsightcore
+
             networks:
               app-network:
                 driver: bridge

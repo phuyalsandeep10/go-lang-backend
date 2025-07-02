@@ -15,7 +15,7 @@ vendor/
 *.cover
 
 # Configuration files with sensitive data
-.env
+# .env
 
 # Log files
 *.log
