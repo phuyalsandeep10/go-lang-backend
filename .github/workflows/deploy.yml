@@ -2,7 +2,7 @@ name: Deploy GO and Nginx to AWS EC2 via ECR
 on:
   push:
     branches:
-      - GOWithMongoDB # Test4
+      - GOWithMongoDB  # Test4
 
 jobs:
   deploy:
@@ -59,6 +59,10 @@ jobs:
             # Add ubuntu user to docker group
             sudo usermod -aG docker ubuntu
 
+            # Create deployment directory
+            mkdir -p /home/ubuntu/homeinsight
+            cd /home/ubuntu/homeinsight
+
             # Apply group changes without requiring a logout
             newgrp docker << 'EOF'
 
@@ -88,7 +92,7 @@ jobs:
             REDIS_PORT=6379
             REDIS_PASSWORD=${REDIS_PASSWORD}
             REDIS_DB=0
-            REDIS_TLS_ENABLED=false
+            REDIS_TLS_ENABLED=true
             SERVER_PORT=8000
             JWT_SECRET=${JWT_SECRET}
             EOL
@@ -106,16 +110,11 @@ jobs:
                   - "8000:8000"
                 env_file:
                   - .env
-                environment:
-                  - MONGO_URI=${MONGO_URI}
-                  - DB_NAME=${DB_NAME}
-                  - REDIS_HOST=${REDIS_HOST}
-                  - REDIS_PORT=${REDIS_PORT}
-                  - REDIS_PASSWORD=${REDIS_PASSWORD}
-                  - REDIS_DB=${REDIS_DB}
-                  - REDIS_TLS_ENABLED=${REDIS_TLS_ENABLED}
-                  - SERVER_PORT=${SERVER_PORT}
-                  - JWT_SECRET=${JWT_SECRET}
+                healthcheck:
+                  test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+                  interval: 30s
+                  timeout: 10s
+                  retries: 3
               nginx:
                 image: 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
                 container_name: nginx
@@ -123,12 +122,11 @@ jobs:
                   - app-network
                 ports:
                   - "80:80"
-                  - "443:443"
                 volumes:
-                  - /etc/letsencrypt:/etc/letsencrypt
                   - /var/www/certbot:/var/www/certbot
                 depends_on:
-                  - homeinsightcore
+                  homeinsightcore:
+                    condition: service_healthy
             networks:
               app-network:
                 driver: bridge

@@ -19,18 +19,11 @@ var RedisClient *redis.Client
 func InitRedis(cfg *config.Config) error {
 	var tlsConfig *tls.Config
 	if cfg.Redis.TLSEnabled {
-		if cfg.Redis.TLSCertFile != "" {
-			cert, err := tls.LoadX509KeyPair(cfg.Redis.TLSCertFile, "")
-			if err != nil {
-				logger.GlobalLogger.Errorf("failed to load TLS certificate: %v", err)
-				return fmt.Errorf("failed to load TLS certificate: %v", err)
-			}
-			tlsConfig = &tls.Config{
-				Certificates: []tls.Certificate{cert},
-			}
-		} else {
-			tlsConfig = &tls.Config{}
+		tlsConfig = &tls.Config{
+			MinVersion:         tls.VersionTLS12, // Required for AWS ElastiCache
+			InsecureSkipVerify: true,             // Skip verification for AWS self-signed certificates
 		}
+		// Note: cfg.Redis.TLSCertFile is ignored for AWS ElastiCache as certificates are managed by AWS
 	}
 
 	RedisClient = redis.NewClient(&redis.Options{
