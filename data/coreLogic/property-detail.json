@@ -1,635 +1,635 @@
- {
-    "buildings": {
-      "data": {
-        "clip": "1029223551",
-        "allBuildingsSummary": {
-          "buildingsCount": 1,
-          "unitsCount": 1,
-          "roomsCount": null,
-          "bedroomsCount": null,
-          "bathroomsCount": null,
-          "fullBathroomsCount": null,
-          "halfBathroomsCount": null,
-          "oneQtrBathroomsCount": null,
-          "threeQtrBathroomsCount": null,
-          "bathroomFixturesCount": null,
-          "fireplacesCount": null,
-          "livingAreaSquareFeet": 10306,
-          "totalAreaSquareFeet": 10306,
-          "openAreasSquareFeet": null,
-          "officeSpaceSquareFeet": null,
-          "elevatorsCount": null,
-          "loadingDocksCount": null,
-          "railSpursCount": null,
-          "truckDoorsCount": null
-        },
-        "buildings": [
-          {
-            "structureId": {
-              "sequenceNumber": 1,
-              "compositeBuildingLinkageKey": "47149R0115706                                     001001",
-              "buildingName": null,
-              "buildingNumber": "115048",
-              "buildingSectionNumber": null,
-              "buildingComments": null
-            },
-            "structureClassification": {
-              "buildingTypeCode": "CAK",
-              "buildingClassCode": null,
-              "gradeTypeCode": null,
-              "fireSprinklerTypeCode": null,
-              "fireInsuranceTypeCode": null
-            },
-            "structureFootprint": {
-              "widthFeet": null,
-              "depthFeet": null
-            },
-            "structureUnitsSummary": {
-              "vacantCount": null,
-              "residentialCount": null,
-              "commercialCount": 1
-            },
-            "structureVerticalProfile": {
-              "storiesCount": null,
-              "storiesTypeCode": null,
-              "floorNumber": null
-            },
-            "constructionDetails": {
-              "yearBuilt": 2017,
-              "effectiveYearBuilt": null,
-              "buildingStyleTypeCode": null,
-              "buildingQualityTypeCode": "QGO",
-              "frameTypeCode": null,
-              "foundationTypeCode": "CRE",
-              "constructionTypeCode": null,
-              "buildingRemodelTypeCode": null,
-              "buildingImprovementConditionCode": null,
-              "buildingImprovementTypeCode": null,
-              "buildingImprovementValue": null
-            },
-            "structureExterior": {
-              "patios": {
-                "count": null,
-                "typeCode": null,
-                "areaSquareFeet": null
-              },
-              "porches": {
-                "count": null,
-                "typeCode": null,
-                "areaSquareFeet": null,
-                "secondPorchAreaSquareFeet": null
-              },
-              "parking": {
-                "typeCode": null,
-                "garageTypeCode": null,
-                "parkingSpacesCount": null,
-                "primaryAreaSquareFeet": null,
-                "secondAreaSquareFeet": null,
-                "carportAreaSquareFeet": null
-              },
-              "pool": null,
-              "walls": {
-                "typeCode": "MTS"
-              },
-              "roof": {
-                "typeCode": "H00",
-                "coverTypeCode": "155"
-              }
-            },
-            "structureInterior": {
-              "attic": {
-                "typeCode": null
-              },
-              "walls": {
-                "typeCode": "DRY"
-              },
-              "basement": {
-                "typeCode": null,
-                "finishTypeCode": null,
-                "finishPercent": null
-              },
-              "flooring": {
-                "typeCode": "A00",
-                "coverTypeCode": null
-              },
-              "ceiling": {
-                "typeCode": null,
-                "heightFeet": null
-              },
-              "bathroomFixtures": {
-                "count": null
-              }
-            },
-            "interiorArea": {
-              "universalBuildingAreaSquareFeet": 10306,
-              "universalBuildingAreaSquareFeetSourceCode": "B",
-              "buildingAreaSquareFeet": 10306,
-              "buildingAdjustedAreaSquareFeet": null,
-              "buildingGrossAreaSquareFeet": null,
-              "livingAreaSquareFeet": 10306,
-              "aboveGradeAreaSquareFeet": null,
-              "groundFloorAreaSquareFeet": 4674,
-              "basementAreaSquareFeet": null,
-              "finishedBasementAreaSquareFeet": null,
-              "unfinishedBasementAreaSquareFeet": null,
-              "aboveGroundFloorAreaSquareFeet": 1677,
-              "buildingAdditionsAreaSquareFeet": null,
-              "entryLevelFloorAreaSquareFeet": 4674,
-              "secondFloorAreaSquareFeet": null,
-              "thirdFloorAreaSquareFeet": null
-            },
-            "interiorRooms": {
-              "totalCount": null,
-              "bedroomsCount": null,
-              "bathroomsCount": null,
-              "fullBathroomsCount": null,
-              "halfBathroomsCount": null,
-              "oneQtrBathroomsCount": null,
-              "threeQtrBathroomsCount": null,
-              "kitchensCount": null,
-              "familyRoomsCount": null,
-              "livingRoomsCount": null,
-              "basementRoomsCount": null
-            },
-            "structureFeatures": {
-              "airConditioning": {
-                "typeCode": null
-              },
-              "firePlaces": {
-                "typeCode": null,
-                "count": null
-              },
-              "heating": {
-                "typeCode": null
-              },
-              "plumbing": {
-                "typeCode": null
-              },
-              "passengerElevators": {
-                "count": null
-              },
-              "dormerWindows": {
-                "count": null
-              }
-            }
-          }
-        ]
-      }
-    },
-    "ownership": {
-      "data": {
-        "clip": "1029223551",
-        "currentOwners": {
-          "ownerNames": [
-            {
-              "sequenceNumber": 1,
-              "fullName": "ROY WALDRON GENERAL PARTNERSHIP",
-              "firstNameAndMiddleInitial": null,
-              "lastName": null,
-              "firstName": null,
-              "middleName": null,
-              "isCorporate": true
-            },
-            {
-              "sequenceNumber": 2,
-              "fullName": null,
-              "firstNameAndMiddleInitial": null,
-              "lastName": null,
-              "firstName": null,
-              "middleName": null,
-              "isCorporate": false
-            },
-            {
-              "sequenceNumber": 3,
-              "fullName": null,
-              "firstNameAndMiddleInitial": null,
-              "lastName": null,
-              "firstName": null,
-              "middleName": null,
-              "isCorporate": false
-            },
-            {
-              "sequenceNumber": 4,
-              "fullName": null,
-              "firstNameAndMiddleInitial": null,
-              "lastName": null,
-              "firstName": null,
-              "middleName": null,
-              "isCorporate": false
-            }
-          ],
-          "relationshipTypeCode": null,
-          "ownerEtalCode": null,
-          "occupancyCode": "A",
-          "ownershipRightsCode": null
-        },
-        "currentOwnerMailingInfo": {
-          "mailingAddress": {
-            "careOfName": null,
-            "streetAddress": "3416 Nightshade Dr",
-            "streetAddressParsed": {
-              "houseNumber": "3416",
-              "houseNumberSuffix": null,
-              "houseNumber2": null,
-              "direction": "W",
-              "streetName": "Murfreesboro",
-              "mailingMode": "BLVD",
-              "quadrant": null,
-              "unitNumber": null
-            },
-            "city": "MURFREESBORO",
-            "state": "TN",
-            "zipCode": "37128",
-            "carrierRoute": "C026",
-            "foreignAddress": null
-          },
-          "ownerMailingOptOutIndicator": null
-        }
-      }
-    },
-    "siteLocation": {
-      "data": {
-        "clip": "1029223221",
-        "coordinatesParcel": {
-          "lat": 35.867915,
-          "lng": -86.391244
-        },
-        "coordinatesBlock": {
-          "lat": 35.86766,
-          "lng": -86.391437
-        },
-        "locationLegal": {
-          "subdivisionName": "JACK SANDERS",
-          "subdivisionTractNumber": null,
-          "subdivisionPlatBookNumber": "40",
-          "subdivisionPlatPageNumber": "250",
-          "blockNumber": null,
-          "blockNumberSuffix": null,
-          "lotNumber": "4",
-          "lotNumberSuffix": null,
-          "description": null
-        },
-        "locationSurvey": {
-          "range": null,
-          "township": null,
-          "section": null,
-          "quarterSection": null
-        },
-        "neighborhood": {
-          "code": null,
-          "name": null
-        },
-        "municipality": {
-          "code": null,
-          "name": "MURFREESBORO CITY"
-        },
-        "town": {
-          "code": null
-        },
-        "jurisdictionCounty": {
-          "code": null
-        },
-        "cbsa": {
-          "code": "34980",
-          "type": "Metro"
-        },
-        "censusTract": {
-          "id": "0417004009"
-        },
-        "taxRateArea": {
-          "code": null
-        },
-        "taxDistrict": {
-          "name": "515"
-        },
-        "landUseAndZoningCodes": {
-          "propertyTypeCode": "26",
-          "landUseCode": "204",
-          "stateLandUseCode": "08",
-          "stateLandUseDescription": "COMMERCIAL",
-          "countyLandUseCode": null,
-          "countyLandUseDescription": null,
-          "zoningCode": null,
-          "zoningCodeDescription": null,
-          "isManufacturedHome": null
-        },
-        "lot": {
-          "areaAcres": 1.79,
-          "areaSquareFeet": 77972,
-          "areaSquareFeetUsable": null,
-          "depthFeet": null,
-          "frontFeet": null,
-          "shapeCode": null,
-          "topographyType": null,
-          "easementTypeCode": null
-        },
-        "utilities": {
-          "fuelTypeCode": null,
-          "electricityWiringTypeCode": null,
-          "sewerTypeCode": null,
-          "utilitiesTypeCode": null,
-          "waterTypeCode": null
-        }
-      }
-    },
-    "taxAssessment": {
-      "metadata": {
-        "pageNumber": 1,
-        "pageSize": 1,
-        "totalRecords": 1,
-        "totalPages": 1
+{
+  "buildings": {
+    "data": {
+      "clip": "9876543210",
+      "allBuildingsSummary": {
+        "buildingsCount": 1,
+        "unitsCount": 2,
+        "roomsCount": null,
+        "bedroomsCount": null,
+        "bathroomsCount": null,
+        "fullBathroomsCount": null,
+        "halfBathroomsCount": null,
+        "oneQtrBathroomsCount": null,
+        "threeQtrBathroomsCount": null,
+        "bathroomFixturesCount": null,
+        "fireplacesCount": null,
+        "livingAreaSquareFeet": 8500,
+        "totalAreaSquareFeet": 9000,
+        "openAreasSquareFeet": null,
+        "officeSpaceSquareFeet": null,
+        "elevatorsCount": null,
+        "loadingDocksCount": null,
+        "railSpursCount": null,
+        "truckDoorsCount": null
       },
-      "items": [
+      "buildings": [
         {
-          "clip": "1029223221",
-          "taxAmount": {
-            "billedYear": 2024,
-            "delinquentYear": null,
-            "areaCode": null,
-            "areaCodeDescription": null,
-            "propertyTaxRate": null,
-            "calculatedTotalExemptionAmount": null,
-            "totalTaxExemptionAmount": null,
-            "totalTaxAmount": 8862,
-            "countyTaxAmount": null,
-            "schoolTaxAmount": null,
-            "townTaxAmount": null,
-            "villageTaxAmount": null,
-            "netTaxAmount": null
+          "structureId": {
+            "sequenceNumber": 1,
+            "compositeBuildingLinkageKey": "47149R0223456                                     002001",
+            "buildingName": null,
+            "buildingNumber": "215049",
+            "buildingSectionNumber": null,
+            "buildingComments": null
           },
-          "taxExemptions": {
-            "commercial": [],
-            "residential": []
+          "structureClassification": {
+            "buildingTypeCode": "COM",
+            "buildingClassCode": null,
+            "gradeTypeCode": null,
+            "fireSprinklerTypeCode": null,
+            "fireInsuranceTypeCode": null
           },
-          "assessedValue": {
-            "taxAssessedYear": 2024,
-            "calculatedTotalValue": 1180800,
-            "calculatedLandValue": 182800,
-            "calculatedImprovementValue": 998000,
-            "calculatedImprovementValuePercentage": 85,
-            "calculatedTotalValueSourceCode": "P",
-            "taxableValue": null,
-            "taxableImprovementValue": null,
-            "taxableLandValue": null,
-            "taxableOtherValue": null
+          "structureFootprint": {
+            "widthFeet": null,
+            "depthFeet": null
           },
-          "taxrollUpdate": {
-            "lastAssessorUpdateDate": "2025-01-17",
-            "taxrollCertificationDate": "2024-07-01"
+          "structureUnitsSummary": {
+            "vacantCount": null,
+            "residentialCount": null,
+            "commercialCount": 2
           },
-          "schoolDistricts": {
-            "school": {
-              "code": null,
-              "name": null,
-              "elementary": {
-                "code": null,
-                "name": null
-              },
-              "middle": {
-                "code": null,
-                "name": null
-              },
-              "high": {
-                "code": null,
-                "name": null
-              },
-              "communityCollege": {
-                "code": null,
-                "name": null
-              }
-            }
+          "structureVerticalProfile": {
+            "storiesCount": null,
+            "storiesTypeCode": null,
+            "floorNumber": null
           },
-          "serviceDistricts": {
-            "fire": {
-              "code": null,
-              "name": null
-            },
-            "trash": {
-              "code": null,
-              "name": null
-            },
-            "lighting": {
-              "code": null,
-              "name": null
-            },
-            "tax": {
-              "code": null,
-              "name": null
-            },
-            "sewer": {
-              "code": null,
-              "name": null
-            },
-            "utility": {
-              "code": null,
-              "name": null
-            },
-            "water": {
-              "code": null,
-              "name": null
-            }
-          }
-        }
-      ]
-    },
-    "mostRecentOwnerTransfer": {
-      "metadata": {
-        "pageNumber": null,
-        "pageSize": null,
-        "totalRecords": null,
-        "totalPages": null
-      },
-      "items": [
-        {
-          "clip": "1029223221",
-          "transactionDetails": {
-            "primaryCategoryCode": null,
-            "deedCategoryCode": null,
-            "saleDateDerived": null,
-            "saleRecordingDateDerived": null,
-            "saleAmount": null,
-            "saleTypeCode": null,
-            "saleDocumentTypeCode": null,
-            "saleDocumentNumber": null,
-            "saleBookNumber": null,
-            "salePageNumber": null,
-            "ownershipTransferPercent": null,
-            "multiOrSplitParcelCode": null,
-            "isCashPurchase": null,
-            "isMortgagePurchase": null,
-            "isInterfamilyRelated": null,
-            "isInvestorPurchase": null,
-            "isResale": null,
-            "isShortSale": null,
-            "isForeclosureReo": null,
-            "isForeclosureReoSale": null
-          },
-          "recordedPropertyAddress": {
-            "streetAddress": null,
-            "streetAddressParsed": {
-              "houseNumber": null,
-              "houseNumberSuffix": null,
-              "houseNumber2": null,
-              "direction": null,
-              "streetName": null,
-              "mode": null,
-              "quadrant": null,
-              "unitNumber": null
-            },
-            "city": null,
-            "state": null,
-            "zipCode": null,
-            "carrierRoute": null,
-            "county": null
-          },
-          "titleCompany": {
-            "name": null,
-            "code": null
-          },
-          "propertyDetails": {
-            "actualYearBuilt": null,
+          "constructionDetails": {
+            "yearBuilt": 2019,
             "effectiveYearBuilt": null,
-            "isResidentialProperty": null,
-            "isNewConstruction": null
+            "buildingStyleTypeCode": null,
+            "buildingQualityTypeCode": "QEX",
+            "frameTypeCode": null,
+            "foundationTypeCode": "CON",
+            "constructionTypeCode": null,
+            "buildingRemodelTypeCode": null,
+            "buildingImprovementConditionCode": null,
+            "buildingImprovementTypeCode": null,
+            "buildingImprovementValue": null
           },
-          "landUseAndZoningCodes": {
-            "propertyTypeCode": null,
-            "landUseCode": null,
-            "stateLandUseDescription": null,
-            "countyLandUseDescription": null,
-            "zoningCode": null
-          },
-          "buyerDetails": {
-            "buyerNames": [],
-            "relationshipTypeCode": null,
-            "etalCode": null,
-            "occupancyCode": null,
-            "ownershipRightsCode": null,
-            "mailingAddress": {
-              "careOfName": null,
-              "streetAddress": null,
-              "streetAddressParsed": {
-                "houseNumber": null,
-                "houseNumberSuffix": null,
-                "houseNumber2": null,
-                "direction": null,
-                "streetName": null,
-                "mode": null,
-                "quadrant": null,
-                "unitNumber": null
-              },
-              "city": null,
-              "state": null,
-              "zipCode": null,
-              "carrierRoute": null
+          "structureExterior": {
+            "patios": {
+              "count": null,
+              "typeCode": null,
+              "areaSquareFeet": null
             },
-            "hasPartialInterest": null,
-            "mailingOptOutIndicator": null
-          },
-          "sellerDetails": {
-            "sellerNames": []
-          }
-        }
-      ]
-    },
-    "lastMarketSale": {
-      "metadata": {
-        "pageNumber": null,
-        "pageSize": null,
-        "totalRecords": null,
-        "totalPages": null
-      },
-      "items": [
-        {
-          "clip": "1029223221",
-          "transactionDetails": {
-            "primaryCategoryCode": null,
-            "deedCategoryCode": null,
-            "saleDateDerived": null,
-            "saleRecordingDateDerived": null,
-            "saleAmount": null,
-            "saleTypeCode": null,
-            "saleDocumentTypeCode": null,
-            "saleDocumentNumber": null,
-            "saleBookNumber": null,
-            "salePageNumber": null,
-            "ownershipTransferPercent": null,
-            "multiOrSplitParcelCode": null,
-            "isCashPurchase": null,
-            "isMortgagePurchase": null,
-            "isInterfamilyRelated": null,
-            "isInvestorPurchase": null,
-            "isResale": null,
-            "isShortSale": null,
-            "isForeclosureReo": null,
-            "isForeclosureReoSale": null
-          },
-          "recordedPropertyAddress": {
-            "streetAddress": null,
-            "streetAddressParsed": {
-              "houseNumber": null,
-              "houseNumberSuffix": null,
-              "houseNumber2": null,
-              "direction": null,
-              "streetName": null,
-              "mode": null,
-              "quadrant": null,
-              "unitNumber": null
+            "porches": {
+              "count": null,
+              "typeCode": null,
+              "areaSquareFeet": null,
+              "secondPorchAreaSquareFeet": null
             },
-            "city": null,
-            "state": null,
-            "zipCode": null,
-            "carrierRoute": null,
-            "county": null
-          },
-          "titleCompany": {
-            "name": null,
-            "code": null
-          },
-          "propertyDetails": {
-            "actualYearBuilt": null,
-            "effectiveYearBuilt": null,
-            "isResidentialProperty": null,
-            "isNewConstruction": null
-          },
-          "landUseAndZoningCodes": {
-            "propertyTypeCode": null,
-            "landUseCode": null,
-            "stateLandUseDescription": null,
-            "countyLandUseDescription": null,
-            "zoningCode": null
-          },
-          "buyerDetails": {
-            "buyerNames": [],
-            "relationshipTypeCode": null,
-            "etalCode": null,
-            "occupancyCode": null,
-            "ownershipRightsCode": null,
-            "mailingAddress": {
-              "careOfName": null,
-              "streetAddress": null,
-              "streetAddressParsed": {
-                "houseNumber": null,
-                "houseNumberSuffix": null,
-                "houseNumber2": null,
-                "direction": null,
-                "streetName": null,
-                "mode": null,
-                "quadrant": null,
-                "unitNumber": null
-              },
-              "city": null,
-              "state": null,
-              "zipCode": null,
-              "carrierRoute": null
+            "parking": {
+              "typeCode": null,
+              "garageTypeCode": null,
+              "parkingSpacesCount": null,
+              "primaryAreaSquareFeet": null,
+              "secondAreaSquareFeet": null,
+              "carportAreaSquareFeet": null
             },
-            "hasPartialInterest": null,
-            "mailingOptOutIndicator": null
+            "pool": null,
+            "walls": {
+              "typeCode": "BRK"
+            },
+            "roof": {
+              "typeCode": "GAB",
+              "coverTypeCode": "ASP"
+            }
           },
-          "sellerDetails": {
-            "sellerNames": []
+          "structureInterior": {
+            "attic": {
+              "typeCode": null
+            },
+            "walls": {
+              "typeCode": "PLT"
+            },
+            "basement": {
+              "typeCode": null,
+              "finishTypeCode": null,
+              "finishPercent": null
+            },
+            "flooring": {
+              "typeCode": "TIL",
+              "coverTypeCode": null
+            },
+            "ceiling": {
+              "typeCode": null,
+              "heightFeet": null
+            },
+            "bathroomFixtures": {
+              "count": null
+            }
+          },
+          "interiorArea": {
+            "universalBuildingAreaSquareFeet": 8500,
+            "universalBuildingAreaSquareFeetSourceCode": "B",
+            "buildingAreaSquareFeet": 8500,
+            "buildingAdjustedAreaSquareFeet": null,
+            "buildingGrossAreaSquareFeet": null,
+            "livingAreaSquareFeet": 8500,
+            "aboveGradeAreaSquareFeet": null,
+            "groundFloorAreaSquareFeet": 4000,
+            "basementAreaSquareFeet": null,
+            "finishedBasementAreaSquareFeet": null,
+            "unfinishedBasementAreaSquareFeet": null,
+            "aboveGroundFloorAreaSquareFeet": 1500,
+            "buildingAdditionsAreaSquareFeet": null,
+            "entryLevelFloorAreaSquareFeet": 4000,
+            "secondFloorAreaSquareFeet": null,
+            "thirdFloorAreaSquareFeet": null
+          },
+          "interiorRooms": {
+            "totalCount": null,
+            "bedroomsCount": null,
+            "bathroomsCount": null,
+            "fullBathroomsCount": null,
+            "halfBathroomsCount": null,
+            "oneQtrBathroomsCount": null,
+            "threeQtrBathroomsCount": null,
+            "kitchensCount": null,
+            "familyRoomsCount": null,
+            "livingRoomsCount": null,
+            "basementRoomsCount": null
+          },
+          "structureFeatures": {
+            "airConditioning": {
+              "typeCode": null
+            },
+            "firePlaces": {
+              "typeCode": null,
+              "count": null
+            },
+            "heating": {
+              "typeCode": null
+            },
+            "plumbing": {
+              "typeCode": null
+            },
+            "passengerElevators": {
+              "count": null
+            },
+            "dormerWindows": {
+              "count": null
+            }
           }
         }
       ]
     }
+  },
+  "ownership": {
+    "data": {
+      "clip": "9876543210",
+      "currentOwners": {
+        "ownerNames": [
+          {
+            "sequenceNumber": 1,
+            "fullName": "GREEN HILLS PARTNERSHIP",
+            "firstNameAndMiddleInitial": null,
+            "lastName": null,
+            "firstName": null,
+            "middleName": null,
+            "isCorporate": true
+          },
+          {
+            "sequenceNumber": 2,
+            "fullName": null,
+            "firstNameAndMiddleInitial": null,
+            "lastName": null,
+            "firstName": null,
+            "middleName": null,
+            "isCorporate": false
+          },
+          {
+            "sequenceNumber": 3,
+            "fullName": null,
+            "firstNameAndMiddleInitial": null,
+            "lastName": null,
+            "firstName": null,
+            "middleName": null,
+            "isCorporate": false
+          },
+          {
+            "sequenceNumber": 4,
+            "fullName": null,
+            "firstNameAndMiddleInitial": null,
+            "lastName": null,
+            "firstName": null,
+            "middleName": null,
+            "isCorporate": false
+          }
+        ],
+        "relationshipTypeCode": null,
+        "ownerEtalCode": null,
+        "occupancyCode": "A",
+        "ownershipRightsCode": null
+      },
+      "currentOwnerMailingInfo": {
+        "mailingAddress": {
+          "careOfName": null,
+          "streetAddress": "1234 Elm St",
+          "streetAddressParsed": {
+            "houseNumber": "1234",
+            "houseNumberSuffix": null,
+            "houseNumber2": null,
+            "direction": "N",
+            "streetName": "Elm",
+            "mailingMode": "ST",
+            "quadrant": null,
+            "unitNumber": null
+          },
+          "city": "NASHVILLE",
+          "state": "TN",
+          "zipCode": "37203",
+          "carrierRoute": "C045",
+          "foreignAddress": null
+        },
+        "ownerMailingOptOutIndicator": null
+      }
+    }
+  },
+  "siteLocation": {
+    "data": {
+      "clip": "9876543210",
+      "coordinatesParcel": {
+        "lat": 36.1627,
+        "lng": -86.7816
+      },
+      "coordinatesBlock": {
+        "lat": 36.1625,
+        "lng": -86.7818
+      },
+      "locationLegal": {
+        "subdivisionName": "WEST END PARK",
+        "subdivisionTractNumber": null,
+        "subdivisionPlatBookNumber": "45",
+        "subdivisionPlatPageNumber": "123",
+        "blockNumber": null,
+        "blockNumberSuffix": null,
+        "lotNumber": "5",
+        "lotNumberSuffix": null,
+        "description": null
+      },
+      "locationSurvey": {
+        "range": null,
+        "township": null,
+        "section": null,
+        "quarterSection": null
+      },
+      "neighborhood": {
+        "code": null,
+        "name": null
+      },
+      "municipality": {
+        "code": null,
+        "name": "NASHVILLE CITY"
+      },
+      "town": {
+        "code": null
+      },
+      "jurisdictionCounty": {
+        "code": null
+      },
+      "cbsa": {
+        "code": "34980",
+        "type": "Metro"
+      },
+      "censusTract": {
+        "id": "0417004010"
+      },
+      "taxRateArea": {
+        "code": null
+      },
+      "taxDistrict": {
+        "name": "520"
+      },
+      "landUseAndZoningCodes": {
+        "propertyTypeCode": "27",
+        "landUseCode": "205",
+        "stateLandUseCode": "09",
+        "stateLandUseDescription": "COMMERCIAL",
+        "countyLandUseCode": null,
+        "countyLandUseDescription": null,
+        "zoningCode": null,
+        "zoningCodeDescription": null,
+        "isManufacturedHome": null
+      },
+      "lot": {
+        "areaAcres": 1.5,
+        "areaSquareFeet": 65340,
+        "areaSquareFeetUsable": null,
+        "depthFeet": null,
+        "frontFeet": null,
+        "shapeCode": null,
+        "topographyType": null,
+        "easementTypeCode": null
+      },
+      "utilities": {
+        "fuelTypeCode": null,
+        "electricityWiringTypeCode": null,
+        "sewerTypeCode": null,
+        "utilitiesTypeCode": null,
+        "waterTypeCode": null
+      }
+    }
+  },
+  "taxAssessment": {
+    "metadata": {
+      "pageNumber": 1,
+      "pageSize": 1,
+      "totalRecords": 1,
+      "totalPages": 1
+    },
+    "items": [
+      {
+        "clip": "9876543210",
+        "taxAmount": {
+          "billedYear": 2024,
+          "delinquentYear": null,
+          "areaCode": null,
+          "areaCodeDescription": null,
+          "propertyTaxRate": null,
+          "calculatedTotalExemptionAmount": null,
+          "totalTaxExemptionAmount": null,
+          "totalTaxAmount": 7500,
+          "countyTaxAmount": null,
+          "schoolTaxAmount": null,
+          "townTaxAmount": null,
+          "villageTaxAmount": null,
+          "netTaxAmount": null
+        },
+        "taxExemptions": {
+          "commercial": [],
+          "residential": []
+        },
+        "assessedValue": {
+          "taxAssessedYear": 2024,
+          "calculatedTotalValue": 950000,
+          "calculatedLandValue": 150000,
+          "calculatedImprovementValue": 800000,
+          "calculatedImprovementValuePercentage": 84,
+          "calculatedTotalValueSourceCode": "P",
+          "taxableValue": null,
+          "taxableImprovementValue": null,
+          "taxableLandValue": null,
+          "taxableOtherValue": null
+        },
+        "taxrollUpdate": {
+          "lastAssessorUpdateDate": "2025-02-01",
+          "taxrollCertificationDate": "2024-08-01"
+        },
+        "schoolDistricts": {
+          "school": {
+            "code": null,
+            "name": null,
+            "elementary": {
+              "code": null,
+              "name": null
+            },
+            "middle": {
+              "code": null,
+              "name": null
+            },
+            "high": {
+              "code": null,
+              "name": null
+            },
+            "communityCollege": {
+              "code": null,
+              "name": null
+            }
+          }
+        },
+        "serviceDistricts": {
+          "fire": {
+            "code": null,
+            "name": null
+          },
+          "trash": {
+            "code": null,
+            "name": null
+          },
+          "lighting": {
+            "code": null,
+            "name": null
+          },
+          "tax": {
+            "code": null,
+            "name": null
+          },
+          "sewer": {
+            "code": null,
+            "name": null
+          },
+          "utility": {
+            "code": null,
+            "name": null
+          },
+          "water": {
+            "code": null,
+            "name": null
+          }
+        }
+      }
+    ]
+  },
+  "mostRecentOwnerTransfer": {
+    "metadata": {
+      "pageNumber": null,
+      "pageSize": null,
+      "totalRecords": null,
+      "totalPages": null
+    },
+    "items": [
+      {
+        "clip": "9876543210",
+        "transactionDetails": {
+          "primaryCategoryCode": null,
+          "deedCategoryCode": null,
+          "saleDateDerived": null,
+          "saleRecordingDateDerived": null,
+          "saleAmount": null,
+          "saleTypeCode": null,
+          "saleDocumentTypeCode": null,
+          "saleDocumentNumber": null,
+          "saleBookNumber": null,
+          "salePageNumber": null,
+          "ownershipTransferPercent": null,
+          "multiOrSplitParcelCode": null,
+          "isCashPurchase": null,
+          "isMortgagePurchase": null,
+          "isInterfamilyRelated": null,
+          "isInvestorPurchase": null,
+          "isResale": null,
+          "isShortSale": null,
+          "isForeclosureReo": null,
+          "isForeclosureReoSale": null
+        },
+        "recordedPropertyAddress": {
+          "streetAddress": null,
+          "streetAddressParsed": {
+            "houseNumber": null,
+            "houseNumberSuffix": null,
+            "houseNumber2": null,
+            "direction": null,
+            "streetName": null,
+            "mode": null,
+            "quadrant": null,
+            "unitNumber": null
+          },
+          "city": null,
+          "state": null,
+          "zipCode": null,
+          "carrierRoute": null,
+          "county": null
+        },
+        "titleCompany": {
+          "name": null,
+          "code": null
+        },
+        "propertyDetails": {
+          "actualYearBuilt": null,
+          "effectiveYearBuilt": null,
+          "isResidentialProperty": null,
+          "isNewConstruction": null
+        },
+        "landUseAndZoningCodes": {
+          "propertyTypeCode": null,
+          "landUseCode": null,
+          "stateLandUseDescription": null,
+          "countyLandUseDescription": null,
+          "zoningCode": null
+        },
+        "buyerDetails": {
+          "buyerNames": [],
+          "relationshipTypeCode": null,
+          "etalCode": null,
+          "occupancyCode": null,
+          "ownershipRightsCode": null,
+          "mailingAddress": {
+            "careOfName": null,
+            "streetAddress": null,
+            "streetAddressParsed": {
+              "houseNumber": null,
+              "houseNumberSuffix": null,
+              "houseNumber2": null,
+              "direction": null,
+              "streetName": null,
+              "mode": null,
+              "quadrant": null,
+              "unitNumber": null
+            },
+            "city": null,
+            "state": null,
+            "zipCode": null,
+            "carrierRoute": null
+          },
+          "hasPartialInterest": null,
+          "mailingOptOutIndicator": null
+        },
+        "sellerDetails": {
+          "sellerNames": []
+        }
+      }
+    ]
+  },
+  "lastMarketSale": {
+    "metadata": {
+      "pageNumber": null,
+      "pageSize": null,
+      "totalRecords": null,
+      "totalPages": null
+    },
+    "items": [
+      {
+        "clip": "9876543210",
+        "transactionDetails": {
+          "primaryCategoryCode": null,
+          "deedCategoryCode": null,
+          "saleDateDerived": null,
+          "saleRecordingDateDerived": null,
+          "saleAmount": null,
+          "saleTypeCode": null,
+          "saleDocumentTypeCode": null,
+          "saleDocumentNumber": null,
+          "saleBookNumber": null,
+          "salePageNumber": null,
+          "ownershipTransferPercent": null,
+          "multiOrSplitParcelCode": null,
+          "isCashPurchase": null,
+          "isMortgagePurchase": null,
+          "isInterfamilyRelated": null,
+          "isInvestorPurchase": null,
+          "isResale": null,
+          "isShortSale": null,
+          "isForeclosureReo": null,
+          "isForeclosureReoSale": null
+        },
+        "recordedPropertyAddress": {
+          "streetAddress": null,
+          "streetAddressParsed": {
+            "houseNumber": null,
+            "houseNumberSuffix": null,
+            "houseNumber2": null,
+            "direction": null,
+            "streetName": null,
+            "mode": null,
+            "quadrant": null,
+            "unitNumber": null
+          },
+          "city": null,
+          "state": null,
+          "zipCode": null,
+          "carrierRoute": null,
+          "county": null
+        },
+        "titleCompany": {
+          "name": null,
+          "code": null
+        },
+        "propertyDetails": {
+          "actualYearBuilt": null,
+          "effectiveYearBuilt": null,
+          "isResidentialProperty": null,
+          "isNewConstruction": null
+        },
+        "landUseAndZoningCodes": {
+          "propertyTypeCode": null,
+          "landUseCode": null,
+          "stateLandUseDescription": null,
+          "countyLandUseDescription": null,
+          "zoningCode": null
+        },
+        "buyerDetails": {
+          "buyerNames": [],
+          "relationshipTypeCode": null,
+          "etalCode": null,
+          "occupancyCode": null,
+          "ownershipRightsCode": null,
+          "mailingAddress": {
+            "careOfName": null,
+            "streetAddress": null,
+            "streetAddressParsed": {
+              "houseNumber": null,
+              "houseNumberSuffix": null,
+              "houseNumber2": null,
+              "direction": null,
+              "streetName": null,
+              "mode": null,
+              "quadrant": null,
+              "unitNumber": null
+            },
+            "city": null,
+            "state": null,
+            "zipCode": null,
+            "carrierRoute": null
+          },
+          "hasPartialInterest": null,
+          "mailingOptOutIndicator": null
+        },
+        "sellerDetails": {
+          "sellerNames": []
+        }
+      }
+    ]
   }
+}

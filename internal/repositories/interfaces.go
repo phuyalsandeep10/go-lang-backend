@@ -27,3 +27,11 @@ type PropertyCache interface {
 	Delete(ctx context.Context, key string) error
 	ClearAll(ctx context.Context) error
 }
+
+
+
+// UserRepository defines the interface for user data operations
+type UserRepository interface {
+	FindByEmail(ctx context.Context, email string) (*models.User, error)
+	Create(ctx context.Context, user *models.User) error
+}

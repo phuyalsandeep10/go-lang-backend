@@ -14,6 +14,7 @@ import (
 	"homeinsight-properties/pkg/logger"
 	"homeinsight-properties/pkg/metrics"
 
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -21,6 +22,7 @@ type PropertySearchService struct {
 	repo      repositories.PropertyRepository
 	cache     repositories.PropertyCache
 	addrTrans transformers.AddressTransformer
+	propTrans transformers.PropertyTransformer
 	validator validators.PropertyValidator
 }
 
@@ -28,52 +30,62 @@ func NewPropertySearchService(
 	repo repositories.PropertyRepository,
 	cache repositories.PropertyCache,
 	addrTrans transformers.AddressTransformer,
+	propTrans transformers.PropertyTransformer,
 	validator validators.PropertyValidator,
 ) *PropertySearchService {
 	return &PropertySearchService{
 		repo:      repo,
 		cache:     cache,
 		addrTrans: addrTrans,
+		propTrans: propTrans,
 		validator: validator,
 	}
 }
 
-
 func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req *models.SearchRequest) (*models.Property, error) {
+	// Get Gin context
+	ginCtx, ok := ctx.(*gin.Context)
+	if !ok {
+		ginCtx = &gin.Context{}
+	}
+
 	if err := s.validator.ValidateSearch(req); err != nil {
+		logger.GlobalLogger.Errorf("Invalid search: query=%s, error=%v", req.Search, err)
 		return nil, err
 	}
 
 	street, city, state, zip := s.addrTrans.ParseAddress(req.Search)
 	if street == "" || city == "" {
+		logger.GlobalLogger.Errorf("Missing address fields: query=%s", req.Search)
 		return nil, fmt.Errorf("street address and city are required")
 	}
 
 	cacheKey := cache.PropertySpecificSearchKey(street, city)
-	var dataSource string
+	ginCtx.Set("data_source", "REDIS")
+	ginCtx.Set("query", req.Search)
 
-	// Check cache for property ID
+	// Check cache
 	if propertyID, err := s.cache.GetSearchKey(ctx, cacheKey); err == nil && propertyID != "" {
 		if property, err := s.cache.GetProperty(ctx, cache.PropertyKey(propertyID)); err == nil && property != nil {
 			metrics.CacheHitsTotal.Inc()
-			dataSource = "cache_hit"
-			logger.Logger.Printf("SearchSpecificProperty: Found property in cache for query=%s, propertyID=%s, data_source=%s", req.Search, propertyID, dataSource)
+			ginCtx.Set("cache_hit", true)
+			ginCtx.Set("property_id", propertyID)
 			return property, nil
 		}
 	}
+
 	metrics.CacheMissesTotal.Inc()
-	dataSource = "cache_miss"
-	logger.Logger.Printf("SearchSpecificProperty: Cache miss for query=%s, cache_key=%s, data_source=%s", req.Search, cacheKey, dataSource)
+	ginCtx.Set("cache_hit", false)
 
 	// Query database
 	property, err := s.repo.FindByAddress(ctx, street, city, state, zip)
 	if err != nil {
-		logger.Logger.Printf("SearchSpecificProperty: Database query failed for query=%s, error=%v, data_source=database", req.Search, err)
+		logger.GlobalLogger.Errorf("DB query failed: query=%s, error=%v", req.Search, err)
 		return nil, err
 	}
 	if property != nil {
-		dataSource = "database"
-		logger.Logger.Printf("SearchSpecificProperty: Found property in database for query=%s, propertyID=%s, data_source=%s", req.Search, property.PropertyID, dataSource)
+		ginCtx.Set("data_source", "DATABASE")
+		ginCtx.Set("property_id", property.PropertyID)
 		propertyKey := cache.PropertyKey(property.PropertyID)
 		_ = s.cache.SetProperty(ctx, propertyKey, property, Month)
 		_ = s.cache.SetSearchKey(ctx, cacheKey, property.PropertyID, Month)
@@ -82,33 +94,33 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 	}
 
 	// Fallback to mock data
-	logger.Logger.Printf("SearchSpecificProperty: Property not found in database, falling back to mock data for query=%s, data_source=mock", req.Search)
-	_, err = utils.ReadMockData("property-detail.json")
+	ginCtx.Set("data_source", "MOCK")
+	mockData, err := utils.ReadMockData("property-detail.json")
 	if err != nil {
-		logger.Logger.Printf("SearchSpecificProperty: Failed to read mock data for query=%s, error=%v, data_source=mock", req.Search, err)
-		return nil, err
+		logger.GlobalLogger.Errorf("Failed to read mock data: query=%s, error=%v", req.Search, err)
+		return nil, fmt.Errorf("failed to read mock data: %v", err)
 	}
 
-	// For simplicity, assume PropertyService handles transformation
-	// Alternatively, inject PropertyTransformer here if needed
-	property = &models.Property{
-		Address: models.Address{
-			StreetAddress: street,
-			City:          city,
-			State:         state,
-			ZipCode:       zip,
-		},
-		ID: primitive.NewObjectID(),
+	property, err = s.propTrans.TransformAPIResponse(mockData)
+	if err != nil {
+		logger.GlobalLogger.Errorf("Failed to transform mock data: query=%s, error=%v", req.Search, err)
+		return nil, fmt.Errorf("failed to transform mock data: %v", err)
 	}
-	// Populate remaining fields from mockData as needed
 
+	// Override address fields
+	property.Address.StreetAddress = street
+	property.Address.City = city
+	property.Address.State = state
+	property.Address.ZipCode = zip
+	property.ID = primitive.NewObjectID()
+	ginCtx.Set("property_id", property.PropertyID)
+
+	// Insert into database
 	if err := s.repo.Create(ctx, property); err != nil {
-		logger.Logger.Printf("SearchSpecificProperty: Failed to create property in database for query=%s, error=%v, data_source=database", req.Search, err)
-		return nil, err
+		logger.GlobalLogger.Errorf("Failed to create property: query=%s, error=%v", req.Search, err)
+		return nil, fmt.Errorf("failed to create property: %v", err)
 	}
 
-	dataSource = "mock"
-	logger.Logger.Printf("SearchSpecificProperty: Created property from mock data for query=%s, propertyID=%s, data_source=%s", req.Search, property.PropertyID, dataSource)
 	propertyKey := cache.PropertyKey(property.PropertyID)
 	_ = s.cache.SetProperty(ctx, propertyKey, property, Month)
 	_ = s.cache.SetSearchKey(ctx, cacheKey, property.PropertyID, Month)
@@ -116,8 +128,13 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 	return property, nil
 }
 
-
 func (s *PropertySearchService) GetPropertiesWithPagination(ctx context.Context, offset, limit int, baseURL string, params url.Values) (*models.PaginatedPropertiesResponse, error) {
+	// Get Gin context
+	ginCtx, ok := ctx.(*gin.Context)
+	if !ok {
+		ginCtx = &gin.Context{}
+	}
+
 	if limit <= 0 || limit > 100 {
 		limit = 10
 	}
@@ -125,19 +142,14 @@ func (s *PropertySearchService) GetPropertiesWithPagination(ctx context.Context,
 		offset = 0
 	}
 
-	cacheKey := cache.PropertyListPaginatedKey(offset, limit)
-	if cached, err := s.cache.GetProperty(ctx, cacheKey); err == nil && cached != nil {
-		metrics.CacheHitsTotal.Inc()
-		// Assuming cached is serialized PaginatedPropertiesResponse; adjust as needed
-	}
+	ginCtx.Set("data_source", "DATABASE")
+	ginCtx.Set("query", fmt.Sprintf("offset=%d,limit=%d", offset, limit))
 
+	// Query database
 	properties, total, err := s.repo.FindWithPagination(ctx, offset, limit)
 	if err != nil {
+		logger.GlobalLogger.Errorf("DB query failed: offset=%d, limit=%d, error=%v", offset, limit, err)
 		return nil, err
-	}
-
-	for _, prop := range properties {
-		_ = s.cache.SetProperty(ctx, cache.PropertyKey(prop.PropertyID), &prop, Month)
 	}
 
 	metadata := models.PaginationMeta{
@@ -166,6 +178,5 @@ func (s *PropertySearchService) GetPropertiesWithPagination(ctx context.Context,
 		response.Data[i] = models.PropertyResponse{Property: &prop}
 	}
 
-	_ = s.cache.SetProperty(ctx, cacheKey, &models.Property{}, Month) // Adjust serialization
 	return response, nil
 }

@@ -5,17 +5,10 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"homeinsight-properties/internal/models"
 	"homeinsight-properties/internal/services"
 	"homeinsight-properties/pkg/logger"
 )
-
-var validate *validator.Validate
-
-func init() {
-	validate = validator.New()
-}
 
 type PropertyHandler struct {
 	propertyService *services.PropertyService
@@ -47,7 +40,7 @@ func (h *PropertyHandler) GetProperties(c *gin.Context) {
 
 	response, err := h.searchService.GetPropertiesWithPagination(c, offset, limit, "/api/properties", c.Request.URL.Query())
 	if err != nil {
-		logger.Logger.Printf("Error fetching properties: %v", err)
+		logger.GlobalLogger.Errorf("Error fetching properties: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
@@ -68,7 +61,7 @@ func (h *PropertyHandler) SearchProperty(c *gin.Context) {
 	req := &models.SearchRequest{Search: query}
 	property, err := h.searchService.SearchSpecificProperty(c, req)
 	if err != nil {
-		logger.Logger.Printf("Error searching property: %v", err)
+		logger.GlobalLogger.Errorf("Error searching property: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -84,7 +77,7 @@ func (h *PropertyHandler) GetPropertyByID(c *gin.Context) {
 
 	property, err := h.propertyService.GetPropertyByID(c, id)
 	if err != nil {
-		logger.Logger.Printf("Error fetching property by ID: %v", err)
+		logger.GlobalLogger.Errorf("Error fetching property by ID: %v", err)
 		c.JSON(http.StatusNotFound, gin.H{"error": "property not found"})
 		return
 	}
@@ -99,7 +92,7 @@ func (h *PropertyHandler) CreateProperty(c *gin.Context) {
 	}
 
 	if err := h.propertyService.CreateProperty(c, &property); err != nil {
-		logger.Logger.Printf("Error creating property: %v", err)
+		logger.GlobalLogger.Errorf("Error creating property: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
@@ -114,7 +107,7 @@ func (h *PropertyHandler) UpdateProperty(c *gin.Context) {
 	}
 
 	if err := h.propertyService.UpdateProperty(c, &property); err != nil {
-		logger.Logger.Printf("Error updating property: %v", err)
+		logger.GlobalLogger.Errorf("Error updating property: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
@@ -129,7 +122,7 @@ func (h *PropertyHandler) DeleteProperty(c *gin.Context) {
 	}
 
 	if err := h.propertyService.DeleteProperty(c, id); err != nil {
-		logger.Logger.Printf("Error deleting property: %v", err)
+		logger.GlobalLogger.Errorf("Error deleting property: %v", err)
 		c.JSON(http.StatusNotFound, gin.H{"error": "property not found"})
 		return
 	}

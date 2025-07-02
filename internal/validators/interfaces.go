@@ -9,3 +9,9 @@ type PropertyValidator interface {
 	ValidateUpdate(property *models.Property) error
 	ValidateSearch(req *models.SearchRequest) error
 }
+
+
+type UserValidator interface {
+	ValidateRegister(user *models.User) error
+	ValidateLogin(email, password string) error
+}

@@ -2,7 +2,7 @@ name: Deploy GO and Nginx to AWS EC2 via ECR
 on:
   push:
     branches:
-      - main
+      - GoWithMongoDB
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -73,13 +73,10 @@ jobs:
             sudo mkdir -p /var/www/certbot
             sudo chown -R ubuntu:ubuntu /var/www/certbot
 
-            # Run the Go container with direct database values
+            # Run the Go container with MongoDB Atlas configuration
             docker run -d --name homeinsightcore --network app-network \
               -p 8000:8000 \
-              -e DB_HOST=database-1.cqhwssee66qb.us-east-1.rds.amazonaws.com \
-              -e DB_PORT=3306 \
-              -e DB_USER=admin \
-              -e DB_PASSWORD=HomeInsight \
+              -e MONGO_URI=mongodb+srv://homeinsightcore:Zj3l6zfaM43K3PpG@cluster0.9kecynk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0 \
               -e DB_NAME=homeinsight \
               882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
 
