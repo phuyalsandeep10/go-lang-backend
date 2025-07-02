@@ -13,7 +13,7 @@ database:
   dbname: "homeinsight"
 
 redis:
-  host: clustercfg.homeinsight-core-cache.dxz4rf.use1.cache.amazonaws.com:6379
+  host: clustercfg.homeinsight-core-cache.dxz4rf.use1.cache.amazonaws.com
   port: 6379
   password: ""
   db: 0
