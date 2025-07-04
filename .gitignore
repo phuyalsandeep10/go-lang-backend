@@ -14,8 +14,10 @@ vendor/
 *.prof
 *.cover
 
-# Configuration files with sensitive data
+# Environment files
 .env
+.env.*
+!.env.example
 
 # Log files
 *.log

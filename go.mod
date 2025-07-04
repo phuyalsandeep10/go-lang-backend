@@ -3,6 +3,7 @@ module homeinsight-properties
 go 1.24.3
 
 require (
+	github.com/fatih/color v1.18.0
 	github.com/gin-contrib/cors v1.7.5
 	github.com/gin-gonic/gin v1.10.1
 	github.com/go-redis/redis/v8 v8.11.5
@@ -16,7 +17,6 @@ require (
 	golang.org/x/crypto v0.39.0
 	golang.org/x/time v0.12.0
 	gopkg.in/yaml.v3 v3.0.1
-	github.com/fatih/color v1.18.0
 )
 
 require (

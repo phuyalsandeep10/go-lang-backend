@@ -9,18 +9,18 @@ import (
 
 type Config struct {
 	Server struct {
-		Port int `yaml:"port"`
+		Port int `yaml:"port" validate:"required,gt=0,lte=65535"`
 	} `yaml:"server"`
 	Database struct {
 		URI      string `yaml:"uri"`
-		DBName   string `yaml:"dbname"`
+		DBName   string `yaml:"dbname" validate:"required"`
 	} `yaml:"database"`
 	Redis struct {
-		Host        string `yaml:"host" validate:"required,hostname"`
-		Port        int    `yaml:"port" validate:"required,gt=0,lte=65535"`
-		Password    string `yaml:"password"`
-		DB          int    `yaml:"db" validate:"gte=0"`
-		TLSEnabled  bool   `yaml:"tls_enabled"`
+		Host       string `yaml:"host" validate:"required,hostname"`
+		Port       int    `yaml:"port" validate:"required,gt=0,lte=65535"`
+		Password   string `yaml:"password"`
+		DB         int    `yaml:"db" validate:"gte=0"`
+		TLSEnabled bool   `yaml:"tls_enabled"`
 	} `yaml:"redis"`
 	JWT struct {
 		Secret string `yaml:"secret"`
@@ -28,43 +28,9 @@ type Config struct {
 }
 
 func LoadConfig(path string) (*Config, error) {
-	// Initialize config with hardcoded values for testing
-	cfg := &Config{
-		Server: struct {
-			Port int `yaml:"port"`
-		}{
-			Port: 8000, // SERVER_PORT
-		},
-		Database: struct {
-			URI      string `yaml:"uri"`
-			DBName   string `yaml:"dbname"`
+	cfg := &Config{}
 
-		}{
-			URI:      "mongodb+srv://homeinsightcore:Zj3l6zfaM43K3PpG@cluster0.9kecynk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", // MONGO_URI
-			DBName:   "homeinsight",                                                                                                                     // DB_NAME
-		                                                                                                                  // DB_PASSWORD
-		},
-		Redis: struct {
-			Host        string `yaml:"host" validate:"required,hostname"`
-			Port        int    `yaml:"port" validate:"required,gt=0,lte=65535"`
-			Password    string `yaml:"password"`
-			DB          int    `yaml:"db" validate:"gte=0"`
-			TLSEnabled  bool   `yaml:"tls_enabled"`
-		}{
-			Host:       "clustercfg.homeinsight-core-cache.dxz4rf.use1.cache.amazonaws.com", // REDIS_HOST
-			Port:       6379,                                                                // REDIS_PORT
-			Password:   "",                                                                  // REDIS_PASSWORD
-			DB:         0,                                                                   // REDIS_DB
-			TLSEnabled: true,                                                                // REDIS_TLS_ENABLED
-		},
-		JWT: struct {
-			Secret string `yaml:"secret"`
-		}{
-			Secret: "your_jwt_secret_key", // JWT_SECRET
-		},
-	}
-
-	// Optionally load from YAML file if provided
+	// Load from YAML file if provided
 	if path != "" {
 		data, err := os.ReadFile(path)
 		if err != nil {
@@ -75,7 +41,37 @@ func LoadConfig(path string) (*Config, error) {
 		}
 	}
 
+	// Override with environment variables for sensitive fields
+	if mongoURI := os.Getenv("MONGO_URI"); mongoURI != "" {
+		cfg.Database.URI = mongoURI
+	}
+	if redisHost := os.Getenv("REDIS_HOST"); redisHost != "" {
+		cfg.Redis.Host = redisHost
+	}
+	if redisPassword := os.Getenv("REDIS_PASSWORD"); redisPassword != "" {
+		cfg.Redis.Password = redisPassword
+	}
+	if jwtSecret := os.Getenv("JWT_SECRET"); jwtSecret != "" {
+		cfg.JWT.Secret = jwtSecret
+	}
+
+	// Set tls_enabled based on ENV
+	if env := os.Getenv("ENV"); env == "production" {
+		cfg.Redis.TLSEnabled = true
+	} else {
+		cfg.Redis.TLSEnabled = false
+	}
+
 	// Validation
+	if cfg.Server.Port <= 0 || cfg.Server.Port > 65535 {
+		return nil, fmt.Errorf("SERVER_PORT must be between 1 and 65535")
+	}
+	if cfg.Database.URI == "" {
+		return nil, fmt.Errorf("MONGO_URI is required")
+	}
+	if cfg.Database.DBName == "" {
+		return nil, fmt.Errorf("DB_NAME is required")
+	}
 	if cfg.Redis.Host == "" {
 		return nil, fmt.Errorf("REDIS_HOST is required")
 	}
@@ -84,6 +80,9 @@ func LoadConfig(path string) (*Config, error) {
 	}
 	if cfg.Redis.DB < 0 {
 		return nil, fmt.Errorf("REDIS_DB must be non-negative")
+	}
+	if cfg.JWT.Secret == "" {
+		return nil, fmt.Errorf("JWT_SECRET is required")
 	}
 
 	return cfg, nil
