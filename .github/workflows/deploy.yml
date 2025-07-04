@@ -101,7 +101,6 @@ jobs:
                   - MONGO_URI=${MONGO_URI}
                   - DB_NAME=homeinsight
                   - REDIS_HOST=${REDIS_HOST}
-                  - REDIS_PASSWORD=""
                   - JWT_SECRET=${JWT_SECRET}
                 volumes:
                   - ./config.yaml:/app/config.yaml
