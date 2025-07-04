@@ -46,7 +46,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,ENV,MONGO_URI,REDIS_HOST,REDIS_PASSWORD,JWT_SECRET
+          envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION
           script: |
             # Ensure Docker service is running
             sudo systemctl start docker
@@ -64,6 +64,12 @@ jobs:
 
             # Login to ECR on the EC2 instance
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 882142483449.dkr.ecr.us-east-1.amazonaws.com
+
+            # Fetch parameters from SSM Parameter Store
+            export ENV=$(aws ssm get-parameter --name "/homeinsight/prod/env" --query Parameter.Value --output text)
+            export MONGO_URI=$(aws ssm get-parameter --name "/homeinsight/prod/database/uri" --with-decryption --query Parameter.Value --output text)
+            export REDIS_HOST=$(aws ssm get-parameter --name "/homeinsight/prod/redis/host" --with-decryption --query Parameter.Value --output text)
+            export JWT_SECRET=$(aws ssm get-parameter --name "/homeinsight/prod/jwt/secret" --with-decryption --query Parameter.Value --output text)
 
             # Pull the latest Go image
             docker pull 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
@@ -95,7 +101,7 @@ jobs:
                   - MONGO_URI=${MONGO_URI}
                   - DB_NAME=homeinsight
                   - REDIS_HOST=${REDIS_HOST}
-                  - REDIS_PASSWORD=${REDIS_PASSWORD}
+                  - REDIS_PASSWORD=""
                   - JWT_SECRET=${JWT_SECRET}
                 volumes:
                   - ./config.yaml:/app/config.yaml
