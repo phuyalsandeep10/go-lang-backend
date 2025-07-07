@@ -2,7 +2,7 @@ name: Deploy GO and Nginx to AWS EC2 via ECR
 on:
   push:
     branches:
-      - GOWithMongoDB  # Test4
+      - main
 
 jobs:
   deploy:

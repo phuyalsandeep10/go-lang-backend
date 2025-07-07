@@ -24,6 +24,9 @@ b. lowercase
 {{base_url}}/api/properties/property-search?q=1234 elm st, nashville, tn 37203
 
 
+http://18.212.93.146:8000/api/properties/property-search?q=1234%20ELM%20ST%2C%20NASHVILLE%2C%20TN%2037203
+
+
 3.! Address: 3416 NIGHTSHADE DR, MURFREESBORO, TN 37128
 --------------------------------------------------------
 a. UPPERCASE
