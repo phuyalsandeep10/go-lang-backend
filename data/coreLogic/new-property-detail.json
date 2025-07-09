@@ -1,0 +1,635 @@
+{
+  "buildings": {
+    "data": {
+      "clip": "1005285055",
+      "allBuildingsSummary": {
+        "buildingsCount": 1,
+        "unitsCount": 1,
+        "roomsCount": null,
+        "bedroomsCount": null,
+        "bathroomsCount": 3,
+        "fullBathroomsCount": 2,
+        "halfBathroomsCount": 1,
+        "oneQtrBathroomsCount": null,
+        "threeQtrBathroomsCount": null,
+        "bathroomFixturesCount": null,
+        "fireplacesCount": null,
+        "livingAreaSquareFeet": 1360,
+        "totalAreaSquareFeet": 1360,
+        "openAreasSquareFeet": null,
+        "officeSpaceSquareFeet": null,
+        "elevatorsCount": null,
+        "loadingDocksCount": null,
+        "railSpursCount": null,
+        "truckDoorsCount": null
+      },
+      "buildings": [
+        {
+          "structureId": {
+            "sequenceNumber": 1,
+            "compositeBuildingLinkageKey": "47149R0115481                                     001001",
+            "buildingName": null,
+            "buildingNumber": "116185",
+            "buildingSectionNumber": null,
+            "buildingComments": null
+          },
+          "structureClassification": {
+            "buildingTypeCode": "RT0",
+            "buildingClassCode": null,
+            "gradeTypeCode": null,
+            "fireSprinklerTypeCode": null,
+            "fireInsuranceTypeCode": null
+          },
+          "structureFootprint": {
+            "widthFeet": null,
+            "depthFeet": null
+          },
+          "structureUnitsSummary": {
+            "vacantCount": null,
+            "residentialCount": 1,
+            "commercialCount": null
+          },
+          "structureVerticalProfile": {
+            "storiesCount": null,
+            "storiesTypeCode": null,
+            "floorNumber": null
+          },
+          "constructionDetails": {
+            "yearBuilt": 2017,
+            "effectiveYearBuilt": null,
+            "buildingStyleTypeCode": null,
+            "buildingQualityTypeCode": "QVV",
+            "frameTypeCode": null,
+            "foundationTypeCode": "CRE",
+            "constructionTypeCode": null,
+            "buildingRemodelTypeCode": null,
+            "buildingImprovementConditionCode": null,
+            "buildingImprovementTypeCode": null,
+            "buildingImprovementValue": null
+          },
+          "structureExterior": {
+            "patios": {
+              "count": null,
+              "typeCode": null,
+              "areaSquareFeet": null
+            },
+            "porches": {
+              "count": null,
+              "typeCode": null,
+              "areaSquareFeet": null,
+              "secondPorchAreaSquareFeet": null
+            },
+            "parking": {
+              "typeCode": null,
+              "garageTypeCode": null,
+              "parkingSpacesCount": null,
+              "primaryAreaSquareFeet": null,
+              "secondAreaSquareFeet": null,
+              "carportAreaSquareFeet": null
+            },
+            "pool": null,
+            "walls": {
+              "typeCode": "FRV"
+            },
+            "roof": {
+              "typeCode": "H00",
+              "coverTypeCode": "015"
+            }
+          },
+          "structureInterior": {
+            "attic": {
+              "typeCode": null
+            },
+            "walls": {
+              "typeCode": "DRY"
+            },
+            "basement": {
+              "typeCode": null,
+              "finishTypeCode": null,
+              "finishPercent": null
+            },
+            "flooring": {
+              "typeCode": null,
+              "coverTypeCode": null
+            },
+            "ceiling": {
+              "typeCode": null,
+              "heightFeet": null
+            },
+            "bathroomFixtures": {
+              "count": null
+            }
+          },
+          "interiorArea": {
+            "universalBuildingAreaSquareFeet": 1360,
+            "universalBuildingAreaSquareFeetSourceCode": "L",
+            "buildingAreaSquareFeet": 1360,
+            "buildingAdjustedAreaSquareFeet": null,
+            "buildingGrossAreaSquareFeet": null,
+            "livingAreaSquareFeet": 1360,
+            "aboveGradeAreaSquareFeet": null,
+            "groundFloorAreaSquareFeet": 660,
+            "basementAreaSquareFeet": null,
+            "finishedBasementAreaSquareFeet": null,
+            "unfinishedBasementAreaSquareFeet": null,
+            "aboveGroundFloorAreaSquareFeet": 700,
+            "buildingAdditionsAreaSquareFeet": null,
+            "entryLevelFloorAreaSquareFeet": 660,
+            "secondFloorAreaSquareFeet": null,
+            "thirdFloorAreaSquareFeet": null
+          },
+          "interiorRooms": {
+            "totalCount": null,
+            "bedroomsCount": null,
+            "bathroomsCount": 2.5,
+            "fullBathroomsCount": 2,
+            "halfBathroomsCount": 1,
+            "oneQtrBathroomsCount": null,
+            "threeQtrBathroomsCount": null,
+            "kitchensCount": null,
+            "familyRoomsCount": null,
+            "livingRoomsCount": null,
+            "basementRoomsCount": null
+          },
+          "structureFeatures": {
+            "airConditioning": {
+              "typeCode": null
+            },
+            "firePlaces": {
+              "typeCode": null,
+              "count": null
+            },
+            "heating": {
+              "typeCode": null
+            },
+            "plumbing": {
+              "typeCode": null
+            },
+            "passengerElevators": {
+              "count": null
+            },
+            "dormerWindows": {
+              "count": null
+            }
+          }
+        }
+      ]
+    }
+  },
+  "ownership": {
+    "data": {
+      "clip": "1005285055",
+      "currentOwners": {
+        "ownerNames": [
+          {
+            "sequenceNumber": 1,
+            "fullName": "FORD AMBER A",
+            "firstNameAndMiddleInitial": "AMBER A",
+            "lastName": "FORD",
+            "firstName": "AMBER",
+            "middleName": "A",
+            "isCorporate": false
+          },
+          {
+            "sequenceNumber": 2,
+            "fullName": null,
+            "firstNameAndMiddleInitial": null,
+            "lastName": null,
+            "firstName": null,
+            "middleName": null,
+            "isCorporate": false
+          },
+          {
+            "sequenceNumber": 3,
+            "fullName": null,
+            "firstNameAndMiddleInitial": null,
+            "lastName": null,
+            "firstName": null,
+            "middleName": null,
+            "isCorporate": false
+          },
+          {
+            "sequenceNumber": 4,
+            "fullName": null,
+            "firstNameAndMiddleInitial": null,
+            "lastName": null,
+            "firstName": null,
+            "middleName": null,
+            "isCorporate": false
+          }
+        ],
+        "relationshipTypeCode": null,
+        "ownerEtalCode": null,
+        "occupancyCode": "O",
+        "ownershipRightsCode": null
+      },
+      "currentOwnerMailingInfo": {
+        "mailingAddress": {
+          "careOfName": null,
+          "streetAddress": "3416 NIGHTSHADE DR",
+          "streetAddressParsed": {
+            "houseNumber": "3416",
+            "houseNumberSuffix": null,
+            "houseNumber2": null,
+            "direction": null,
+            "streetName": "NIGHTSHADE",
+            "mailingMode": "DR",
+            "quadrant": null,
+            "unitNumber": null
+          },
+          "city": "MURFREESBORO",
+          "state": "TN",
+          "zipCode": "37128",
+          "carrierRoute": "R050",
+          "foreignAddress": null
+        },
+        "ownerMailingOptOutIndicator": null
+      }
+    }
+  },
+  "siteLocation": {
+    "data": {
+      "clip": "1005285055",
+      "coordinatesParcel": {
+        "lat": 35.822024,
+        "lng": -86.460541
+      },
+      "coordinatesBlock": {
+        "lat": 35.822024,
+        "lng": -86.460541
+      },
+      "locationLegal": {
+        "subdivisionName": "THE VILLAS AT EVERGREEN FARMS PH 5",
+        "subdivisionTractNumber": null,
+        "subdivisionPlatBookNumber": "40",
+        "subdivisionPlatPageNumber": "221",
+        "blockNumber": null,
+        "blockNumberSuffix": null,
+        "lotNumber": "266",
+        "lotNumberSuffix": null,
+        "description": null
+      },
+      "locationSurvey": {
+        "range": null,
+        "township": null,
+        "section": null,
+        "quarterSection": null
+      },
+      "neighborhood": {
+        "code": null,
+        "name": null
+      },
+      "municipality": {
+        "code": null,
+        "name": "MURFREESBORO CITY"
+      },
+      "town": {
+        "code": null
+      },
+      "jurisdictionCounty": {
+        "code": null
+      },
+      "cbsa": {
+        "code": "34980",
+        "type": "Metro"
+      },
+      "censusTract": {
+        "id": "0409091006"
+      },
+      "taxRateArea": {
+        "code": null
+      },
+      "taxDistrict": {
+        "name": "515"
+      },
+      "landUseAndZoningCodes": {
+        "propertyTypeCode": "10",
+        "landUseCode": "102",
+        "stateLandUseCode": "00",
+        "stateLandUseDescription": "RESIDENTIAL",
+        "countyLandUseCode": null,
+        "countyLandUseDescription": null,
+        "zoningCode": null,
+        "zoningCodeDescription": null,
+        "isManufacturedHome": null
+      },
+      "lot": {
+        "areaAcres": null,
+        "areaSquareFeet": null,
+        "areaSquareFeetUsable": null,
+        "depthFeet": null,
+        "frontFeet": null,
+        "shapeCode": null,
+        "topographyType": null,
+        "easementTypeCode": null
+      },
+      "utilities": {
+        "fuelTypeCode": null,
+        "electricityWiringTypeCode": null,
+        "sewerTypeCode": null,
+        "utilitiesTypeCode": null,
+        "waterTypeCode": null
+      }
+    }
+  },
+  "taxAssessment": {
+    "metadata": {
+      "pageNumber": 1,
+      "pageSize": 1,
+      "totalRecords": 1,
+      "totalPages": 1
+    },
+    "items": [
+      {
+        "clip": "1005285055",
+        "taxAmount": {
+          "billedYear": 2024,
+          "delinquentYear": null,
+          "areaCode": null,
+          "areaCodeDescription": null,
+          "propertyTaxRate": null,
+          "calculatedTotalExemptionAmount": null,
+          "totalTaxExemptionAmount": null,
+          "totalTaxAmount": 1182,
+          "countyTaxAmount": null,
+          "schoolTaxAmount": null,
+          "townTaxAmount": null,
+          "villageTaxAmount": null,
+          "netTaxAmount": null
+        },
+        "taxExemptions": {
+          "commercial": [],
+          "residential": []
+        },
+        "assessedValue": {
+          "taxAssessedYear": 2024,
+          "calculatedTotalValue": 252100,
+          "calculatedLandValue": 12500,
+          "calculatedImprovementValue": 239600,
+          "calculatedImprovementValuePercentage": 95,
+          "calculatedTotalValueSourceCode": "P",
+          "taxableValue": null,
+          "taxableImprovementValue": null,
+          "taxableLandValue": null,
+          "taxableOtherValue": null
+        },
+        "taxrollUpdate": {
+          "lastAssessorUpdateDate": "2025-01-17",
+          "taxrollCertificationDate": "2024-07-01"
+        },
+        "schoolDistricts": {
+          "school": {
+            "code": null,
+            "name": null,
+            "elementary": {
+              "code": null,
+              "name": null
+            },
+            "middle": {
+              "code": null,
+              "name": null
+            },
+            "high": {
+              "code": null,
+              "name": null
+            },
+            "communityCollege": {
+              "code": null,
+              "name": null
+            }
+          }
+        },
+        "serviceDistricts": {
+          "fire": {
+            "code": null,
+            "name": null
+          },
+          "trash": {
+            "code": null,
+            "name": null
+          },
+          "lighting": {
+            "code": null,
+            "name": null
+          },
+          "tax": {
+            "code": null,
+            "name": null
+          },
+          "sewer": {
+            "code": null,
+            "name": null
+          },
+          "utility": {
+            "code": null,
+            "name": null
+          },
+          "water": {
+            "code": null,
+            "name": null
+          }
+        }
+      }
+    ]
+  },
+  "mostRecentOwnerTransfer": {
+    "metadata": {
+      "pageNumber": null,
+      "pageSize": null,
+      "totalRecords": null,
+      "totalPages": null
+    },
+    "items": [
+      {
+        "clip": "1005285055",
+        "transactionDetails": {
+          "primaryCategoryCode": null,
+          "deedCategoryCode": null,
+          "saleDateDerived": null,
+          "saleRecordingDateDerived": null,
+          "saleAmount": null,
+          "saleTypeCode": null,
+          "saleDocumentTypeCode": null,
+          "saleDocumentNumber": null,
+          "saleBookNumber": null,
+          "salePageNumber": null,
+          "ownershipTransferPercent": null,
+          "multiOrSplitParcelCode": null,
+          "isCashPurchase": null,
+          "isMortgagePurchase": null,
+          "isInterfamilyRelated": null,
+          "isInvestorPurchase": null,
+          "isResale": null,
+          "isShortSale": null,
+          "isForeclosureReo": null,
+          "isForeclosureReoSale": null
+        },
+        "recordedPropertyAddress": {
+          "streetAddress": null,
+          "streetAddressParsed": {
+            "houseNumber": null,
+            "houseNumberSuffix": null,
+            "houseNumber2": null,
+            "direction": null,
+            "streetName": null,
+            "mode": null,
+            "quadrant": null,
+            "unitNumber": null
+          },
+          "city": null,
+          "state": null,
+          "zipCode": null,
+          "carrierRoute": null,
+          "county": null
+        },
+        "titleCompany": {
+          "name": null,
+          "code": null
+        },
+        "propertyDetails": {
+          "actualYearBuilt": null,
+          "effectiveYearBuilt": null,
+          "isResidentialProperty": null,
+          "isNewConstruction": null
+        },
+        "landUseAndZoningCodes": {
+          "propertyTypeCode": null,
+          "landUseCode": null,
+          "stateLandUseDescription": null,
+          "countyLandUseDescription": null,
+          "zoningCode": null
+        },
+        "buyerDetails": {
+          "buyerNames": [],
+          "relationshipTypeCode": null,
+          "etalCode": null,
+          "occupancyCode": null,
+          "ownershipRightsCode": null,
+          "mailingAddress": {
+            "careOfName": null,
+            "streetAddress": null,
+            "streetAddressParsed": {
+              "houseNumber": null,
+              "houseNumberSuffix": null,
+              "houseNumber2": null,
+              "direction": null,
+              "streetName": null,
+              "mode": null,
+              "quadrant": null,
+              "unitNumber": null
+            },
+            "city": null,
+            "state": null,
+            "zipCode": null,
+            "carrierRoute": null
+          },
+          "hasPartialInterest": null,
+          "mailingOptOutIndicator": null
+        },
+        "sellerDetails": {
+          "sellerNames": []
+        }
+      }
+    ]
+  },
+  "lastMarketSale": {
+    "metadata": {
+      "pageNumber": null,
+      "pageSize": null,
+      "totalRecords": null,
+      "totalPages": null
+    },
+    "items": [
+      {
+        "clip": "1005285055",
+        "transactionDetails": {
+          "primaryCategoryCode": null,
+          "deedCategoryCode": null,
+          "saleDateDerived": null,
+          "saleRecordingDateDerived": null,
+          "saleAmount": null,
+          "saleTypeCode": null,
+          "saleDocumentTypeCode": null,
+          "saleDocumentNumber": null,
+          "saleBookNumber": null,
+          "salePageNumber": null,
+          "ownershipTransferPercent": null,
+          "multiOrSplitParcelCode": null,
+          "isCashPurchase": null,
+          "isMortgagePurchase": null,
+          "isInterfamilyRelated": null,
+          "isInvestorPurchase": null,
+          "isResale": null,
+          "isShortSale": null,
+          "isForeclosureReo": null,
+          "isForeclosureReoSale": null
+        },
+        "recordedPropertyAddress": {
+          "streetAddress": null,
+          "streetAddressParsed": {
+            "houseNumber": null,
+            "houseNumberSuffix": null,
+            "houseNumber2": null,
+            "direction": null,
+            "streetName": null,
+            "mode": null,
+            "quadrant": null,
+            "unitNumber": null
+          },
+          "city": null,
+          "state": null,
+          "zipCode": null,
+          "carrierRoute": null,
+          "county": null
+        },
+        "titleCompany": {
+          "name": null,
+          "code": null
+        },
+        "propertyDetails": {
+          "actualYearBuilt": null,
+          "effectiveYearBuilt": null,
+          "isResidentialProperty": null,
+          "isNewConstruction": null
+        },
+        "landUseAndZoningCodes": {
+          "propertyTypeCode": null,
+          "landUseCode": null,
+          "stateLandUseDescription": null,
+          "countyLandUseDescription": null,
+          "zoningCode": null
+        },
+        "buyerDetails": {
+          "buyerNames": [],
+          "relationshipTypeCode": null,
+          "etalCode": null,
+          "occupancyCode": null,
+          "ownershipRightsCode": null,
+          "mailingAddress": {
+            "careOfName": null,
+            "streetAddress": null,
+            "streetAddressParsed": {
+              "houseNumber": null,
+              "houseNumberSuffix": null,
+              "houseNumber2": null,
+              "direction": null,
+              "streetName": null,
+              "mode": null,
+              "quadrant": null,
+              "unitNumber": null
+            },
+            "city": null,
+            "state": null,
+            "zipCode": null,
+            "carrierRoute": null
+          },
+          "hasPartialInterest": null,
+          "mailingOptOutIndicator": null
+        },
+        "sellerDetails": {
+          "sellerNames": []
+        }
+      }
+    ]
+  }
+}

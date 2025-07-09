@@ -12,6 +12,7 @@ import (
 	"homeinsight-properties/internal/validators"
 	"homeinsight-properties/pkg/cache"
 	"homeinsight-properties/pkg/config"
+	"homeinsight-properties/pkg/corelogic"
 	"homeinsight-properties/pkg/database"
 	"homeinsight-properties/pkg/logger"
 	"homeinsight-properties/pkg/metrics"
@@ -20,7 +21,6 @@ import (
 	"golang.org/x/time/rate"
 )
 
-// App represents the application structure
 type App struct {
 	Config          *config.Config
 	Router          *gin.Engine
@@ -30,7 +30,7 @@ type App struct {
 	Server          *http.Server
 }
 
-// Create and initialize a new App instance
+// create and initialize a new App instance
 func NewApp(cfg *config.Config) *App {
 	app := &App{Config: cfg}
 
@@ -49,7 +49,7 @@ func NewApp(cfg *config.Config) *App {
 	return app
 }
 
-// initialize the database connection
+// database connection
 func (a *App) initializeDatabase() {
 	if err := database.InitDB(a.Config); err != nil {
 		logger.GlobalLogger.Errorf("Failed to initialize database: %v", err)
@@ -61,7 +61,7 @@ func (a *App) initializeDatabase() {
 	}
 }
 
-// initialize the Redis cache
+// Redis cache
 func (a *App) initializeCache() {
 	if err := cache.InitRedis(a.Config); err != nil {
 		logger.GlobalLogger.Errorf("Failed to initialize Redis: %v", err)
@@ -69,43 +69,51 @@ func (a *App) initializeCache() {
 	}
 }
 
-// initialize Prometheus metrics
+// Prometheus metrics
 func (a *App) initializeMetrics() {
 	metrics.Init()
 }
 
-// initialize the rate limiter
+// rate limiter
 func (a *App) initializeRateLimiter() {
 	a.RateLimiter = middleware.NewRateLimiter(rate.Limit(100/60.0), 10)
 	go a.RateLimiter.Cleanup()
 }
 
-// initialize all dependencies
+// set up all dependencies
 func (a *App) initializeDependencies() {
-	// repositories
+	// Repositories
 	propertyRepo := repositories.NewPropertyRepository()
 	propertyCache := repositories.NewPropertyCache()
 	userRepo := repositories.NewUserRepository()
 
-	// transformers
+	// Transformers
 	addrTrans := transformers.NewAddressTransformer()
 	propTrans := transformers.NewPropertyTransformer()
 
-	// validators
+	// Validators
 	propertyValidator := validators.NewPropertyValidator()
 	userValidator := validators.NewUserValidator()
 
-	// services
+	// CoreLogic client
+	corelogicClient := corelogic.NewClient(
+		a.Config.CoreLogic.ClientKey,
+		a.Config.CoreLogic.ClientSecret,
+		a.Config.CoreLogic.BaseUrl,
+		a.Config.CoreLogic.DeveloperEmail,
+	)
+
+	// Services
 	propertyService := services.NewPropertyService(propertyRepo, propertyCache, propTrans, addrTrans, propertyValidator)
-	searchService := services.NewPropertySearchService(propertyRepo, propertyCache, addrTrans, propTrans, propertyValidator)
+	searchService := services.NewPropertySearchService(propertyRepo, propertyCache, addrTrans, propTrans, propertyValidator, corelogicClient)
 	userService := services.NewUserService(userRepo, userValidator)
 
-	// handlers
+	// Handlers
 	a.PropertyHandler = handlers.NewPropertyHandler(propertyService, searchService)
 	a.UserHandler = handlers.NewUserHandler(userService)
 }
 
-// set up the Gin router with middleware and routes
+// Gin router with middleware and routes
 func (a *App) initializeRouter() {
 	a.Router = gin.New()
 	a.setupMiddleware()

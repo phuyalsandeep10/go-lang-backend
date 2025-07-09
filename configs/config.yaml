@@ -2,9 +2,21 @@ server:
   port: 8000
 
 database:
+  uri: ""
   dbname: homeinsight
 
 redis:
+  host: ""
   port: 6379
+  password: ""
   db: 0
   tls_enabled: false
+
+jwt:
+  secret: ""
+
+corelogic:
+  base_url: "https://star.corelogic.com"
+  client_key: ""
+  client_secret: ""
+  developer_email: ""

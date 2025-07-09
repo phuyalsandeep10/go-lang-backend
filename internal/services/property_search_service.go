@@ -11,6 +11,7 @@ import (
 	"homeinsight-properties/internal/utils"
 	"homeinsight-properties/internal/validators"
 	"homeinsight-properties/pkg/cache"
+	"homeinsight-properties/pkg/corelogic"
 	"homeinsight-properties/pkg/logger"
 	"homeinsight-properties/pkg/metrics"
 
@@ -18,12 +19,14 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+
 type PropertySearchService struct {
 	repo      repositories.PropertyRepository
 	cache     repositories.PropertyCache
 	addrTrans transformers.AddressTransformer
 	propTrans transformers.PropertyTransformer
 	validator validators.PropertyValidator
+	corelogic *corelogic.Client
 }
 
 func NewPropertySearchService(
@@ -32,6 +35,7 @@ func NewPropertySearchService(
 	addrTrans transformers.AddressTransformer,
 	propTrans transformers.PropertyTransformer,
 	validator validators.PropertyValidator,
+	corelogicClient *corelogic.Client,
 ) *PropertySearchService {
 	return &PropertySearchService{
 		repo:      repo,
@@ -39,11 +43,11 @@ func NewPropertySearchService(
 		addrTrans: addrTrans,
 		propTrans: propTrans,
 		validator: validator,
+		corelogic: corelogicClient,
 	}
 }
 
 func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req *models.SearchRequest) (*models.Property, error) {
-	// Get Gin context
 	ginCtx, ok := ctx.(*gin.Context)
 	if !ok {
 		ginCtx = &gin.Context{}
@@ -93,43 +97,60 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 		return property, nil
 	}
 
-	// Fallback to mock data
-	ginCtx.Set("data_source", "MOCK")
-	mockData, err := utils.ReadMockData("property-detail.json")
+	// Fallback to CoreLogic API
+	ginCtx.Set("data_source", "CORELOGIC")
+
+	// Search for property by address
+	clip, v1PropertyId, err := s.corelogic.SearchPropertyByAddress(street, city, state, zip)
 	if err != nil {
-		logger.GlobalLogger.Errorf("Failed to read mock data: query=%s, error=%v", req.Search, err)
-		return nil, fmt.Errorf("failed to read mock data: %v", err)
+		logger.GlobalLogger.Errorf("CoreLogic search failed: query=%s, error=%v", req.Search, err)
+		return nil, fmt.Errorf("failed to search property: %v", err)
 	}
 
-	property, err = s.propTrans.TransformAPIResponse(mockData)
+	// Get property details
+	details, err := s.corelogic.GetPropertyDetails(clip)
 	if err != nil {
-		logger.GlobalLogger.Errorf("Failed to transform mock data: query=%s, error=%v", req.Search, err)
-		return nil, fmt.Errorf("failed to transform mock data: %v", err)
+		logger.GlobalLogger.Errorf("CoreLogic details failed: clip=%s, error=%v", clip, err)
+		return nil, fmt.Errorf("failed to get property details: %v", err)
 	}
 
-	// Override address fields
+	// Transform API response
+	property, err = s.propTrans.TransformAPIResponse(details)
+	if err != nil {
+		logger.GlobalLogger.Errorf("Failed to transform CoreLogic data: clip=%s, error=%v", clip, err)
+		return nil, fmt.Errorf("failed to transform property data: %v", err)
+	}
+
+	// Set PropertyID and AVMPropertyID
+	property.PropertyID = clip
+	property.AVMPropertyID = v1PropertyId
+
+	// Override address fields with search input
 	property.Address.StreetAddress = street
 	property.Address.City = city
 	property.Address.State = state
 	property.Address.ZipCode = zip
+
+	// Generate a new ID
 	property.ID = primitive.NewObjectID()
 	ginCtx.Set("property_id", property.PropertyID)
 
 	// Insert into database
 	if err := s.repo.Create(ctx, property); err != nil {
-		logger.GlobalLogger.Errorf("Failed to create property: query=%s, error=%v", req.Search, err)
+		logger.GlobalLogger.Errorf("Failed to create property: clip=%s, error=%v", clip, err)
 		return nil, fmt.Errorf("failed to create property: %v", err)
 	}
 
+	// Cache the property
 	propertyKey := cache.PropertyKey(property.PropertyID)
 	_ = s.cache.SetProperty(ctx, propertyKey, property, Month)
 	_ = s.cache.SetSearchKey(ctx, cacheKey, property.PropertyID, Month)
 	_ = s.cache.AddCacheKeyToPropertySet(ctx, property.PropertyID, cacheKey)
+
 	return property, nil
 }
 
 func (s *PropertySearchService) GetPropertiesWithPagination(ctx context.Context, offset, limit int, baseURL string, params url.Values) (*models.PaginatedPropertiesResponse, error) {
-	// Get Gin context
 	ginCtx, ok := ctx.(*gin.Context)
 	if !ok {
 		ginCtx = &gin.Context{}

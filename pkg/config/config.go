@@ -12,8 +12,8 @@ type Config struct {
 		Port int `yaml:"port" validate:"required,gt=0,lte=65535"`
 	} `yaml:"server"`
 	Database struct {
-		URI      string `yaml:"uri"`
-		DBName   string `yaml:"dbname" validate:"required"`
+		URI    string `yaml:"uri"`
+		DBName string `yaml:"dbname" validate:"required"`
 	} `yaml:"database"`
 	Redis struct {
 		Host       string `yaml:"host" validate:"required,hostname"`
@@ -25,6 +25,12 @@ type Config struct {
 	JWT struct {
 		Secret string `yaml:"secret"`
 	} `yaml:"jwt"`
+	CoreLogic struct {
+		ClientKey      string `yaml:"client_key"`
+		ClientSecret   string `yaml:"client_secret"`
+		BaseUrl        string `yaml:"base_url" validate:"required"`
+		DeveloperEmail string `yaml:"developer_email"`
+	} `yaml:"corelogic"`
 }
 
 func LoadConfig(path string) (*Config, error) {
@@ -53,6 +59,15 @@ func LoadConfig(path string) (*Config, error) {
 	}
 	if jwtSecret := os.Getenv("JWT_SECRET"); jwtSecret != "" {
 		cfg.JWT.Secret = jwtSecret
+	}
+	if corelogicUsername := os.Getenv("CORELOGIC_USERNAME"); corelogicUsername != "" {
+		cfg.CoreLogic.ClientKey = corelogicUsername
+	}
+	if corelogicPassword := os.Getenv("CORELOGIC_PASSWORD"); corelogicPassword != "" {
+		cfg.CoreLogic.ClientSecret = corelogicPassword
+	}
+	if corelogicDeveloperEmail := os.Getenv("CORELOGIC_DEVELOPER_EMAIL"); corelogicDeveloperEmail != "" {
+		cfg.CoreLogic.DeveloperEmail = corelogicDeveloperEmail
 	}
 
 	// Set tls_enabled based on ENV
@@ -83,6 +98,18 @@ func LoadConfig(path string) (*Config, error) {
 	}
 	if cfg.JWT.Secret == "" {
 		return nil, fmt.Errorf("JWT_SECRET is required")
+	}
+	if cfg.CoreLogic.ClientKey == "" {
+		return nil, fmt.Errorf("CORELOGIC_USERNAME is required")
+	}
+	if cfg.CoreLogic.ClientSecret == "" {
+		return nil, fmt.Errorf("CORELOGIC_PASSWORD is required")
+	}
+	if cfg.CoreLogic.BaseUrl == "" {
+		return nil, fmt.Errorf("CORELOGIC_BASE_URL is required")
+	}
+	if cfg.CoreLogic.DeveloperEmail == "" {
+		return nil, fmt.Errorf("CORELOGIC_DEVELOPER_EMAIL is required")
 	}
 
 	return cfg, nil
