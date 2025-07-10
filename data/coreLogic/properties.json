@@ -1903,5 +1903,680 @@
         }
       ]
     }
+  },
+  {
+    "buildings": {
+      "data": {
+        "clip": "1056600035",
+        "allBuildingsSummary": {
+          "buildingsCount": 1,
+          "unitsCount": 1,
+          "roomsCount": null,
+          "bedroomsCount": null,
+          "bathroomsCount": null,
+          "fullBathroomsCount": null,
+          "halfBathroomsCount": null,
+          "oneQtrBathroomsCount": null,
+          "threeQtrBathroomsCount": null,
+          "bathroomFixturesCount": null,
+          "fireplacesCount": null,
+          "livingAreaSquareFeet": 2082,
+          "totalAreaSquareFeet": 2523,
+          "openAreasSquareFeet": null,
+          "officeSpaceSquareFeet": null,
+          "elevatorsCount": null,
+          "loadingDocksCount": null,
+          "railSpursCount": null,
+          "truckDoorsCount": null
+        },
+        "buildings": [
+          {
+            "structureId": {
+              "sequenceNumber": 1,
+              "compositeBuildingLinkageKey": "47149R0134614                                     001001",
+              "buildingName": null,
+              "buildingNumber": "138202",
+              "buildingSectionNumber": null,
+              "buildingComments": null
+            },
+            "structureClassification": {
+              "buildingTypeCode": "RS0",
+              "buildingClassCode": null,
+              "gradeTypeCode": null,
+              "fireSprinklerTypeCode": null,
+              "fireInsuranceTypeCode": null
+            },
+            "structureFootprint": {
+              "widthFeet": null,
+              "depthFeet": null
+            },
+            "structureUnitsSummary": {
+              "vacantCount": null,
+              "residentialCount": 1,
+              "commercialCount": null
+            },
+            "structureVerticalProfile": {
+              "storiesCount": null,
+              "storiesTypeCode": null,
+              "floorNumber": null
+            },
+            "constructionDetails": {
+              "yearBuilt": 2023,
+              "effectiveYearBuilt": null,
+              "buildingStyleTypeCode": null,
+              "buildingQualityTypeCode": "QVV",
+              "frameTypeCode": null,
+              "foundationTypeCode": "CRE",
+              "constructionTypeCode": null,
+              "buildingRemodelTypeCode": null,
+              "buildingImprovementConditionCode": null,
+              "buildingImprovementTypeCode": null,
+              "buildingImprovementValue": null
+            },
+            "structureExterior": {
+              "patios": {
+                "count": null,
+                "typeCode": null,
+                "areaSquareFeet": null
+              },
+              "porches": {
+                "count": null,
+                "typeCode": null,
+                "areaSquareFeet": null,
+                "secondPorchAreaSquareFeet": null
+              },
+              "parking": {
+                "typeCode": "460",
+                "garageTypeCode": "460",
+                "parkingSpacesCount": null,
+                "primaryAreaSquareFeet": 441,
+                "secondAreaSquareFeet": null,
+                "carportAreaSquareFeet": null
+              },
+              "pool": null,
+              "walls": {
+                "typeCode": "FRV"
+              },
+              "roof": {
+                "typeCode": "H00",
+                "coverTypeCode": "015"
+              }
+            },
+            "structureInterior": {
+              "attic": {
+                "typeCode": null
+              },
+              "walls": {
+                "typeCode": "DRY"
+              },
+              "basement": {
+                "typeCode": null,
+                "finishTypeCode": null,
+                "finishPercent": null
+              },
+              "flooring": {
+                "typeCode": null,
+                "coverTypeCode": null
+              },
+              "ceiling": {
+                "typeCode": null,
+                "heightFeet": null
+              },
+              "bathroomFixtures": {
+                "count": null
+              }
+            },
+            "interiorArea": {
+              "universalBuildingAreaSquareFeet": 2082,
+              "universalBuildingAreaSquareFeetSourceCode": "L",
+              "buildingAreaSquareFeet": 2082,
+              "buildingAdjustedAreaSquareFeet": null,
+              "buildingGrossAreaSquareFeet": null,
+              "livingAreaSquareFeet": 2082,
+              "aboveGradeAreaSquareFeet": null,
+              "groundFloorAreaSquareFeet": 873,
+              "basementAreaSquareFeet": null,
+              "finishedBasementAreaSquareFeet": null,
+              "unfinishedBasementAreaSquareFeet": null,
+              "aboveGroundFloorAreaSquareFeet": 1209,
+              "buildingAdditionsAreaSquareFeet": null,
+              "entryLevelFloorAreaSquareFeet": 873,
+              "secondFloorAreaSquareFeet": null,
+              "thirdFloorAreaSquareFeet": null
+            },
+            "interiorRooms": {
+              "totalCount": null,
+              "bedroomsCount": null,
+              "bathroomsCount": null,
+              "fullBathroomsCount": null,
+              "halfBathroomsCount": null,
+              "oneQtrBathroomsCount": null,
+              "threeQtrBathroomsCount": null,
+              "kitchensCount": null,
+              "familyRoomsCount": null,
+              "livingRoomsCount": null,
+              "basementRoomsCount": null
+            },
+            "structureFeatures": {
+              "airConditioning": {
+                "typeCode": null
+              },
+              "firePlaces": {
+                "typeCode": null,
+                "count": null
+              },
+              "heating": {
+                "typeCode": null
+              },
+              "plumbing": {
+                "typeCode": null
+              },
+              "passengerElevators": {
+                "count": null
+              },
+              "dormerWindows": {
+                "count": null
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ownership": {
+      "data": {
+        "clip": "1056600035",
+        "currentOwners": {
+          "ownerNames": [
+            {
+              "sequenceNumber": 1,
+              "fullName": "POUDEL KHEM NARAYAN",
+              "firstNameAndMiddleInitial": "KHEM NARAYAN",
+              "lastName": "POUDEL",
+              "firstName": "KHEM",
+              "middleName": "NARAYAN",
+              "isCorporate": false
+            },
+            {
+              "sequenceNumber": 2,
+              "fullName": "PRATIMA CHAPAGAIN",
+              "firstNameAndMiddleInitial": "CHAPAGAIN",
+              "lastName": "PRATIMA",
+              "firstName": "CHAPAGAIN",
+              "middleName": null,
+              "isCorporate": false
+            },
+            {
+              "sequenceNumber": 3,
+              "fullName": null,
+              "firstNameAndMiddleInitial": null,
+              "lastName": null,
+              "firstName": null,
+              "middleName": null,
+              "isCorporate": false
+            },
+            {
+              "sequenceNumber": 4,
+              "fullName": null,
+              "firstNameAndMiddleInitial": null,
+              "lastName": null,
+              "firstName": null,
+              "middleName": null,
+              "isCorporate": false
+            }
+          ],
+          "relationshipTypeCode": null,
+          "ownerEtalCode": null,
+          "occupancyCode": "O",
+          "ownershipRightsCode": null
+        },
+        "currentOwnerMailingInfo": {
+          "mailingAddress": {
+            "careOfName": null,
+            "streetAddress": "4516 JACKIE RETREAT DR",
+            "streetAddressParsed": {
+              "houseNumber": "4516",
+              "houseNumberSuffix": null,
+              "houseNumber2": null,
+              "direction": null,
+              "streetName": "JACKIE RETREAT",
+              "mailingMode": "DR",
+              "quadrant": null,
+              "unitNumber": null
+            },
+            "city": "MURFREESBORO",
+            "state": "TN",
+            "zipCode": "37127",
+            "carrierRoute": "R001",
+            "foreignAddress": null
+          },
+          "ownerMailingOptOutIndicator": null
+        }
+      }
+    },
+    "siteLocation": {
+      "data": {
+        "clip": "1056600035",
+        "coordinatesParcel": {
+          "lat": 35.74733,
+          "lng": -86.394794
+        },
+        "coordinatesBlock": {
+          "lat": 35.74733,
+          "lng": -86.394794
+        },
+        "locationLegal": {
+          "subdivisionName": "RUCKER LANDING SEC 4 PH 2",
+          "subdivisionTractNumber": null,
+          "subdivisionPlatBookNumber": "48",
+          "subdivisionPlatPageNumber": "237",
+          "blockNumber": null,
+          "blockNumberSuffix": null,
+          "lotNumber": "77",
+          "lotNumberSuffix": null,
+          "description": null
+        },
+        "locationSurvey": {
+          "range": null,
+          "township": null,
+          "section": null,
+          "quarterSection": null
+        },
+        "neighborhood": {
+          "code": null,
+          "name": null
+        },
+        "municipality": {
+          "code": null,
+          "name": "COUNTY"
+        },
+        "town": {
+          "code": null
+        },
+        "jurisdictionCounty": {
+          "code": null
+        },
+        "cbsa": {
+          "code": "34980",
+          "type": "Metro"
+        },
+        "censusTract": {
+          "id": "0407023002"
+        },
+        "taxRateArea": {
+          "code": null
+        },
+        "taxDistrict": {
+          "name": "000"
+        },
+        "landUseAndZoningCodes": {
+          "propertyTypeCode": "10",
+          "landUseCode": "163",
+          "stateLandUseCode": "00",
+          "stateLandUseDescription": "RESIDENTIAL",
+          "countyLandUseCode": null,
+          "countyLandUseDescription": null,
+          "zoningCode": null,
+          "zoningCodeDescription": null,
+          "isManufacturedHome": null
+        },
+        "lot": {
+          "areaAcres": 0.1788,
+          "areaSquareFeet": 7789,
+          "areaSquareFeetUsable": null,
+          "depthFeet": null,
+          "frontFeet": null,
+          "shapeCode": null,
+          "topographyType": null,
+          "easementTypeCode": null
+        },
+        "utilities": {
+          "fuelTypeCode": null,
+          "electricityWiringTypeCode": null,
+          "sewerTypeCode": null,
+          "utilitiesTypeCode": null,
+          "waterTypeCode": null
+        }
+      }
+    },
+    "taxAssessment": {
+      "metadata": {
+        "pageNumber": 1,
+        "pageSize": 1,
+        "totalRecords": 1,
+        "totalPages": 1
+      },
+      "items": [
+        {
+          "clip": "1056600035",
+          "taxAmount": {
+            "billedYear": 2024,
+            "delinquentYear": null,
+            "areaCode": null,
+            "areaCodeDescription": null,
+            "propertyTaxRate": null,
+            "calculatedTotalExemptionAmount": null,
+            "totalTaxExemptionAmount": null,
+            "totalTaxAmount": 1762,
+            "countyTaxAmount": null,
+            "schoolTaxAmount": null,
+            "townTaxAmount": null,
+            "villageTaxAmount": null,
+            "netTaxAmount": null
+          },
+          "taxExemptions": {
+            "commercial": [],
+            "residential": []
+          },
+          "assessedValue": {
+            "taxAssessedYear": 2024,
+            "calculatedTotalValue": 375600,
+            "calculatedLandValue": 80000,
+            "calculatedImprovementValue": 295600,
+            "calculatedImprovementValuePercentage": 79,
+            "calculatedTotalValueSourceCode": "P",
+            "taxableValue": null,
+            "taxableImprovementValue": null,
+            "taxableLandValue": null,
+            "taxableOtherValue": null
+          },
+          "taxrollUpdate": {
+            "lastAssessorUpdateDate": "2025-01-17",
+            "taxrollCertificationDate": "2024-07-01"
+          },
+          "schoolDistricts": {
+            "school": {
+              "code": null,
+              "name": null,
+              "elementary": {
+                "code": null,
+                "name": null
+              },
+              "middle": {
+                "code": null,
+                "name": null
+              },
+              "high": {
+                "code": null,
+                "name": null
+              },
+              "communityCollege": {
+                "code": null,
+                "name": null
+              }
+            }
+          },
+          "serviceDistricts": {
+            "fire": {
+              "code": null,
+              "name": null
+            },
+            "trash": {
+              "code": null,
+              "name": null
+            },
+            "lighting": {
+              "code": null,
+              "name": null
+            },
+            "tax": {
+              "code": null,
+              "name": null
+            },
+            "sewer": {
+              "code": null,
+              "name": null
+            },
+            "utility": {
+              "code": null,
+              "name": null
+            },
+            "water": {
+              "code": null,
+              "name": null
+            }
+          }
+        }
+      ]
+    },
+    "mostRecentOwnerTransfer": {
+      "metadata": {
+        "pageNumber": 1,
+        "pageSize": 1,
+        "totalRecords": 1,
+        "totalPages": 1
+      },
+      "items": [
+        {
+          "clip": "1056600035",
+          "transactionDetails": {
+            "primaryCategoryCode": "A",
+            "deedCategoryCode": "G",
+            "saleDateDerived": "2023-11-15",
+            "saleRecordingDateDerived": "2023-11-15",
+            "saleAmount": 395000,
+            "saleTypeCode": null,
+            "saleDocumentTypeCode": "SW",
+            "saleDocumentNumber": "2521823",
+            "saleBookNumber": "002392",
+            "salePageNumber": "002649",
+            "ownershipTransferPercent": null,
+            "multiOrSplitParcelCode": null,
+            "isCashPurchase": false,
+            "isMortgagePurchase": true,
+            "isInterfamilyRelated": false,
+            "isInvestorPurchase": false,
+            "isResale": false,
+            "isShortSale": false,
+            "isForeclosureReo": false,
+            "isForeclosureReoSale": false
+          },
+          "recordedPropertyAddress": {
+            "streetAddress": "4516 JACKIE RETREAT DR",
+            "streetAddressParsed": {
+              "houseNumber": "4516",
+              "houseNumberSuffix": null,
+              "houseNumber2": null,
+              "direction": null,
+              "streetName": "JACKIE RETREAT",
+              "mode": "DR",
+              "quadrant": null,
+              "unitNumber": null
+            },
+            "city": "MURFREESBORO",
+            "state": "TN",
+            "zipCode": "371273010",
+            "carrierRoute": "R001",
+            "county": "RUTHERFORD"
+          },
+          "titleCompany": {
+            "name": "FOUNDATION TITLE",
+            "code": "01581"
+          },
+          "propertyDetails": {
+            "actualYearBuilt": 2023,
+            "effectiveYearBuilt": null,
+            "isResidentialProperty": true,
+            "isNewConstruction": true
+          },
+          "landUseAndZoningCodes": {
+            "propertyTypeCode": "10",
+            "landUseCode": "163",
+            "stateLandUseDescription": "RESIDENTIAL",
+            "countyLandUseDescription": null,
+            "zoningCode": null
+          },
+          "buyerDetails": {
+            "buyerNames": [
+              {
+                "sequenceNumber": 1,
+                "fullName": "POUDEL KHEM N",
+                "lastName": "POUDEL",
+                "firstNameAndMiddleInitial": "KHEM N",
+                "isCorporate": null
+              },
+              {
+                "sequenceNumber": 2,
+                "fullName": "CHAPAGAIN PRATIMA",
+                "lastName": "CHAPAGAIN",
+                "firstNameAndMiddleInitial": "PRATIMA",
+                "isCorporate": null
+              }
+            ],
+            "relationshipTypeCode": "HW",
+            "etalCode": "",
+            "occupancyCode": "S",
+            "ownershipRightsCode": null,
+            "mailingAddress": {
+              "careOfName": null,
+              "streetAddress": "4516 JACKIE RETREAT DR",
+              "streetAddressParsed": {
+                "houseNumber": "4516",
+                "houseNumberSuffix": null,
+                "houseNumber2": null,
+                "direction": null,
+                "streetName": "JACKIE RETREAT",
+                "mode": "DR",
+                "quadrant": null,
+                "unitNumber": null
+              },
+              "city": "MURFREESBORO",
+              "state": "TN",
+              "zipCode": "371273010",
+              "carrierRoute": "R001"
+            },
+            "hasPartialInterest": null,
+            "mailingOptOutIndicator": null
+          },
+          "sellerDetails": {
+            "sellerNames": [
+              {
+                "sequenceNumber": 1,
+                "fullName": "PULTE HMS TENNESSEE LTD"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "lastMarketSale": {
+      "metadata": {
+        "pageNumber": 1,
+        "pageSize": 1,
+        "totalRecords": 1,
+        "totalPages": 1
+      },
+      "items": [
+        {
+          "clip": "1056600035",
+          "transactionDetails": {
+            "primaryCategoryCode": "A",
+            "deedCategoryCode": "G",
+            "saleDateDerived": "2023-11-15",
+            "saleRecordingDateDerived": "2023-11-15",
+            "saleAmount": 395000,
+            "saleTypeCode": null,
+            "saleDocumentTypeCode": "SW",
+            "saleDocumentNumber": "2521823",
+            "saleBookNumber": "002392",
+            "salePageNumber": "002649",
+            "ownershipTransferPercent": null,
+            "multiOrSplitParcelCode": null,
+            "isCashPurchase": false,
+            "isMortgagePurchase": true,
+            "isInterfamilyRelated": false,
+            "isInvestorPurchase": false,
+            "isResale": false,
+            "isShortSale": false,
+            "isForeclosureReo": false,
+            "isForeclosureReoSale": false
+          },
+          "recordedPropertyAddress": {
+            "streetAddress": "4516 JACKIE RETREAT DR",
+            "streetAddressParsed": {
+              "houseNumber": "4516",
+              "houseNumberSuffix": null,
+              "houseNumber2": null,
+              "direction": null,
+              "streetName": "JACKIE RETREAT",
+              "mode": "DR",
+              "quadrant": null,
+              "unitNumber": null
+            },
+            "city": "MURFREESBORO",
+            "state": "TN",
+            "zipCode": "371273010",
+            "carrierRoute": "R001",
+            "county": "RUTHERFORD"
+          },
+          "titleCompany": {
+            "name": "FOUNDATION TITLE",
+            "code": "01581"
+          },
+          "propertyDetails": {
+            "actualYearBuilt": 2023,
+            "effectiveYearBuilt": null,
+            "isResidentialProperty": true,
+            "isNewConstruction": true
+          },
+          "landUseAndZoningCodes": {
+            "propertyTypeCode": "10",
+            "landUseCode": "163",
+            "stateLandUseDescription": "RESIDENTIAL",
+            "countyLandUseDescription": null,
+            "zoningCode": null
+          },
+          "buyerDetails": {
+            "buyerNames": [
+              {
+                "sequenceNumber": 1,
+                "fullName": "POUDEL KHEM N",
+                "lastName": "POUDEL",
+                "firstNameAndMiddleInitial": "KHEM N",
+                "isCorporate": null
+              },
+              {
+                "sequenceNumber": 2,
+                "fullName": "CHAPAGAIN PRATIMA",
+                "lastName": "CHAPAGAIN",
+                "firstNameAndMiddleInitial": "PRATIMA",
+                "isCorporate": null
+              }
+            ],
+            "relationshipTypeCode": "HW",
+            "etalCode": "",
+            "occupancyCode": "S",
+            "ownershipRightsCode": null,
+            "mailingAddress": {
+              "careOfName": null,
+              "streetAddress": "4516 JACKIE RETREAT DR",
+              "streetAddressParsed": {
+                "houseNumber": "4516",
+                "houseNumberSuffix": null,
+                "houseNumber2": null,
+                "direction": null,
+                "streetName": "JACKIE RETREAT",
+                "mode": "DR",
+                "quadrant": null,
+                "unitNumber": null
+              },
+              "city": "MURFREESBORO",
+              "state": "TN",
+              "zipCode": "371273010",
+              "carrierRoute": "R001"
+            },
+            "hasPartialInterest": null,
+            "mailingOptOutIndicator": null
+          },
+          "sellerDetails": {
+            "sellerNames": [
+              {
+                "sequenceNumber": 1,
+                "fullName": "PULTE HMS TENNESSEE LTD"
+              }
+            ]
+          }
+        }
+      ]
+    }
   }
 ]

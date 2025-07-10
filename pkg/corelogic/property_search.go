@@ -49,7 +49,7 @@ func (c *Client) SearchPropertyByAddress(street, city, state, zip string) (strin
 	searchURL := baseURL + "?" + strings.Join(queryParts, "&")
 
 	// Retry loop for HTTP request
-	maxRetries := 3
+	maxRetries := 2
 	for attempt := 1; attempt <= maxRetries; attempt++ {
 		req, err := http.NewRequest("GET", searchURL, nil)
 		if err != nil {

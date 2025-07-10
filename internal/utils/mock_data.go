@@ -1,15 +1,27 @@
 package utils
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
 	"time"
 
+	"homeinsight-properties/internal/models"
+	"homeinsight-properties/internal/transformers"
 	"homeinsight-properties/pkg/metrics"
+
+	"github.com/gin-gonic/gin"
 )
 
-func ReadMockData(filename string) (map[string]interface{}, error) {
+func ReadMockData(ctx context.Context, filename string, propTrans transformers.PropertyTransformer) (*models.Property, error) {
+
+	ginCtx, ok := ctx.(*gin.Context)
+	if !ok {
+		ginCtx = &gin.Context{}
+	}
+
+	ginCtx.Set("data_source", "MOCK_DATA")
 	start := time.Now()
 	filePath, err := filepath.Abs("data/coreLogic/" + filename)
 	metrics.MongoOperationDuration.WithLabelValues("read_mock_file_path", "").Observe(time.Since(start).Seconds())
@@ -34,5 +46,13 @@ func ReadMockData(filename string) (map[string]interface{}, error) {
 		metrics.MongoErrorsTotal.WithLabelValues("unmarshal_mock_data", "").Inc()
 		return nil, err
 	}
-	return result, nil
+
+	// Transform mock data to models.Property
+	property, err := propTrans.TransformAPIResponse(result)
+	if err != nil {
+		metrics.MongoErrorsTotal.WithLabelValues("transform_mock_data", "").Inc()
+		return nil, err
+	}
+
+	return property, nil
 }

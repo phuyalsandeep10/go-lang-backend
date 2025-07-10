@@ -19,7 +19,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-
 type PropertySearchService struct {
 	repo      repositories.PropertyRepository
 	cache     repositories.PropertyCache
@@ -97,33 +96,21 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 		return property, nil
 	}
 
-	// Fallback to CoreLogic API
-	ginCtx.Set("data_source", "CORELOGIC")
+	// Fallback to external data source
 
-	// Search for property by address
-	clip, v1PropertyId, err := s.corelogic.SearchPropertyByAddress(street, city, state, zip)
+	// Option 1: Use CoreLogic API
+	// property, err = s.corelogic.RequestCoreLogic(ctx, street, city, state, zip)
+	// if err != nil {
+	//     logger.GlobalLogger.Errorf("CoreLogic failed: query=%s, error=%v", req.Search, err)
+	//     return nil, fmt.Errorf("failed to fetch from CoreLogic: %v", err)
+	// }
+
+	// Option 2: Use Mock Data
+	property, err = utils.ReadMockData(ctx,"property-detail.json", s.propTrans)
 	if err != nil {
-		logger.GlobalLogger.Errorf("CoreLogic search failed: query=%s, error=%v", req.Search, err)
-		return nil, fmt.Errorf("failed to search property: %v", err)
+		logger.GlobalLogger.Errorf("Mock data read failed: query=%s, error=%v", req.Search, err)
+		return nil, fmt.Errorf("failed to read mock data: %v", err)
 	}
-
-	// Get property details
-	details, err := s.corelogic.GetPropertyDetails(clip)
-	if err != nil {
-		logger.GlobalLogger.Errorf("CoreLogic details failed: clip=%s, error=%v", clip, err)
-		return nil, fmt.Errorf("failed to get property details: %v", err)
-	}
-
-	// Transform API response
-	property, err = s.propTrans.TransformAPIResponse(details)
-	if err != nil {
-		logger.GlobalLogger.Errorf("Failed to transform CoreLogic data: clip=%s, error=%v", clip, err)
-		return nil, fmt.Errorf("failed to transform property data: %v", err)
-	}
-
-	// Set PropertyID and AVMPropertyID
-	property.PropertyID = clip
-	property.AVMPropertyID = v1PropertyId
 
 	// Override address fields with search input
 	property.Address.StreetAddress = street
@@ -137,7 +124,7 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 
 	// Insert into database
 	if err := s.repo.Create(ctx, property); err != nil {
-		logger.GlobalLogger.Errorf("Failed to create property: clip=%s, error=%v", clip, err)
+		logger.GlobalLogger.Errorf("Failed to create property: propertyID=%s, error=%v", property.PropertyID, err)
 		return nil, fmt.Errorf("failed to create property: %v", err)
 	}
 
