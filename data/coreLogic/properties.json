@@ -2578,5 +2578,679 @@
         }
       ]
     }
+  },{
+    "buildings": {
+      "data": {
+        "clip": "1009689396",
+        "allBuildingsSummary": {
+          "buildingsCount": 1,
+          "unitsCount": null,
+          "roomsCount": null,
+          "bedroomsCount": null,
+          "bathroomsCount": 5,
+          "fullBathroomsCount": 3,
+          "halfBathroomsCount": 2,
+          "oneQtrBathroomsCount": null,
+          "threeQtrBathroomsCount": null,
+          "bathroomFixturesCount": 15,
+          "fireplacesCount": 1,
+          "livingAreaSquareFeet": 3532,
+          "totalAreaSquareFeet": 4253,
+          "openAreasSquareFeet": null,
+          "officeSpaceSquareFeet": null,
+          "elevatorsCount": null,
+          "loadingDocksCount": null,
+          "railSpursCount": null,
+          "truckDoorsCount": null
+        },
+        "buildings": [
+          {
+            "structureId": {
+              "sequenceNumber": 1,
+              "compositeBuildingLinkageKey": "47187106M G 02200 000                             001001",
+              "buildingName": null,
+              "buildingNumber": "1",
+              "buildingSectionNumber": null,
+              "buildingComments": null
+            },
+            "structureClassification": {
+              "buildingTypeCode": null,
+              "buildingClassCode": null,
+              "gradeTypeCode": "GOO",
+              "fireSprinklerTypeCode": null,
+              "fireInsuranceTypeCode": null
+            },
+            "structureFootprint": {
+              "widthFeet": null,
+              "depthFeet": null
+            },
+            "structureUnitsSummary": {
+              "vacantCount": null,
+              "residentialCount": null,
+              "commercialCount": null
+            },
+            "structureVerticalProfile": {
+              "storiesCount": 2,
+              "storiesTypeCode": "010",
+              "floorNumber": null
+            },
+            "constructionDetails": {
+              "yearBuilt": 2021,
+              "effectiveYearBuilt": 2021,
+              "buildingStyleTypeCode": null,
+              "buildingQualityTypeCode": null,
+              "frameTypeCode": null,
+              "foundationTypeCode": null,
+              "constructionTypeCode": null,
+              "buildingRemodelTypeCode": null,
+              "buildingImprovementConditionCode": "AVE",
+              "buildingImprovementTypeCode": null,
+              "buildingImprovementValue": null
+            },
+            "structureExterior": {
+              "patios": {
+                "count": null,
+                "typeCode": null,
+                "areaSquareFeet": null
+              },
+              "porches": {
+                "count": null,
+                "typeCode": null,
+                "areaSquareFeet": null,
+                "secondPorchAreaSquareFeet": null
+              },
+              "parking": {
+                "typeCode": "450",
+                "garageTypeCode": "450",
+                "parkingSpacesCount": null,
+                "primaryAreaSquareFeet": 721,
+                "secondAreaSquareFeet": null,
+                "carportAreaSquareFeet": null
+              },
+              "pool": null,
+              "walls": {
+                "typeCode": null
+              },
+              "roof": {
+                "typeCode": "002",
+                "coverTypeCode": "002"
+              }
+            },
+            "structureInterior": {
+              "attic": {
+                "typeCode": null
+              },
+              "walls": {
+                "typeCode": null
+              },
+              "basement": {
+                "typeCode": null,
+                "finishTypeCode": null,
+                "finishPercent": null
+              },
+              "flooring": {
+                "typeCode": null,
+                "coverTypeCode": null
+              },
+              "ceiling": {
+                "typeCode": null,
+                "heightFeet": null
+              },
+              "bathroomFixtures": {
+                "count": 15
+              }
+            },
+            "interiorArea": {
+              "universalBuildingAreaSquareFeet": 3532,
+              "universalBuildingAreaSquareFeetSourceCode": "L",
+              "buildingAreaSquareFeet": 3532,
+              "buildingAdjustedAreaSquareFeet": null,
+              "buildingGrossAreaSquareFeet": null,
+              "livingAreaSquareFeet": 3532,
+              "aboveGradeAreaSquareFeet": null,
+              "groundFloorAreaSquareFeet": null,
+              "basementAreaSquareFeet": null,
+              "finishedBasementAreaSquareFeet": null,
+              "unfinishedBasementAreaSquareFeet": null,
+              "aboveGroundFloorAreaSquareFeet": null,
+              "buildingAdditionsAreaSquareFeet": null,
+              "entryLevelFloorAreaSquareFeet": null,
+              "secondFloorAreaSquareFeet": null,
+              "thirdFloorAreaSquareFeet": null
+            },
+            "interiorRooms": {
+              "totalCount": null,
+              "bedroomsCount": null,
+              "bathroomsCount": 5,
+              "fullBathroomsCount": 3,
+              "halfBathroomsCount": 2,
+              "oneQtrBathroomsCount": null,
+              "threeQtrBathroomsCount": null,
+              "kitchensCount": null,
+              "familyRoomsCount": null,
+              "livingRoomsCount": null,
+              "basementRoomsCount": null
+            },
+            "structureFeatures": {
+              "airConditioning": {
+                "typeCode": "ACE"
+              },
+              "firePlaces": {
+                "typeCode": "0U1",
+                "count": 1
+              },
+              "heating": {
+                "typeCode": "CL0"
+              },
+              "plumbing": {
+                "typeCode": null
+              },
+              "passengerElevators": {
+                "count": null
+              },
+              "dormerWindows": {
+                "count": null
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ownership": {
+      "data": {
+        "clip": "1009689396",
+        "currentOwners": {
+          "ownerNames": [
+            {
+              "sequenceNumber": 1,
+              "fullName": "POUDEL KHEM N",
+              "firstNameAndMiddleInitial": "KHEM N",
+              "lastName": "POUDEL",
+              "firstName": "KHEM",
+              "middleName": "N",
+              "isCorporate": false
+            },
+            {
+              "sequenceNumber": 2,
+              "fullName": "CHAPAGAIN PRATIMA",
+              "firstNameAndMiddleInitial": "PRATIMA",
+              "lastName": "CHAPAGAIN",
+              "firstName": "PRATIMA",
+              "middleName": null,
+              "isCorporate": false
+            },
+            {
+              "sequenceNumber": 3,
+              "fullName": null,
+              "firstNameAndMiddleInitial": null,
+              "lastName": null,
+              "firstName": null,
+              "middleName": null,
+              "isCorporate": false
+            },
+            {
+              "sequenceNumber": 4,
+              "fullName": null,
+              "firstNameAndMiddleInitial": null,
+              "lastName": null,
+              "firstName": null,
+              "middleName": null,
+              "isCorporate": false
+            }
+          ],
+          "relationshipTypeCode": null,
+          "ownerEtalCode": null,
+          "occupancyCode": "O",
+          "ownershipRightsCode": null
+        },
+        "currentOwnerMailingInfo": {
+          "mailingAddress": {
+            "careOfName": null,
+            "streetAddress": "5002 FULLBRIGHT CT",
+            "streetAddressParsed": {
+              "houseNumber": "5002",
+              "houseNumberSuffix": null,
+              "houseNumber2": null,
+              "direction": null,
+              "streetName": "FULLBRIGHT",
+              "mailingMode": "CT",
+              "quadrant": null,
+              "unitNumber": null
+            },
+            "city": "FRANKLIN",
+            "state": "TN",
+            "zipCode": "37064",
+            "carrierRoute": "R075",
+            "foreignAddress": null
+          },
+          "ownerMailingOptOutIndicator": null
+        }
+      }
+    },
+    "siteLocation": {
+      "data": {
+        "clip": "1009689396",
+        "coordinatesParcel": {
+          "lat": 35.858829,
+          "lng": -86.809386
+        },
+        "coordinatesBlock": {
+          "lat": 35.858828,
+          "lng": -86.809386
+        },
+        "locationLegal": {
+          "subdivisionName": "HIGHLANDS/LADD PARK PUD SUB SEC",
+          "subdivisionTractNumber": null,
+          "subdivisionPlatBookNumber": "71",
+          "subdivisionPlatPageNumber": "113",
+          "blockNumber": null,
+          "blockNumberSuffix": null,
+          "lotNumber": "1243",
+          "lotNumberSuffix": null,
+          "description": "SUBD HIGHLANDS @ LADD PARK SEC38 PB 71 PG 113 LOT 1243"
+        },
+        "locationSurvey": {
+          "range": null,
+          "township": null,
+          "section": null,
+          "quarterSection": null
+        },
+        "neighborhood": {
+          "code": null,
+          "name": null
+        },
+        "municipality": {
+          "code": null,
+          "name": null
+        },
+        "town": {
+          "code": null
+        },
+        "jurisdictionCounty": {
+          "code": null
+        },
+        "cbsa": {
+          "code": "34980",
+          "type": "Metro"
+        },
+        "censusTract": {
+          "id": "0510024086"
+        },
+        "taxRateArea": {
+          "code": "263"
+        },
+        "taxDistrict": {
+          "name": null
+        },
+        "landUseAndZoningCodes": {
+          "propertyTypeCode": "10",
+          "landUseCode": "100",
+          "stateLandUseCode": "100",
+          "stateLandUseDescription": "RESIDENTIAL",
+          "countyLandUseCode": "100",
+          "countyLandUseDescription": "RESIDENTIAL",
+          "zoningCode": null,
+          "zoningCodeDescription": null,
+          "isManufacturedHome": null
+        },
+        "lot": {
+          "areaAcres": 0.1683,
+          "areaSquareFeet": 7332,
+          "areaSquareFeetUsable": null,
+          "depthFeet": 138.6,
+          "frontFeet": 52.9,
+          "shapeCode": null,
+          "topographyType": null,
+          "easementTypeCode": null
+        },
+        "utilities": {
+          "fuelTypeCode": null,
+          "electricityWiringTypeCode": null,
+          "sewerTypeCode": null,
+          "utilitiesTypeCode": null,
+          "waterTypeCode": null
+        }
+      }
+    },
+    "taxAssessment": {
+      "metadata": {
+        "pageNumber": 1,
+        "pageSize": 1,
+        "totalRecords": 1,
+        "totalPages": 1
+      },
+      "items": [
+        {
+          "clip": "1009689396",
+          "taxAmount": {
+            "billedYear": 2024,
+            "delinquentYear": null,
+            "areaCode": "263",
+            "areaCodeDescription": null,
+            "propertyTaxRate": null,
+            "calculatedTotalExemptionAmount": null,
+            "totalTaxExemptionAmount": null,
+            "totalTaxAmount": 3741,
+            "countyTaxAmount": null,
+            "schoolTaxAmount": null,
+            "townTaxAmount": null,
+            "villageTaxAmount": null,
+            "netTaxAmount": null
+          },
+          "taxExemptions": {
+            "commercial": [],
+            "residential": []
+          },
+          "assessedValue": {
+            "taxAssessedYear": 2024,
+            "calculatedTotalValue": 693900,
+            "calculatedLandValue": 175000,
+            "calculatedImprovementValue": 518900,
+            "calculatedImprovementValuePercentage": 75,
+            "calculatedTotalValueSourceCode": "M",
+            "taxableValue": null,
+            "taxableImprovementValue": null,
+            "taxableLandValue": null,
+            "taxableOtherValue": null
+          },
+          "taxrollUpdate": {
+            "lastAssessorUpdateDate": "2025-01-14",
+            "taxrollCertificationDate": "2024-10-04"
+          },
+          "schoolDistricts": {
+            "school": {
+              "code": null,
+              "name": null,
+              "elementary": {
+                "code": null,
+                "name": null
+              },
+              "middle": {
+                "code": null,
+                "name": null
+              },
+              "high": {
+                "code": null,
+                "name": null
+              },
+              "communityCollege": {
+                "code": null,
+                "name": null
+              }
+            }
+          },
+          "serviceDistricts": {
+            "fire": {
+              "code": null,
+              "name": null
+            },
+            "trash": {
+              "code": null,
+              "name": null
+            },
+            "lighting": {
+              "code": null,
+              "name": null
+            },
+            "tax": {
+              "code": null,
+              "name": null
+            },
+            "sewer": {
+              "code": null,
+              "name": null
+            },
+            "utility": {
+              "code": null,
+              "name": null
+            },
+            "water": {
+              "code": null,
+              "name": null
+            }
+          }
+        }
+      ]
+    },
+    "mostRecentOwnerTransfer": {
+      "metadata": {
+        "pageNumber": 1,
+        "pageSize": 1,
+        "totalRecords": 1,
+        "totalPages": 1
+      },
+      "items": [
+        {
+          "clip": "1009689396",
+          "transactionDetails": {
+            "primaryCategoryCode": "A",
+            "deedCategoryCode": "G",
+            "saleDateDerived": "2021-07-27",
+            "saleRecordingDateDerived": "2021-07-28",
+            "saleAmount": 733568,
+            "saleTypeCode": null,
+            "saleDocumentTypeCode": "SW",
+            "saleDocumentNumber": "45276",
+            "saleBookNumber": "008657",
+            "salePageNumber": "000963",
+            "ownershipTransferPercent": null,
+            "multiOrSplitParcelCode": null,
+            "isCashPurchase": false,
+            "isMortgagePurchase": true,
+            "isInterfamilyRelated": false,
+            "isInvestorPurchase": false,
+            "isResale": false,
+            "isShortSale": false,
+            "isForeclosureReo": false,
+            "isForeclosureReoSale": false
+          },
+          "recordedPropertyAddress": {
+            "streetAddress": "5002 FULLBRIGHT CT",
+            "streetAddressParsed": {
+              "houseNumber": "5002",
+              "houseNumberSuffix": null,
+              "houseNumber2": null,
+              "direction": null,
+              "streetName": "FULLBRIGHT",
+              "mode": "CT",
+              "quadrant": null,
+              "unitNumber": null
+            },
+            "city": "FRANKLIN",
+            "state": "TN",
+            "zipCode": "370642255",
+            "carrierRoute": "R075",
+            "county": "WILLIAMSON"
+          },
+          "titleCompany": {
+            "name": "ATTORNEY ONLY",
+            "code": "00400"
+          },
+          "propertyDetails": {
+            "actualYearBuilt": null,
+            "effectiveYearBuilt": null,
+            "isResidentialProperty": true,
+            "isNewConstruction": true
+          },
+          "landUseAndZoningCodes": {
+            "propertyTypeCode": "10",
+            "landUseCode": "100",
+            "stateLandUseDescription": "RESIDENTIAL",
+            "countyLandUseDescription": null,
+            "zoningCode": null
+          },
+          "buyerDetails": {
+            "buyerNames": [
+              {
+                "sequenceNumber": 1,
+                "fullName": "POUDEL KHEM N",
+                "lastName": "POUDEL",
+                "firstNameAndMiddleInitial": "KHEM N",
+                "isCorporate": null
+              },
+              {
+                "sequenceNumber": 2,
+                "fullName": "CHAPAGAIN PRATIMA",
+                "lastName": "CHAPAGAIN",
+                "firstNameAndMiddleInitial": "PRATIMA",
+                "isCorporate": null
+              }
+            ],
+            "relationshipTypeCode": "HW",
+            "etalCode": "",
+            "occupancyCode": "S",
+            "ownershipRightsCode": null,
+            "mailingAddress": {
+              "careOfName": null,
+              "streetAddress": "5002 FULLBRIGHT CT",
+              "streetAddressParsed": {
+                "houseNumber": "5002",
+                "houseNumberSuffix": null,
+                "houseNumber2": null,
+                "direction": null,
+                "streetName": "FULLBRIGHT",
+                "mode": "CT",
+                "quadrant": null,
+                "unitNumber": null
+              },
+              "city": "FRANKLIN",
+              "state": "TN",
+              "zipCode": "370642255",
+              "carrierRoute": "R075"
+            },
+            "hasPartialInterest": null,
+            "mailingOptOutIndicator": null
+          },
+          "sellerDetails": {
+            "sellerNames": [
+              {
+                "sequenceNumber": 1,
+                "fullName": "JONES CO OF TENNESSEE LLC"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "lastMarketSale": {
+      "metadata": {
+        "pageNumber": 1,
+        "pageSize": 1,
+        "totalRecords": 1,
+        "totalPages": 1
+      },
+      "items": [
+        {
+          "clip": "1009689396",
+          "transactionDetails": {
+            "primaryCategoryCode": "A",
+            "deedCategoryCode": "G",
+            "saleDateDerived": "2021-07-27",
+            "saleRecordingDateDerived": "2021-07-28",
+            "saleAmount": 733568,
+            "saleTypeCode": null,
+            "saleDocumentTypeCode": "SW",
+            "saleDocumentNumber": "45276",
+            "saleBookNumber": "008657",
+            "salePageNumber": "000963",
+            "ownershipTransferPercent": null,
+            "multiOrSplitParcelCode": null,
+            "isCashPurchase": false,
+            "isMortgagePurchase": true,
+            "isInterfamilyRelated": false,
+            "isInvestorPurchase": false,
+            "isResale": false,
+            "isShortSale": false,
+            "isForeclosureReo": false,
+            "isForeclosureReoSale": false
+          },
+          "recordedPropertyAddress": {
+            "streetAddress": "5002 FULLBRIGHT CT",
+            "streetAddressParsed": {
+              "houseNumber": "5002",
+              "houseNumberSuffix": null,
+              "houseNumber2": null,
+              "direction": null,
+              "streetName": "FULLBRIGHT",
+              "mode": "CT",
+              "quadrant": null,
+              "unitNumber": null
+            },
+            "city": "FRANKLIN",
+            "state": "TN",
+            "zipCode": "370642255",
+            "carrierRoute": "R075",
+            "county": "WILLIAMSON"
+          },
+          "titleCompany": {
+            "name": "ATTORNEY ONLY",
+            "code": "00400"
+          },
+          "propertyDetails": {
+            "actualYearBuilt": null,
+            "effectiveYearBuilt": null,
+            "isResidentialProperty": true,
+            "isNewConstruction": true
+          },
+          "landUseAndZoningCodes": {
+            "propertyTypeCode": "10",
+            "landUseCode": "100",
+            "stateLandUseDescription": "RESIDENTIAL",
+            "countyLandUseDescription": null,
+            "zoningCode": null
+          },
+          "buyerDetails": {
+            "buyerNames": [
+              {
+                "sequenceNumber": 1,
+                "fullName": "POUDEL KHEM N",
+                "lastName": "POUDEL",
+                "firstNameAndMiddleInitial": "KHEM N",
+                "isCorporate": null
+              },
+              {
+                "sequenceNumber": 2,
+                "fullName": "CHAPAGAIN PRATIMA",
+                "lastName": "CHAPAGAIN",
+                "firstNameAndMiddleInitial": "PRATIMA",
+                "isCorporate": null
+              }
+            ],
+            "relationshipTypeCode": "HW",
+            "etalCode": "",
+            "occupancyCode": "S",
+            "ownershipRightsCode": null,
+            "mailingAddress": {
+              "careOfName": null,
+              "streetAddress": "5002 FULLBRIGHT CT",
+              "streetAddressParsed": {
+                "houseNumber": "5002",
+                "houseNumberSuffix": null,
+                "houseNumber2": null,
+                "direction": null,
+                "streetName": "FULLBRIGHT",
+                "mode": "CT",
+                "quadrant": null,
+                "unitNumber": null
+              },
+              "city": "FRANKLIN",
+              "state": "TN",
+              "zipCode": "370642255",
+              "carrierRoute": "R075"
+            },
+            "hasPartialInterest": null,
+            "mailingOptOutIndicator": null
+          },
+          "sellerDetails": {
+            "sellerNames": [
+              {
+                "sequenceNumber": 1,
+                "fullName": "JONES CO OF TENNESSEE LLC"
+              }
+            ]
+          }
+        }
+      ]
+    }
   }
 ]

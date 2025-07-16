@@ -34,6 +34,10 @@ b. lowercase
 
 4.! Address: 415 W NORTHFIELD BLVD, MURFREESBORO, TN 37129
 -----------------------------------------------------------
+
+
+"clip": "5376239895",
+            "v1PropertyId": "47149:138925971",
 a. UPPERCASE
 {{base_url}}/api/properties/property-search?q=415%20W%20NORTHFIELD%20BLVD%2C%20MURFREESBORO%2C%20TN%2037129
 {{base_url}}/api/properties/property-search?q=415 W NORTHFIELD BLVD, MURFREESBORO, TN 37129
@@ -76,3 +80,159 @@ a. UPPERCASE
 b. lowercase
 {{base_url}}/api/properties/property-search?q=4516%20jackie%20retreat%20dr%2C%20murfreesboro%2C%20tn%2037127
 {{base_url}}/api/properties/property-search?q=4516 jackie retreat dr, murfreesboro, tn 37127
+
+
+
+
+____________________________________________________________________________________________
+
+
+
+
+# Most Searched Properties in Nashville, TN (Example Addresses)
+
+1. Address: 456 BROADWAY AVE, NASHVILLE, TN 37203
+---------------------------------------------
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=456%20BROADWAY%20AVE%2C%20NASHVILLE%2C%20TN%2037203
+{{base_url}}/api/properties/property-search?q=456 BROADWAY AVE, NASHVILLE, TN 37203
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=456%20broadway%20ave%2C%20nashville%2C%20tn%2037203
+{{base_url}}/api/properties/property-search?q=456 broadway ave, nashville, tn 37203
+
+2. Address: 789 MUSIC ROW, NASHVILLE, TN 37203
+---------------------------------------------
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=789%20MUSIC%20ROW%2C%20NASHVILLE%2C%20TN%2037203
+{{base_url}}/api/properties/property-search?q=789 MUSIC ROW, NASHVILLE, TN 37203
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=789%20music%20row%2C%20nashville%2C%20tn%2037203
+{{base_url}}/api/properties/property-search?q=789 music row, nashville, tn 37203
+
+3. Address: 1010 GREEN HILLS DR, NASHVILLE, TN 37215
+---------------------------------------------
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=1010%20GREEN%20HILLS%20DR%2C%20NASHVILLE%2C%20TN%2037215
+{{base_url}}/api/properties/property-search?q=1010 GREEN HILLS DR, NASHVILLE, TN 37215
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=1010%20green%20hills%20dr%2C%20nashville%2C%20tn%2037215
+{{base_url}}/api/properties/property-search?q=1010 green hills dr, nashville, tn 37215
+
+4. Address: 321 BELLE MEADE BLVD, NASHVILLE, TN 37205
+---------------------------------------------
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=321%20BELLE%20MEADE%20BLVD%2C%20NASHVILLE%2C%20TN%2037205
+{{base_url}}/api/properties/property-search?q=321 BELLE MEADE BLVD, NASHVILLE, TN 37205
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=321%20belle%20meade%20blvd%2C%20nashville%2C%20tn%2037205
+{{base_url}}/api/properties/property-search?q=321 belle meade blvd, nashville, tn 37205
+
+5. Address: 654 SYLVAN PARK LN, NASHVILLE, TN 37209
+---------------------------------------------
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=654%20SYLVAN%20PARK%20LN%2C%20NASHVILLE%2C%20TN%2037209
+{{base_url}}/api/properties/property-search?q=654 SYLVAN PARK LN, NASHVILLE, TN 37209
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=654%20sylvan%20park%20ln%2C%20nashville%2C%20tn%2037209
+{{base_url}}/api/properties/property-search?q=654 sylvan park ln, nashville, tn 37209
+
+6. Address: 2020 12TH AVE S, NASHVILLE, TN 37204
+---------------------------------------------
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=2020%2012TH%20AVE%20S%2C%20NASHVILLE%2C%20TN%2037204
+{{base_url}}/api/properties/property-search?q=2020 12TH AVE S, NASHVILLE, TN 37204
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=2020%2012th%20ave%20s%2C%20nashville%2C%20tn%2037204
+{{base_url}}/api/properties/property-search?q=2020 12th ave s, nashville, tn 37204
+
+7. Address: 876 EAST NASHVILLE RD, NASHVILLE, TN 37206
+---------------------------------------------
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=876%20EAST%20NASHVILLE%20RD%2C%20NASHVILLE%2C%20TN%2037206
+{{base_url}}/api/properties/property-search?q=876 EAST NASHVILLE RD, NASHVILLE, TN 37206
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=876%20east%20nashville%20rd%2C%20nashville%2C%20tn%2037206
+{{base_url}}/api/properties/property-search?q=876 east nashville rd, nashville, tn 37206
+
+8. Address: 543 GULCH VIEW DR, NASHVILLE, TN 37201
+---------------------------------------------
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=543%20GULCH%20VIEW%20DR%2C%20NASHVILLE%2C%20TN%2037201
+{{base_url}}/api/properties/property-search?q=543 GULCH VIEW DR, NASHVILLE, TN 37201
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=543%20gulch%20view%20dr%2C%20nashville%2C%20tn%2037201
+{{base_url}}/api/properties/property-search?q=543 gulch view dr, nashville, tn 37201
+
+9. Address: 987 VANDERBILT WAY, NASHVILLE, TN 37203
+---------------------------------------------
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=987%20VANDERBILT%20WAY%2C%20NASHVILLE%2C%20TN%2037203
+{{base_url}}/api/properties/property-search?q=987 VANDERBILT WAY, NASHVILLE, TN 37203
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=987%20vanderbilt%20way%2C%20nashville%2C%20tn%2037203
+{{base_url}}/api/properties/property-search?q=987 vanderbilt way, nashville, tn 37203
+
+
+
+
+Address: 932 W MAIN ST, FRANKLIN, TN 37064
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=932%20W%20MAIN%20ST%2C%20FRANKLIN%2C%20TN%2037064
+{{base_url}}/api/properties/property-search?q=932 W MAIN ST, FRANKLIN, TN 37064
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=932%20w%20main%20st%2C%20franklin%2C%20tn%2037064
+{{base_url}}/api/properties/property-search?q=932 w main st, franklin, tn 37064
+
+
+
+Address: 9413 CLOVERCROFT RD, FRANKLIN, TN 37067
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=9413%20CLOVERCROFT%20RD%2C%20FRANKLIN%2C%20TN%2037067
+{{base_url}}/api/properties/property-search?q=9413 CLOVERCROFT RD, FRANKLIN, TN 37067
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=9413%20clovercroft%20rd%2C%20franklin%2C%20tn%2037067
+{{base_url}}/api/properties/property-search?q=9413 clovercroft rd, franklin, tn 37067
+
+Address: 4115 JENSOME LN, FRANKLIN, TN 37064
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=4115%20JENSOME%20LN%2C%20FRANKLIN%2C%20TN%2037064
+{{base_url}}/api/properties/property-search?q=4115 JENSOME LN, FRANKLIN, TN 37064
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=4115%20jensome%20ln%2C%20franklin%2C%20tn%2037064
+{{base_url}}/api/properties/property-search?q=4115 jensome ln, franklin, tn 37064
+
+
+
+Address: 908 W MAIN ST, FRANKLIN, TN 37064
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=908%20W%20MAIN%20ST%2C%20FRANKLIN%2C%20TN%2037064
+{{base_url}}/api/properties/property-search?q=908 W MAIN ST, FRANKLIN, TN 37064
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=908%20w%20main%20st%2C%20franklin%2C%20tn%2037064
+{{base_url}}/api/properties/property-search?q=908 w main st, franklin, tn 37064
+
+
+
+
+
+Address: 1050 HORSESHOE DR, NASHVILLE, TN 37216
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=1050%20HORSESHOE%20DR%2C%20NASHVILLE%2C%20TN%2037216
+{{base_url}}/api/properties/property-search?q=1050 HORSESHOE DR, NASHVILLE, TN 37216
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=1050%20horseshoe%20dr%2C%20nashville%2C%20tn%2037216
+{{base_url}}/api/properties/property-search?q=1050 horseshoe dr, nashville, tn 37216

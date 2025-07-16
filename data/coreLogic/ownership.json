@@ -1,0 +1,34 @@
+{
+    "corelogicPropertyId": "47149:138925971",
+    "compositePropertyId": "47149:138925971",
+    "ownerName1": "WALDRON R FAMILY LIMITED PARTNERSHIP",
+    "ownerName2": "",
+    "vestingOwner1": "VOLUNTEER STATE BK",
+    "vestingOwner2": "",
+    "vestingOwner3": null,
+    "vestingOwner4": null,
+    "mailingAddress": "415 W NORTHFIELD BLVD",
+    "mailingCityState": "MURFREESBORO TN",
+    "mailingZip5": "37129",
+    "mailingZip4": "",
+    "mailingCarrierRoute": "C026",
+    "mailingCareOfName": "",
+    "phoneNumber": "",
+    "vestingEtal": "",
+    "vestingOwnershipRight": "",
+    "ownerOccupiedInd": "O",
+    "pendingRecordInd": null,
+    "corporateOwner": "Y",
+    "ownerVestingCode": "",
+    "principalFirstName": "",
+    "principalCorporateName": "",
+    "principalTitle": "",
+    "principalLastName": "",
+    "links": [
+        {
+            "rel": "self",
+            "href": "https://api-prod.corelogic.com/property/47149%3A138925971/ownership",
+            "type": "application/vnd.corelogic.v1+json"
+        }
+    ]
+}

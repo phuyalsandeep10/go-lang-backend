@@ -99,18 +99,18 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 	// Fallback to external data source
 
 	// Option 1: Use CoreLogic API
-	// property, err = s.corelogic.RequestCoreLogic(ctx, street, city, state, zip)
-	// if err != nil {
-	//     logger.GlobalLogger.Errorf("CoreLogic failed: query=%s, error=%v", req.Search, err)
-	//     return nil, fmt.Errorf("failed to fetch from CoreLogic: %v", err)
-	// }
+	property, err = s.corelogic.RequestCoreLogic(ctx, street, city, state, zip)
+	if err != nil {
+	    logger.GlobalLogger.Errorf("CoreLogic failed: query=%s, error=%v", req.Search, err)
+	    return nil, fmt.Errorf("failed to fetch from CoreLogic: %v", err)
+	}
 
 	// Option 2: Use Mock Data
-	property, err = utils.ReadMockData(ctx,"property-detail.json", s.propTrans)
-	if err != nil {
-		logger.GlobalLogger.Errorf("Mock data read failed: query=%s, error=%v", req.Search, err)
-		return nil, fmt.Errorf("failed to read mock data: %v", err)
-	}
+	// property, err = utils.ReadMockData(ctx,"property-detail.json", s.propTrans)
+	// if err != nil {
+	// 	logger.GlobalLogger.Errorf("Mock data read failed: query=%s, error=%v", req.Search, err)
+	// 	return nil, fmt.Errorf("failed to read mock data: %v", err)
+	// }
 
 	// Override address fields with search input
 	property.Address.StreetAddress = street

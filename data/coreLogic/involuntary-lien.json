@@ -1,0 +1,19 @@
+{
+  "data": {
+    "clip": "5376239895",
+    "countyLienCoverageSummary": {
+      "firstHOALienDate": "20060817",
+      "lastHOALienDate": "20250620",
+      "firstMechanicsLienDate": "20060817",
+      "lastMechanicsLienDate": "20250620",
+      "firstTaxLienDate": "20060413",
+      "lastTaxLienDate": "20250623",
+      "standardizedCounty": null,
+      "standardizedFIPsCode": "47149",
+      "standardizedState": "TN"
+    },
+    "hoaLienTransaction": [],
+    "mechanicsLienTransaction": [],
+    "propertyTaxLienTransactions": []
+  }
+}

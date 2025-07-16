@@ -1,21 +1,21 @@
 {
   "buildings": {
     "data": {
-      "clip": "1056600035",
+      "clip": "7909216472",
       "allBuildingsSummary": {
         "buildingsCount": 1,
         "unitsCount": 1,
-        "roomsCount": null,
-        "bedroomsCount": null,
-        "bathroomsCount": null,
-        "fullBathroomsCount": null,
+        "roomsCount": 6,
+        "bedroomsCount": 3,
+        "bathroomsCount": 2,
+        "fullBathroomsCount": 2,
         "halfBathroomsCount": null,
         "oneQtrBathroomsCount": null,
         "threeQtrBathroomsCount": null,
-        "bathroomFixturesCount": null,
-        "fireplacesCount": null,
-        "livingAreaSquareFeet": 2082,
-        "totalAreaSquareFeet": 2523,
+        "bathroomFixturesCount": 9,
+        "fireplacesCount": 1,
+        "livingAreaSquareFeet": 1236,
+        "totalAreaSquareFeet": 1236,
         "openAreasSquareFeet": null,
         "officeSpaceSquareFeet": null,
         "elevatorsCount": null,
@@ -27,16 +27,16 @@
         {
           "structureId": {
             "sequenceNumber": 1,
-            "compositeBuildingLinkageKey": "47149R0134614                                     001001",
+            "compositeBuildingLinkageKey": "4703706114007300                                  001001",
             "buildingName": null,
-            "buildingNumber": "138202",
+            "buildingNumber": "1",
             "buildingSectionNumber": null,
             "buildingComments": null
           },
           "structureClassification": {
             "buildingTypeCode": "RS0",
             "buildingClassCode": null,
-            "gradeTypeCode": null,
+            "gradeTypeCode": "000",
             "fireSprinklerTypeCode": null,
             "fireInsuranceTypeCode": null
           },
@@ -50,50 +50,50 @@
             "commercialCount": null
           },
           "structureVerticalProfile": {
-            "storiesCount": null,
-            "storiesTypeCode": null,
+            "storiesCount": 1,
+            "storiesTypeCode": "010",
             "floorNumber": null
           },
           "constructionDetails": {
-            "yearBuilt": 2023,
-            "effectiveYearBuilt": null,
+            "yearBuilt": 1947,
+            "effectiveYearBuilt": 1947,
             "buildingStyleTypeCode": null,
-            "buildingQualityTypeCode": "QVV",
-            "frameTypeCode": null,
-            "foundationTypeCode": "CRE",
+            "buildingQualityTypeCode": null,
+            "frameTypeCode": "001",
+            "foundationTypeCode": "UCR",
             "constructionTypeCode": null,
             "buildingRemodelTypeCode": null,
-            "buildingImprovementConditionCode": null,
+            "buildingImprovementConditionCode": "AVE",
             "buildingImprovementTypeCode": null,
             "buildingImprovementValue": null
           },
           "structureExterior": {
             "patios": {
-              "count": null,
-              "typeCode": null,
-              "areaSquareFeet": null
+              "count": 1,
+              "typeCode": "30R",
+              "areaSquareFeet": 413
             },
             "porches": {
-              "count": null,
-              "typeCode": null,
-              "areaSquareFeet": null,
+              "count": 1,
+              "typeCode": "PO0",
+              "areaSquareFeet": 32,
               "secondPorchAreaSquareFeet": null
             },
             "parking": {
-              "typeCode": "460",
-              "garageTypeCode": "460",
+              "typeCode": "810",
+              "garageTypeCode": "810",
               "parkingSpacesCount": null,
-              "primaryAreaSquareFeet": 441,
+              "primaryAreaSquareFeet": 240,
               "secondAreaSquareFeet": null,
               "carportAreaSquareFeet": null
             },
             "pool": null,
             "walls": {
-              "typeCode": "FRV"
+              "typeCode": "FRA"
             },
             "roof": {
-              "typeCode": "H00",
-              "coverTypeCode": "015"
+              "typeCode": "106",
+              "coverTypeCode": "106"
             }
           },
           "structureInterior": {
@@ -101,7 +101,7 @@
               "typeCode": null
             },
             "walls": {
-              "typeCode": "DRY"
+              "typeCode": null
             },
             "basement": {
               "typeCode": null,
@@ -117,32 +117,32 @@
               "heightFeet": null
             },
             "bathroomFixtures": {
-              "count": null
+              "count": 9
             }
           },
           "interiorArea": {
-            "universalBuildingAreaSquareFeet": 2082,
+            "universalBuildingAreaSquareFeet": 1236,
             "universalBuildingAreaSquareFeetSourceCode": "L",
-            "buildingAreaSquareFeet": 2082,
+            "buildingAreaSquareFeet": 1236,
             "buildingAdjustedAreaSquareFeet": null,
             "buildingGrossAreaSquareFeet": null,
-            "livingAreaSquareFeet": 2082,
+            "livingAreaSquareFeet": 1236,
             "aboveGradeAreaSquareFeet": null,
-            "groundFloorAreaSquareFeet": 873,
+            "groundFloorAreaSquareFeet": 1236,
             "basementAreaSquareFeet": null,
             "finishedBasementAreaSquareFeet": null,
             "unfinishedBasementAreaSquareFeet": null,
-            "aboveGroundFloorAreaSquareFeet": 1209,
+            "aboveGroundFloorAreaSquareFeet": null,
             "buildingAdditionsAreaSquareFeet": null,
-            "entryLevelFloorAreaSquareFeet": 873,
+            "entryLevelFloorAreaSquareFeet": null,
             "secondFloorAreaSquareFeet": null,
             "thirdFloorAreaSquareFeet": null
           },
           "interiorRooms": {
-            "totalCount": null,
-            "bedroomsCount": null,
+            "totalCount": 6,
+            "bedroomsCount": 3,
             "bathroomsCount": null,
-            "fullBathroomsCount": null,
+            "fullBathroomsCount": 2,
             "halfBathroomsCount": null,
             "oneQtrBathroomsCount": null,
             "threeQtrBathroomsCount": null,
@@ -153,14 +153,14 @@
           },
           "structureFeatures": {
             "airConditioning": {
-              "typeCode": null
+              "typeCode": "ACE"
             },
             "firePlaces": {
-              "typeCode": null,
-              "count": null
+              "typeCode": "0U0",
+              "count": 1
             },
             "heating": {
-              "typeCode": null
+              "typeCode": "CL0"
             },
             "plumbing": {
               "typeCode": null
@@ -178,24 +178,24 @@
   },
   "ownership": {
     "data": {
-      "clip": "1056600035",
+      "clip": "7909216472",
       "currentOwners": {
         "ownerNames": [
           {
             "sequenceNumber": 1,
-            "fullName": "POUDEL KHEM NARAYAN",
-            "firstNameAndMiddleInitial": "KHEM NARAYAN",
-            "lastName": "POUDEL",
-            "firstName": "KHEM",
-            "middleName": "NARAYAN",
+            "fullName": "PURDUE JULIA A",
+            "firstNameAndMiddleInitial": "JULIA A",
+            "lastName": "PURDUE",
+            "firstName": "JULIA",
+            "middleName": "A",
             "isCorporate": false
           },
           {
             "sequenceNumber": 2,
-            "fullName": "PRATIMA CHAPAGAIN",
-            "firstNameAndMiddleInitial": "CHAPAGAIN",
-            "lastName": "PRATIMA",
-            "firstName": "CHAPAGAIN",
+            "fullName": null,
+            "firstNameAndMiddleInitial": null,
+            "lastName": null,
+            "firstName": null,
             "middleName": null,
             "isCorporate": false
           },
@@ -218,7 +218,7 @@
             "isCorporate": false
           }
         ],
-        "relationshipTypeCode": null,
+        "relationshipTypeCode": "SW",
         "ownerEtalCode": null,
         "occupancyCode": "O",
         "ownershipRightsCode": null
@@ -226,21 +226,21 @@
       "currentOwnerMailingInfo": {
         "mailingAddress": {
           "careOfName": null,
-          "streetAddress": "4516 JACKIE RETREAT DR",
+          "streetAddress": "1050 HORSESHOE DR",
           "streetAddressParsed": {
-            "houseNumber": "4516",
+            "houseNumber": "1050",
             "houseNumberSuffix": null,
             "houseNumber2": null,
             "direction": null,
-            "streetName": "JACKIE RETREAT",
+            "streetName": "HORSESHOE",
             "mailingMode": "DR",
             "quadrant": null,
             "unitNumber": null
           },
-          "city": "MURFREESBORO",
+          "city": "NASHVILLE",
           "state": "TN",
-          "zipCode": "37127",
-          "carrierRoute": "R001",
+          "zipCode": "37216",
+          "carrierRoute": "C015",
           "foreignAddress": null
         },
         "ownerMailingOptOutIndicator": null
@@ -249,25 +249,25 @@
   },
   "siteLocation": {
     "data": {
-      "clip": "1056600035",
+      "clip": "7909216472",
       "coordinatesParcel": {
-        "lat": 35.74733,
-        "lng": -86.394794
+        "lat": 36.218771,
+        "lng": -86.734172
       },
       "coordinatesBlock": {
-        "lat": 35.74733,
-        "lng": -86.394794
+        "lat": 36.218769,
+        "lng": -86.734173
       },
       "locationLegal": {
-        "subdivisionName": "RUCKER LANDING SEC 4 PH 2",
+        "subdivisionName": "LOCUST GROVE ESTATES",
         "subdivisionTractNumber": null,
-        "subdivisionPlatBookNumber": "48",
-        "subdivisionPlatPageNumber": "237",
+        "subdivisionPlatBookNumber": null,
+        "subdivisionPlatPageNumber": null,
         "blockNumber": null,
         "blockNumberSuffix": null,
-        "lotNumber": "77",
+        "lotNumber": "26",
         "lotNumberSuffix": null,
-        "description": null
+        "description": "LOT 26 LOCUST GROVE ESTATES"
       },
       "locationSurvey": {
         "range": null,
@@ -276,12 +276,12 @@
         "quarterSection": null
       },
       "neighborhood": {
-        "code": null,
-        "name": null
+        "code": "7332",
+        "name": "7332"
       },
       "municipality": {
         "code": null,
-        "name": "COUNTY"
+        "name": "URBAN SERVICES DISTRICT"
       },
       "town": {
         "code": null
@@ -294,31 +294,31 @@
         "type": "Metro"
       },
       "censusTract": {
-        "id": "0407023002"
+        "id": "0112004001"
       },
       "taxRateArea": {
-        "code": null
+        "code": "USD"
       },
       "taxDistrict": {
-        "name": "000"
+        "name": null
       },
       "landUseAndZoningCodes": {
         "propertyTypeCode": "10",
         "landUseCode": "163",
-        "stateLandUseCode": "00",
-        "stateLandUseDescription": "RESIDENTIAL",
-        "countyLandUseCode": null,
-        "countyLandUseDescription": null,
-        "zoningCode": null,
-        "zoningCodeDescription": null,
+        "stateLandUseCode": null,
+        "stateLandUseDescription": null,
+        "countyLandUseCode": "011",
+        "countyLandUseDescription": "SINGLE FAMILY",
+        "zoningCode": "RS7.5",
+        "zoningCodeDescription": "SINGLE FAMILY 7,500 SQUARE FOO",
         "isManufacturedHome": null
       },
       "lot": {
-        "areaAcres": 0.1788,
-        "areaSquareFeet": 7789,
+        "areaAcres": 0.23,
+        "areaSquareFeet": 10019,
         "areaSquareFeetUsable": null,
-        "depthFeet": null,
-        "frontFeet": null,
+        "depthFeet": 174,
+        "frontFeet": 60,
         "shapeCode": null,
         "topographyType": null,
         "easementTypeCode": null
@@ -341,17 +341,17 @@
     },
     "items": [
       {
-        "clip": "1056600035",
+        "clip": "7909216472",
         "taxAmount": {
           "billedYear": 2024,
           "delinquentYear": null,
-          "areaCode": null,
-          "areaCodeDescription": null,
+          "areaCode": "USD",
+          "areaCodeDescription": "55-USD",
           "propertyTaxRate": null,
           "calculatedTotalExemptionAmount": null,
           "totalTaxExemptionAmount": null,
-          "totalTaxAmount": 1762,
-          "countyTaxAmount": null,
+          "totalTaxAmount": 2750.45,
+          "countyTaxAmount": 2750.45,
           "schoolTaxAmount": null,
           "townTaxAmount": null,
           "villageTaxAmount": null,
@@ -363,35 +363,35 @@
         },
         "assessedValue": {
           "taxAssessedYear": 2024,
-          "calculatedTotalValue": 375600,
-          "calculatedLandValue": 80000,
-          "calculatedImprovementValue": 295600,
-          "calculatedImprovementValuePercentage": 79,
-          "calculatedTotalValueSourceCode": "P",
+          "calculatedTotalValue": 338100,
+          "calculatedLandValue": 90000,
+          "calculatedImprovementValue": 248100,
+          "calculatedImprovementValuePercentage": 73,
+          "calculatedTotalValueSourceCode": "M",
           "taxableValue": null,
           "taxableImprovementValue": null,
           "taxableLandValue": null,
           "taxableOtherValue": null
         },
         "taxrollUpdate": {
-          "lastAssessorUpdateDate": "2025-01-17",
-          "taxrollCertificationDate": "2024-07-01"
+          "lastAssessorUpdateDate": "2025-05-09",
+          "taxrollCertificationDate": "2024-09-12"
         },
         "schoolDistricts": {
           "school": {
-            "code": null,
-            "name": null,
+            "code": "4703180",
+            "name": "NASHVILLE-DAVIDSON COUNTY",
             "elementary": {
-              "code": null,
-              "name": null
+              "code": "4703180",
+              "name": "NASHVILLE-DAVIDSON COUNTY"
             },
             "middle": {
               "code": null,
               "name": null
             },
             "high": {
-              "code": null,
-              "name": null
+              "code": "4703180",
+              "name": "NASHVILLE-DAVIDSON COUNTY"
             },
             "communityCollege": {
               "code": null,
@@ -441,102 +441,95 @@
     },
     "items": [
       {
-        "clip": "1056600035",
+        "clip": "7909216472",
         "transactionDetails": {
           "primaryCategoryCode": "A",
           "deedCategoryCode": "G",
-          "saleDateDerived": "2023-11-15",
-          "saleRecordingDateDerived": "2023-11-15",
-          "saleAmount": 395000,
+          "saleDateDerived": "2025-04-03",
+          "saleRecordingDateDerived": "2025-04-04",
+          "saleAmount": 480000,
           "saleTypeCode": null,
-          "saleDocumentTypeCode": "SW",
-          "saleDocumentNumber": "2521823",
-          "saleBookNumber": "002392",
-          "salePageNumber": "002649",
+          "saleDocumentTypeCode": "WD",
+          "saleDocumentNumber": "25638",
+          "saleBookNumber": null,
+          "salePageNumber": null,
           "ownershipTransferPercent": null,
           "multiOrSplitParcelCode": null,
           "isCashPurchase": false,
           "isMortgagePurchase": true,
           "isInterfamilyRelated": false,
           "isInvestorPurchase": false,
-          "isResale": false,
+          "isResale": true,
           "isShortSale": false,
           "isForeclosureReo": false,
           "isForeclosureReoSale": false
         },
         "recordedPropertyAddress": {
-          "streetAddress": "4516 JACKIE RETREAT DR",
+          "streetAddress": "1050 HORSESHOE DR",
           "streetAddressParsed": {
-            "houseNumber": "4516",
+            "houseNumber": "1050",
             "houseNumberSuffix": null,
             "houseNumber2": null,
             "direction": null,
-            "streetName": "JACKIE RETREAT",
+            "streetName": "HORSESHOE",
             "mode": "DR",
             "quadrant": null,
             "unitNumber": null
           },
-          "city": "MURFREESBORO",
+          "city": "NASHVILLE",
           "state": "TN",
-          "zipCode": "371273010",
-          "carrierRoute": "R001",
-          "county": "RUTHERFORD"
+          "zipCode": "372162424",
+          "carrierRoute": "C015",
+          "county": "DAVIDSON"
         },
         "titleCompany": {
-          "name": "FOUNDATION TITLE",
-          "code": "01581"
+          "name": "MAGNOLIA TITLE & ESCROW INC",
+          "code": "16772"
         },
         "propertyDetails": {
-          "actualYearBuilt": 2023,
+          "actualYearBuilt": 1947,
           "effectiveYearBuilt": null,
           "isResidentialProperty": true,
-          "isNewConstruction": true
+          "isNewConstruction": false
         },
         "landUseAndZoningCodes": {
           "propertyTypeCode": "10",
           "landUseCode": "163",
-          "stateLandUseDescription": "RESIDENTIAL",
+          "stateLandUseDescription": null,
           "countyLandUseDescription": null,
-          "zoningCode": null
+          "zoningCode": "RS7.5"
         },
         "buyerDetails": {
           "buyerNames": [
             {
               "sequenceNumber": 1,
-              "fullName": "POUDEL KHEM N",
-              "lastName": "POUDEL",
-              "firstNameAndMiddleInitial": "KHEM N",
-              "isCorporate": null
-            },
-            {
-              "sequenceNumber": 2,
-              "fullName": "CHAPAGAIN PRATIMA",
-              "lastName": "CHAPAGAIN",
-              "firstNameAndMiddleInitial": "PRATIMA",
+              "fullName": "PURDUE JULIA A",
+              "lastName": "PURDUE",
+              "firstNameAndMiddleInitial": "JULIA A",
               "isCorporate": null
             }
           ],
-          "relationshipTypeCode": "HW",
+          "relationshipTypeCode": "SW",
           "etalCode": "",
           "occupancyCode": "S",
           "ownershipRightsCode": null,
           "mailingAddress": {
             "careOfName": null,
-            "streetAddress": "4516 JACKIE RETREAT DR",
+            "streetAddress": "1050 HORSESHOE DR",
             "streetAddressParsed": {
-              "houseNumber": "4516",
+              "houseNumber": "1050",
               "houseNumberSuffix": null,
               "houseNumber2": null,
               "direction": null,
-              "streetName": "JACKIE RETREAT",
+              "streetName": "HORSESHOE",
               "mode": "DR",
               "quadrant": null,
               "unitNumber": null
             },
-            "city": "MURFREESBORO",
+            "city": "NASHVILLE",
             "state": "TN",
-            "zipCode": "371273010",
-            "carrierRoute": "R001"
+            "zipCode": "372162424",
+            "carrierRoute": "C015"
           },
           "hasPartialInterest": null,
           "mailingOptOutIndicator": null
@@ -545,7 +538,7 @@
           "sellerNames": [
             {
               "sequenceNumber": 1,
-              "fullName": "PULTE HMS TENNESSEE LTD"
+              "fullName": "FARMER CHRIS"
             }
           ]
         }
@@ -561,102 +554,95 @@
     },
     "items": [
       {
-        "clip": "1056600035",
+        "clip": "7909216472",
         "transactionDetails": {
           "primaryCategoryCode": "A",
           "deedCategoryCode": "G",
-          "saleDateDerived": "2023-11-15",
-          "saleRecordingDateDerived": "2023-11-15",
-          "saleAmount": 395000,
+          "saleDateDerived": "2025-04-03",
+          "saleRecordingDateDerived": "2025-04-04",
+          "saleAmount": 480000,
           "saleTypeCode": null,
-          "saleDocumentTypeCode": "SW",
-          "saleDocumentNumber": "2521823",
-          "saleBookNumber": "002392",
-          "salePageNumber": "002649",
+          "saleDocumentTypeCode": "WD",
+          "saleDocumentNumber": "25638",
+          "saleBookNumber": null,
+          "salePageNumber": null,
           "ownershipTransferPercent": null,
           "multiOrSplitParcelCode": null,
           "isCashPurchase": false,
           "isMortgagePurchase": true,
           "isInterfamilyRelated": false,
           "isInvestorPurchase": false,
-          "isResale": false,
+          "isResale": true,
           "isShortSale": false,
           "isForeclosureReo": false,
           "isForeclosureReoSale": false
         },
         "recordedPropertyAddress": {
-          "streetAddress": "4516 JACKIE RETREAT DR",
+          "streetAddress": "1050 HORSESHOE DR",
           "streetAddressParsed": {
-            "houseNumber": "4516",
+            "houseNumber": "1050",
             "houseNumberSuffix": null,
             "houseNumber2": null,
             "direction": null,
-            "streetName": "JACKIE RETREAT",
+            "streetName": "HORSESHOE",
             "mode": "DR",
             "quadrant": null,
             "unitNumber": null
           },
-          "city": "MURFREESBORO",
+          "city": "NASHVILLE",
           "state": "TN",
-          "zipCode": "371273010",
-          "carrierRoute": "R001",
-          "county": "RUTHERFORD"
+          "zipCode": "372162424",
+          "carrierRoute": "C015",
+          "county": "DAVIDSON"
         },
         "titleCompany": {
-          "name": "FOUNDATION TITLE",
-          "code": "01581"
+          "name": "MAGNOLIA TITLE & ESCROW INC",
+          "code": "16772"
         },
         "propertyDetails": {
-          "actualYearBuilt": 2023,
+          "actualYearBuilt": 1947,
           "effectiveYearBuilt": null,
           "isResidentialProperty": true,
-          "isNewConstruction": true
+          "isNewConstruction": false
         },
         "landUseAndZoningCodes": {
           "propertyTypeCode": "10",
           "landUseCode": "163",
-          "stateLandUseDescription": "RESIDENTIAL",
+          "stateLandUseDescription": null,
           "countyLandUseDescription": null,
-          "zoningCode": null
+          "zoningCode": "RS7.5"
         },
         "buyerDetails": {
           "buyerNames": [
             {
               "sequenceNumber": 1,
-              "fullName": "POUDEL KHEM N",
-              "lastName": "POUDEL",
-              "firstNameAndMiddleInitial": "KHEM N",
-              "isCorporate": null
-            },
-            {
-              "sequenceNumber": 2,
-              "fullName": "CHAPAGAIN PRATIMA",
-              "lastName": "CHAPAGAIN",
-              "firstNameAndMiddleInitial": "PRATIMA",
+              "fullName": "PURDUE JULIA A",
+              "lastName": "PURDUE",
+              "firstNameAndMiddleInitial": "JULIA A",
               "isCorporate": null
             }
           ],
-          "relationshipTypeCode": "HW",
+          "relationshipTypeCode": "SW",
           "etalCode": "",
           "occupancyCode": "S",
           "ownershipRightsCode": null,
           "mailingAddress": {
             "careOfName": null,
-            "streetAddress": "4516 JACKIE RETREAT DR",
+            "streetAddress": "1050 HORSESHOE DR",
             "streetAddressParsed": {
-              "houseNumber": "4516",
+              "houseNumber": "1050",
               "houseNumberSuffix": null,
               "houseNumber2": null,
               "direction": null,
-              "streetName": "JACKIE RETREAT",
+              "streetName": "HORSESHOE",
               "mode": "DR",
               "quadrant": null,
               "unitNumber": null
             },
-            "city": "MURFREESBORO",
+            "city": "NASHVILLE",
             "state": "TN",
-            "zipCode": "371273010",
-            "carrierRoute": "R001"
+            "zipCode": "372162424",
+            "carrierRoute": "C015"
           },
           "hasPartialInterest": null,
           "mailingOptOutIndicator": null
@@ -665,7 +651,7 @@
           "sellerNames": [
             {
               "sequenceNumber": 1,
-              "fullName": "PULTE HMS TENNESSEE LTD"
+              "fullName": "FARMER CHRIS"
             }
           ]
         }
