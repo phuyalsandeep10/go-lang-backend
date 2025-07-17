@@ -236,3 +236,18 @@ a. UPPERCASE
 b. lowercase
 {{base_url}}/api/properties/property-search?q=1050%20horseshoe%20dr%2C%20nashville%2C%20tn%2037216
 {{base_url}}/api/properties/property-search?q=1050 horseshoe dr, nashville, tn 37216
+
+
+
+
+
+
+
+
+https://property.corelogicapi.com/v2/properties/search?streetAddress=1050%20HORSESHOE%20DR%20&city=NASHVILLE&state=TN&zipCode=37216
+
+https://property.corelogicapi.com/v2/properties/search?streetAddress=4516%20Jackie%20Retreat%20Dr&city=Murfreesboro&state=TN&zipCode=37127
+
+https://property.corelogicapi.com/v2/properties/search?streetAddress=1050%20HORSESHOE%20DR&city=NASHVILLE&state=TN&zipCode=37216
+
+https://property.corelogicapi.com/v2/properties/search?streetAddress=1050%20HORSESHOE%20DR&city=NASHVILLE&state=TN&zipCode=37216

@@ -1,54 +1,79 @@
 package corelogic
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"time"
 
 	"homeinsight-properties/pkg/logger"
 )
 
-// GetPropertyDetails retrieves detailed property information using clip or propertyId
+// structure for the detail task payload.
+type DetailRequest struct {
+	Task   string `json:"task"`
+	ClipId string `json:"clipId"`
+}
+
+// retrieve detailed property information using the cloud function proxy.
 func (c *Client) GetPropertyDetails(propertyId string) (map[string]interface{}, error) {
+	proxyURL := os.Getenv("CORELOGIC_PROXY_URL")
+	if proxyURL == "" {
+		return nil, fmt.Errorf("CORELOGIC_PROXY_URL environment variable is not set")
+	}
+
+	// Get the authentication token
 	token, err := c.getToken()
 	if err != nil {
+		logger.GlobalLogger.Errorf("Failed to get token: error=%v", err)
 		return nil, err
 	}
 
-	detailsURL := fmt.Sprintf("https://property.corelogicapi.com/v2/properties/%s/property-detail", propertyId)
+	// Create the request body for the detail task
+	requestBody := DetailRequest{
+		Task:   "detail",
+		ClipId: propertyId,
+	}
+
+	// Marshal the request body to JSON
+	jsonBody, err := json.Marshal(requestBody)
+	if err != nil {
+		logger.GlobalLogger.Errorf("Failed to marshal detail request body: error=%v", err)
+		return nil, fmt.Errorf("failed to marshal request body: %v", err)
+	}
+
+	// Create the HTTP POST request
+	req, err := http.NewRequest("POST", proxyURL, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		logger.GlobalLogger.Errorf("Failed to create detail request: error=%v", err)
+		return nil, err
+	}
+
+	// Set headers (Authorization and Content-Type;)
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Retry loop for HTTP request
 	maxRetries := 3
-
 	for attempt := 1; attempt <= maxRetries; attempt++ {
-		req, err := http.NewRequest("GET", detailsURL, nil)
-		if err != nil {
-			logger.GlobalLogger.Errorf("Failed to create property details request (attempt %d/%d): url=%s, error=%v", attempt, maxRetries, detailsURL, err)
-			if attempt == maxRetries {
-				return nil, fmt.Errorf("failed to create property details request after %d attempts: %v", maxRetries, err)
-			}
-			time.Sleep(time.Duration(attempt) * time.Second)
-			continue
-		}
-
-		req.Header.Set("Authorization", "Bearer "+token)
-		req.Header.Set("x-developer-email", c.developerEmail)
-		req.Header.Set("Content-Type", "application/json")
-
 		resp, err := c.httpClient.Do(req)
 		if err != nil {
-			logger.GlobalLogger.Errorf("Failed to send property details request (attempt %d/%d): url=%s, error=%v", attempt, maxRetries, detailsURL, err)
-			if attempt == maxRetries {
-				return nil, fmt.Errorf("failed to send property details request after %d attempts: %v", maxRetries, err)
-			}
-			time.Sleep(time.Duration(attempt) * time.Second)
-			continue
+			logger.GlobalLogger.Errorf("Failed to send detail request to proxy (attempt %d/%d): url=%s, error=%v", attempt, maxRetries, proxyURL, err)
+		 if attempt == maxRetries {
+			return nil, fmt.Errorf("failed to send detail request to proxy after %d attempts: %v", maxRetries, err)
+		 }
+		 time.Sleep(time.Duration(attempt) * time.Second)
+		 continue
 		}
 		defer resp.Body.Close()
 
+		// Read the response body
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			logger.GlobalLogger.Errorf("Failed to read property details response body (attempt %d/%d): url=%s, status=%s, error=%v", attempt, maxRetries, detailsURL, resp.Status, err)
+			logger.GlobalLogger.Errorf("Failed to read detail response body (attempt %d/%d): url=%s, status=%s, error=%v", attempt, maxRetries, proxyURL, resp.Status, err)
 			if attempt == maxRetries {
 				return nil, fmt.Errorf("failed to read response body after %d attempts: %v", maxRetries, err)
 			}
@@ -56,8 +81,9 @@ func (c *Client) GetPropertyDetails(propertyId string) (map[string]interface{}, 
 			continue
 		}
 
+		// Check the response status
 		if resp.StatusCode != http.StatusOK {
-			logger.GlobalLogger.Errorf("Property details request failed (attempt %d/%d): url=%s, status=%s, response=%s", attempt, maxRetries, detailsURL, resp.Status, string(body))
+			logger.GlobalLogger.Errorf("Detail request to proxy failed (attempt %d/%d): url=%s, status=%s, response=%s", attempt, maxRetries, proxyURL, resp.Status, string(body))
 			if attempt == maxRetries {
 				return nil, fmt.Errorf("failed to get property details after %d attempts: %s, response: %s", maxRetries, resp.Status, string(body))
 			}
@@ -65,9 +91,10 @@ func (c *Client) GetPropertyDetails(propertyId string) (map[string]interface{}, 
 			continue
 		}
 
+		// Parse the response
 		var details map[string]interface{}
 		if err := json.Unmarshal(body, &details); err != nil {
-			logger.GlobalLogger.Errorf("Failed to decode property details response (attempt %d/%d): url=%s, response=%s, error=%v", attempt, maxRetries, detailsURL, string(body), err)
+			logger.GlobalLogger.Errorf("Failed to decode detail response: url=%s, response=%s, error=%v", proxyURL, string(body), err)
 			return nil, fmt.Errorf("failed to decode property details response: %v", err)
 		}
 
@@ -78,12 +105,12 @@ func (c *Client) GetPropertyDetails(propertyId string) (map[string]interface{}, 
 	return nil, fmt.Errorf("failed to get property details: max retries exceeded")
 }
 
-// GetPropertyDetailsByClip retrieves detailed property information using clip
+// retrieve detailed property information using clip.
 func (c *Client) GetPropertyDetailsByClip(clip string) (map[string]interface{}, error) {
 	return c.GetPropertyDetails(clip)
 }
 
-// GetPropertyDetailsByV1PropertyId retrieves detailed property information using v1PropertyId
+// retrieve detailed property information using v1PropertyId.
 func (c *Client) GetPropertyDetailsByV1PropertyId(v1PropertyId string) (map[string]interface{}, error) {
 	return c.GetPropertyDetails(v1PropertyId)
 }

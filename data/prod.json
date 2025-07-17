@@ -1,0 +1,662 @@
+{
+  "buildings": {
+    "data": {
+      "clip": "7909216472",
+      "allBuildingsSummary": {
+        "buildingsCount": 1,
+        "unitsCount": 1,
+        "roomsCount": 6,
+        "bedroomsCount": 3,
+        "bathroomsCount": 2,
+        "fullBathroomsCount": 2,
+        "halfBathroomsCount": null,
+        "oneQtrBathroomsCount": null,
+        "threeQtrBathroomsCount": null,
+        "bathroomFixturesCount": 9,
+        "fireplacesCount": 1,
+        "livingAreaSquareFeet": 1236,
+        "totalAreaSquareFeet": 1236,
+        "openAreasSquareFeet": null,
+        "officeSpaceSquareFeet": null,
+        "elevatorsCount": null,
+        "loadingDocksCount": null,
+        "railSpursCount": null,
+        "truckDoorsCount": null
+      },
+      "buildings": [
+        {
+          "structureId": {
+            "sequenceNumber": 1,
+            "compositeBuildingLinkageKey": "4703706114007300                                  001001",
+            "buildingName": null,
+            "buildingNumber": "1",
+            "buildingSectionNumber": null,
+            "buildingComments": null
+          },
+          "structureClassification": {
+            "buildingTypeCode": "RS0",
+            "buildingClassCode": null,
+            "gradeTypeCode": "000",
+            "fireSprinklerTypeCode": null,
+            "fireInsuranceTypeCode": null
+          },
+          "structureFootprint": {
+            "widthFeet": null,
+            "depthFeet": null
+          },
+          "structureUnitsSummary": {
+            "vacantCount": null,
+            "residentialCount": 1,
+            "commercialCount": null
+          },
+          "structureVerticalProfile": {
+            "storiesCount": 1,
+            "storiesTypeCode": "010",
+            "floorNumber": null
+          },
+          "constructionDetails": {
+            "yearBuilt": 1947,
+            "effectiveYearBuilt": 1947,
+            "buildingStyleTypeCode": null,
+            "buildingQualityTypeCode": null,
+            "frameTypeCode": "001",
+            "foundationTypeCode": "UCR",
+            "constructionTypeCode": null,
+            "buildingRemodelTypeCode": null,
+            "buildingImprovementConditionCode": "AVE",
+            "buildingImprovementTypeCode": null,
+            "buildingImprovementValue": null
+          },
+          "structureExterior": {
+            "patios": {
+              "count": 1,
+              "typeCode": "30R",
+              "areaSquareFeet": 413
+            },
+            "porches": {
+              "count": 1,
+              "typeCode": "PO0",
+              "areaSquareFeet": 32,
+              "secondPorchAreaSquareFeet": null
+            },
+            "parking": {
+              "typeCode": "810",
+              "garageTypeCode": "810",
+              "parkingSpacesCount": null,
+              "primaryAreaSquareFeet": 240,
+              "secondAreaSquareFeet": null,
+              "carportAreaSquareFeet": null
+            },
+            "pool": null,
+            "walls": {
+              "typeCode": "FRA"
+            },
+            "roof": {
+              "typeCode": "106",
+              "coverTypeCode": "106"
+            }
+          },
+          "structureInterior": {
+            "attic": {
+              "typeCode": null
+            },
+            "walls": {
+              "typeCode": null
+            },
+            "basement": {
+              "typeCode": null,
+              "finishTypeCode": null,
+              "finishPercent": null
+            },
+            "flooring": {
+              "typeCode": null,
+              "coverTypeCode": null
+            },
+            "ceiling": {
+              "typeCode": null,
+              "heightFeet": null
+            },
+            "bathroomFixtures": {
+              "count": 9
+            }
+          },
+          "interiorArea": {
+            "universalBuildingAreaSquareFeet": 1236,
+            "universalBuildingAreaSquareFeetSourceCode": "L",
+            "buildingAreaSquareFeet": 1236,
+            "buildingAdjustedAreaSquareFeet": null,
+            "buildingGrossAreaSquareFeet": null,
+            "livingAreaSquareFeet": 1236,
+            "aboveGradeAreaSquareFeet": null,
+            "groundFloorAreaSquareFeet": 1236,
+            "basementAreaSquareFeet": null,
+            "finishedBasementAreaSquareFeet": null,
+            "unfinishedBasementAreaSquareFeet": null,
+            "aboveGroundFloorAreaSquareFeet": null,
+            "buildingAdditionsAreaSquareFeet": null,
+            "entryLevelFloorAreaSquareFeet": null,
+            "secondFloorAreaSquareFeet": null,
+            "thirdFloorAreaSquareFeet": null
+          },
+          "interiorRooms": {
+            "totalCount": 6,
+            "bedroomsCount": 3,
+            "bathroomsCount": null,
+            "fullBathroomsCount": 2,
+            "halfBathroomsCount": null,
+            "oneQtrBathroomsCount": null,
+            "threeQtrBathroomsCount": null,
+            "kitchensCount": null,
+            "familyRoomsCount": null,
+            "livingRoomsCount": null,
+            "basementRoomsCount": null
+          },
+          "structureFeatures": {
+            "airConditioning": {
+              "typeCode": "ACE"
+            },
+            "firePlaces": {
+              "typeCode": "0U0",
+              "count": 1
+            },
+            "heating": {
+              "typeCode": "CL0"
+            },
+            "plumbing": {
+              "typeCode": null
+            },
+            "passengerElevators": {
+              "count": null
+            },
+            "dormerWindows": {
+              "count": null
+            }
+          }
+        }
+      ]
+    }
+  },
+  "ownership": {
+    "data": {
+      "clip": "7909216472",
+      "currentOwners": {
+        "ownerNames": [
+          {
+            "sequenceNumber": 1,
+            "fullName": "PURDUE JULIA A",
+            "firstNameAndMiddleInitial": "JULIA A",
+            "lastName": "PURDUE",
+            "firstName": "JULIA",
+            "middleName": "A",
+            "isCorporate": false
+          },
+          {
+            "sequenceNumber": 2,
+            "fullName": null,
+            "firstNameAndMiddleInitial": null,
+            "lastName": null,
+            "firstName": null,
+            "middleName": null,
+            "isCorporate": false
+          },
+          {
+            "sequenceNumber": 3,
+            "fullName": null,
+            "firstNameAndMiddleInitial": null,
+            "lastName": null,
+            "firstName": null,
+            "middleName": null,
+            "isCorporate": false
+          },
+          {
+            "sequenceNumber": 4,
+            "fullName": null,
+            "firstNameAndMiddleInitial": null,
+            "lastName": null,
+            "firstName": null,
+            "middleName": null,
+            "isCorporate": false
+          }
+        ],
+        "relationshipTypeCode": "SW",
+        "ownerEtalCode": null,
+        "occupancyCode": "O",
+        "ownershipRightsCode": null
+      },
+      "currentOwnerMailingInfo": {
+        "mailingAddress": {
+          "careOfName": null,
+          "streetAddress": "1050 HORSESHOE DR",
+          "streetAddressParsed": {
+            "houseNumber": "1050",
+            "houseNumberSuffix": null,
+            "houseNumber2": null,
+            "direction": null,
+            "streetName": "HORSESHOE",
+            "mailingMode": "DR",
+            "quadrant": null,
+            "unitNumber": null
+          },
+          "city": "NASHVILLE",
+          "state": "TN",
+          "zipCode": "37216",
+          "carrierRoute": "C015",
+          "foreignAddress": null
+        },
+        "ownerMailingOptOutIndicator": null
+      }
+    }
+  },
+  "siteLocation": {
+    "data": {
+      "clip": "7909216472",
+      "coordinatesParcel": {
+        "lat": 36.218771,
+        "lng": -86.734172
+      },
+      "coordinatesBlock": {
+        "lat": 36.218769,
+        "lng": -86.734173
+      },
+      "locationLegal": {
+        "subdivisionName": "LOCUST GROVE ESTATES",
+        "subdivisionTractNumber": null,
+        "subdivisionPlatBookNumber": null,
+        "subdivisionPlatPageNumber": null,
+        "blockNumber": null,
+        "blockNumberSuffix": null,
+        "lotNumber": "26",
+        "lotNumberSuffix": null,
+        "description": "LOT 26 LOCUST GROVE ESTATES"
+      },
+      "locationSurvey": {
+        "range": null,
+        "township": null,
+        "section": null,
+        "quarterSection": null
+      },
+      "neighborhood": {
+        "code": "7332",
+        "name": "7332"
+      },
+      "municipality": {
+        "code": null,
+        "name": "URBAN SERVICES DISTRICT"
+      },
+      "town": {
+        "code": null
+      },
+      "jurisdictionCounty": {
+        "code": null
+      },
+      "cbsa": {
+        "code": "34980",
+        "type": "Metro"
+      },
+      "censusTract": {
+        "id": "0112004001"
+      },
+      "taxRateArea": {
+        "code": "USD"
+      },
+      "taxDistrict": {
+        "name": null
+      },
+      "landUseAndZoningCodes": {
+        "propertyTypeCode": "10",
+        "landUseCode": "163",
+        "stateLandUseCode": null,
+        "stateLandUseDescription": null,
+        "countyLandUseCode": "011",
+        "countyLandUseDescription": "SINGLE FAMILY",
+        "zoningCode": "RS7.5",
+        "zoningCodeDescription": "SINGLE FAMILY 7,500 SQUARE FOO",
+        "isManufacturedHome": null
+      },
+      "lot": {
+        "areaAcres": 0.23,
+        "areaSquareFeet": 10019,
+        "areaSquareFeetUsable": null,
+        "depthFeet": 174,
+        "frontFeet": 60,
+        "shapeCode": null,
+        "topographyType": null,
+        "easementTypeCode": null
+      },
+      "utilities": {
+        "fuelTypeCode": null,
+        "electricityWiringTypeCode": null,
+        "sewerTypeCode": null,
+        "utilitiesTypeCode": null,
+        "waterTypeCode": null
+      }
+    }
+  },
+  "taxAssessment": {
+    "metadata": {
+      "pageNumber": 1,
+      "pageSize": 1,
+      "totalRecords": 1,
+      "totalPages": 1
+    },
+    "items": [
+      {
+        "clip": "7909216472",
+        "taxAmount": {
+          "billedYear": 2024,
+          "delinquentYear": null,
+          "areaCode": "USD",
+          "areaCodeDescription": "55-USD",
+          "propertyTaxRate": null,
+          "calculatedTotalExemptionAmount": null,
+          "totalTaxExemptionAmount": null,
+          "totalTaxAmount": 2750.45,
+          "countyTaxAmount": 2750.45,
+          "schoolTaxAmount": null,
+          "townTaxAmount": null,
+          "villageTaxAmount": null,
+          "netTaxAmount": null
+        },
+        "taxExemptions": {
+          "commercial": [],
+          "residential": []
+        },
+        "assessedValue": {
+          "taxAssessedYear": 2024,
+          "calculatedTotalValue": 338100,
+          "calculatedLandValue": 90000,
+          "calculatedImprovementValue": 248100,
+          "calculatedImprovementValuePercentage": 73,
+          "calculatedTotalValueSourceCode": "M",
+          "taxableValue": null,
+          "taxableImprovementValue": null,
+          "taxableLandValue": null,
+          "taxableOtherValue": null
+        },
+        "taxrollUpdate": {
+          "lastAssessorUpdateDate": "2025-05-09",
+          "taxrollCertificationDate": "2024-09-12"
+        },
+        "schoolDistricts": {
+          "school": {
+            "code": "4703180",
+            "name": "NASHVILLE-DAVIDSON COUNTY",
+            "elementary": {
+              "code": "4703180",
+              "name": "NASHVILLE-DAVIDSON COUNTY"
+            },
+            "middle": {
+              "code": null,
+              "name": null
+            },
+            "high": {
+              "code": "4703180",
+              "name": "NASHVILLE-DAVIDSON COUNTY"
+            },
+            "communityCollege": {
+              "code": null,
+              "name": null
+            }
+          }
+        },
+        "serviceDistricts": {
+          "fire": {
+            "code": null,
+            "name": null
+          },
+          "trash": {
+            "code": null,
+            "name": null
+          },
+          "lighting": {
+            "code": null,
+            "name": null
+          },
+          "tax": {
+            "code": null,
+            "name": null
+          },
+          "sewer": {
+            "code": null,
+            "name": null
+          },
+          "utility": {
+            "code": null,
+            "name": null
+          },
+          "water": {
+            "code": null,
+            "name": null
+          }
+        }
+      }
+    ]
+  },
+  "mostRecentOwnerTransfer": {
+    "metadata": {
+      "pageNumber": 1,
+      "pageSize": 1,
+      "totalRecords": 1,
+      "totalPages": 1
+    },
+    "items": [
+      {
+        "clip": "7909216472",
+        "transactionDetails": {
+          "primaryCategoryCode": "A",
+          "deedCategoryCode": "G",
+          "saleDateDerived": "2025-04-03",
+          "saleRecordingDateDerived": "2025-04-04",
+          "saleAmount": 480000,
+          "saleTypeCode": null,
+          "saleDocumentTypeCode": "WD",
+          "saleDocumentNumber": "25638",
+          "saleBookNumber": null,
+          "salePageNumber": null,
+          "ownershipTransferPercent": null,
+          "multiOrSplitParcelCode": null,
+          "isCashPurchase": false,
+          "isMortgagePurchase": true,
+          "isInterfamilyRelated": false,
+          "isInvestorPurchase": false,
+          "isResale": true,
+          "isShortSale": false,
+          "isForeclosureReo": false,
+          "isForeclosureReoSale": false
+        },
+        "recordedPropertyAddress": {
+          "streetAddress": "1050 HORSESHOE DR",
+          "streetAddressParsed": {
+            "houseNumber": "1050",
+            "houseNumberSuffix": null,
+            "houseNumber2": null,
+            "direction": null,
+            "streetName": "HORSESHOE",
+            "mode": "DR",
+            "quadrant": null,
+            "unitNumber": null
+          },
+          "city": "NASHVILLE",
+          "state": "TN",
+          "zipCode": "372162424",
+          "carrierRoute": "C015",
+          "county": "DAVIDSON"
+        },
+        "titleCompany": {
+          "name": "MAGNOLIA TITLE & ESCROW INC",
+          "code": "16772"
+        },
+        "propertyDetails": {
+          "actualYearBuilt": 1947,
+          "effectiveYearBuilt": null,
+          "isResidentialProperty": true,
+          "isNewConstruction": false
+        },
+        "landUseAndZoningCodes": {
+          "propertyTypeCode": "10",
+          "landUseCode": "163",
+          "stateLandUseDescription": null,
+          "countyLandUseDescription": null,
+          "zoningCode": "RS7.5"
+        },
+        "buyerDetails": {
+          "buyerNames": [
+            {
+              "sequenceNumber": 1,
+              "fullName": "PURDUE JULIA A",
+              "lastName": "PURDUE",
+              "firstNameAndMiddleInitial": "JULIA A",
+              "isCorporate": null
+            }
+          ],
+          "relationshipTypeCode": "SW",
+          "etalCode": "",
+          "occupancyCode": "S",
+          "ownershipRightsCode": null,
+          "mailingAddress": {
+            "careOfName": null,
+            "streetAddress": "1050 HORSESHOE DR",
+            "streetAddressParsed": {
+              "houseNumber": "1050",
+              "houseNumberSuffix": null,
+              "houseNumber2": null,
+              "direction": null,
+              "streetName": "HORSESHOE",
+              "mode": "DR",
+              "quadrant": null,
+              "unitNumber": null
+            },
+            "city": "NASHVILLE",
+            "state": "TN",
+            "zipCode": "372162424",
+            "carrierRoute": "C015"
+          },
+          "hasPartialInterest": null,
+          "mailingOptOutIndicator": null
+        },
+        "sellerDetails": {
+          "sellerNames": [
+            {
+              "sequenceNumber": 1,
+              "fullName": "FARMER CHRIS"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "lastMarketSale": {
+    "metadata": {
+      "pageNumber": 1,
+      "pageSize": 1,
+      "totalRecords": 1,
+      "totalPages": 1
+    },
+    "items": [
+      {
+        "clip": "7909216472",
+        "transactionDetails": {
+          "primaryCategoryCode": "A",
+          "deedCategoryCode": "G",
+          "saleDateDerived": "2025-04-03",
+          "saleRecordingDateDerived": "2025-04-04",
+          "saleAmount": 480000,
+          "saleTypeCode": null,
+          "saleDocumentTypeCode": "WD",
+          "saleDocumentNumber": "25638",
+          "saleBookNumber": null,
+          "salePageNumber": null,
+          "ownershipTransferPercent": null,
+          "multiOrSplitParcelCode": null,
+          "isCashPurchase": false,
+          "isMortgagePurchase": true,
+          "isInterfamilyRelated": false,
+          "isInvestorPurchase": false,
+          "isResale": true,
+          "isShortSale": false,
+          "isForeclosureReo": false,
+          "isForeclosureReoSale": false
+        },
+        "recordedPropertyAddress": {
+          "streetAddress": "1050 HORSESHOE DR",
+          "streetAddressParsed": {
+            "houseNumber": "1050",
+            "houseNumberSuffix": null,
+            "houseNumber2": null,
+            "direction": null,
+            "streetName": "HORSESHOE",
+            "mode": "DR",
+            "quadrant": null,
+            "unitNumber": null
+          },
+          "city": "NASHVILLE",
+          "state": "TN",
+          "zipCode": "372162424",
+          "carrierRoute": "C015",
+          "county": "DAVIDSON"
+        },
+        "titleCompany": {
+          "name": "MAGNOLIA TITLE & ESCROW INC",
+          "code": "16772"
+        },
+        "propertyDetails": {
+          "actualYearBuilt": 1947,
+          "effectiveYearBuilt": null,
+          "isResidentialProperty": true,
+          "isNewConstruction": false
+        },
+        "landUseAndZoningCodes": {
+          "propertyTypeCode": "10",
+          "landUseCode": "163",
+          "stateLandUseDescription": null,
+          "countyLandUseDescription": null,
+          "zoningCode": "RS7.5"
+        },
+        "buyerDetails": {
+          "buyerNames": [
+            {
+              "sequenceNumber": 1,
+              "fullName": "PURDUE JULIA A",
+              "lastName": "PURDUE",
+              "firstNameAndMiddleInitial": "JULIA A",
+              "isCorporate": null
+            }
+          ],
+          "relationshipTypeCode": "SW",
+          "etalCode": "",
+          "occupancyCode": "S",
+          "ownershipRightsCode": null,
+          "mailingAddress": {
+            "careOfName": null,
+            "streetAddress": "1050 HORSESHOE DR",
+            "streetAddressParsed": {
+              "houseNumber": "1050",
+              "houseNumberSuffix": null,
+              "houseNumber2": null,
+              "direction": null,
+              "streetName": "HORSESHOE",
+              "mode": "DR",
+              "quadrant": null,
+              "unitNumber": null
+            },
+            "city": "NASHVILLE",
+            "state": "TN",
+            "zipCode": "372162424",
+            "carrierRoute": "C015"
+          },
+          "hasPartialInterest": null,
+          "mailingOptOutIndicator": null
+        },
+        "sellerDetails": {
+          "sellerNames": [
+            {
+              "sequenceNumber": 1,
+              "fullName": "FARMER CHRIS"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+
