@@ -3,7 +3,7 @@ name: Deploy FastAPI and Nginx to AWS EC2 via ECR
 on:
   push:
     branches:
-      - backend_production
+      - main
 
 jobs:
   deploy:
