@@ -62,30 +62,32 @@ jobs:
             # Apply group changes without requiring a logout
             newgrp docker << 'EOF'
 
-            # Login to ECR on the EC2 instance
+            # Login to ECR
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 882142483449.dkr.ecr.us-east-1.amazonaws.com
 
-            # Fetch parameters from SSM Parameter Store
+            # Fetch parameters from AWS SSM Parameter Store
             export ENV=$(aws ssm get-parameter --name "/homeinsight/prod/env" --query Parameter.Value --output text)
             export MONGO_URI=$(aws ssm get-parameter --name "/homeinsight/prod/database/uri" --with-decryption --query Parameter.Value --output text)
             export REDIS_HOST=$(aws ssm get-parameter --name "/homeinsight/prod/redis/host" --with-decryption --query Parameter.Value --output text)
             export JWT_SECRET=$(aws ssm get-parameter --name "/homeinsight/prod/jwt/secret" --with-decryption --query Parameter.Value --output text)
+            export CORELOGIC_PROXY_URL=$(aws ssm get-parameter --name "/homeinsight/prod/corelogic/proxy-url" --with-decryption --query Parameter.Value --output text)
+            export CORELOGIC_DEVELOPER_EMAIL=$(aws ssm get-parameter --name "/homeinsight/prod/corelogic/developer-email" --query Parameter.Value --output text)
+            export CORELOGIC_USERNAME=$(aws ssm get-parameter --name "/homeinsight/prod/corelogic/username" --with-decryption --query Parameter.Value --output text)
+            export CORELOGIC_PASSWORD=$(aws ssm get-parameter --name "/homeinsight/prod/corelogic/password" --with-decryption --query Parameter.Value --output text)
 
-            # Pull the latest Go image
+            # Pull Docker images
             docker pull 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
-
-            # Pull the latest Nginx image
             docker pull 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
 
             # Stop and remove existing containers
             docker stop homeinsightcore nginx || true
             docker rm homeinsightcore nginx || true
 
-            # Ensure directories exist
+            # Ensure volumes exist
             sudo mkdir -p /var/www/certbot
             sudo chown -R ubuntu:ubuntu /var/www/certbot
 
-            # Create docker-compose.yml
+            # Create docker-compose.yml file
             cat << 'EOL' > docker-compose.yml
             version: '3.8'
             services:
@@ -102,6 +104,10 @@ jobs:
                   - DB_NAME=homeinsight
                   - REDIS_HOST=${REDIS_HOST}
                   - JWT_SECRET=${JWT_SECRET}
+                  - CORELOGIC_PROXY_URL=${CORELOGIC_PROXY_URL}
+                  - CORELOGIC_DEVELOPER_EMAIL=${CORELOGIC_DEVELOPER_EMAIL}
+                  - CORELOGIC_USERNAME=${CORELOGIC_USERNAME}
+                  - CORELOGIC_PASSWORD=${CORELOGIC_PASSWORD}
                 volumes:
                   - ./config.yaml:/app/config.yaml
               nginx:
@@ -122,6 +128,6 @@ jobs:
                 driver: bridge
             EOL
 
-            # Run Docker Compose
+            # Run docker compose
             docker-compose up -d
             EOF
