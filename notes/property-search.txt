@@ -240,8 +240,86 @@ b. lowercase
 
 
 
+Address: 920 SOUTH ST APT 102, NASHVILLE, TN 37203
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=920%20SOUTH%20ST%20APT%20102%2C%20NASHVILLE%2C%20TN%2037203
+{{base_url}}/api/properties/property-search?q=920 SOUTH ST APT 102, NASHVILLE, TN 37203
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=920%20south%20st%20apt%20102%2C%20nashville%2C%20tn%2037203
+{{base_url}}/api/properties/property-search?q=920 south st apt 102, nashville, tn 37203
 
 
+
+Address: 9316 EDENWILDE DR, BRENTWOOD, TN 37027
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=9316%20EDENWILDE%20DR%2C%20BRENTWOOD%2C%20TN%2037027
+{{base_url}}/api/properties/property-search?q=9316 EDENWILDE DR, BRENTWOOD, TN 37027
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=9316%20edenwilde%20dr%2C%20brentwood%2C%20tn%2037027
+{{base_url}}/api/properties/property-search?q=9316 edenwilde dr, brentwood, tn 37027
+
+
+
+
+
+
+
+
+
+Address: 4115 JENSOME LN, FRANKLIN, TN 37064
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=4115%20JENSOME%20LN%2C%20FRANKLIN%2C%20TN%2037064
+{{base_url}}/api/properties/property-search?q=4115 JENSOME LN, FRANKLIN, TN 37064
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=4115%20jensome%20ln%2C%20franklin%2C%20tn%2037064
+{{base_url}}/api/properties/property-search?q=4115 jensome ln, franklin, tn 37064
+
+
+
+
+
+
+Address: 607 BOWLING AVE, NASHVILLE, TN 37215
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=607%20BOWLING%20AVE%2C%20NASHVILLE%2C%20TN%2037215
+{{base_url}}/api/properties/property-search?q=607 BOWLING AVE, NASHVILLE, TN 37215
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=607%20bowling%20ave%2C%20nashville%2C%20tn%2037215
+{{base_url}}/api/properties/property-search?q=607 bowling ave, nashville, tn 37215
+
+
+Address: 3021 DEL RIO PIKE, FRANKLIN, TN 37069
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=3021%20DEL%20RIO%20PIKE%2C%20FRANKLIN%2C%20TN%2037069
+{{base_url}}/api/properties/property-search?q=3021 DEL RIO PIKE, FRANKLIN, TN 37069
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=3021%20del%20rio%20pike%2C%20franklin%2C%20tn%2037069
+{{base_url}}/api/properties/property-search?q=3021 del rio pike, franklin, tn 37069
+
+
+Address: 6102 MARTINGALE LN, BRENTWOOD, TN 37027
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=6102%20MARTINGALE%20LN%2C%20BRENTWOOD%2C%20TN%2037027
+{{base_url}}/api/properties/property-search?q=6102 MARTINGALE LN, BRENTWOOD, TN 37027
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=6102%20martingale%20ln%2C%20brentwood%2C%20tn%2037027
+{{base_url}}/api/properties/property-search?q=6102 martingale ln, brentwood, tn 37027
+
+
+Address: 1733 RAVELLO WAY, BRENTWOOD, TN 37027
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=1733%20RAVELLO%20WAY%2C%20BRENTWOOD%2C%20TN%2037027
+{{base_url}}/api/properties/property-search?q=1733 RAVELLO WAY, BRENTWOOD, TN 37027
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=1733%20ravello%20way%2C%20brentwood%2C%20tn%2037027
+{{base_url}}/api/properties/property-search?q=1733 ravello way, brentwood, tn 37027
 
 
 https://property.corelogicapi.com/v2/properties/search?streetAddress=1050%20HORSESHOE%20DR%20&city=NASHVILLE&state=TN&zipCode=37216
