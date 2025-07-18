@@ -322,6 +322,28 @@ b. lowercase
 {{base_url}}/api/properties/property-search?q=1733 ravello way, brentwood, tn 37027
 
 
+
+Address: 3429 GOLF CLUB LN, NASHVILLE, TN 37215
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=3429%20GOLF%20CLUB%20LN%2C%20NASHVILLE%2C%20TN%2037215
+{{base_url}}/api/properties/property-search?q=3429 GOLF CLUB LN, NASHVILLE, TN 37215
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=3429%20golf%20club%20ln%2C%20nashville%2C%20tn%2037215
+{{base_url}}/api/properties/property-search?q=3429 golf club ln, nashville, tn 37215
+
+
+Address: 1425 SUMNER AVE, NASHVILLE, TN 37206
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=1425%20SUMNER%20AVE%2C%20NASHVILLE%2C%20TN%2037206
+{{base_url}}/api/properties/property-search?q=1425 SUMNER AVE, NASHVILLE, TN 37206
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=1425%20sumner%20ave%2C%20nashville%2C%20tn%2037206
+{{base_url}}/api/properties/property-search?q=1425 sumner ave, nashville, tn 37206
+
+
+
 https://property.corelogicapi.com/v2/properties/search?streetAddress=1050%20HORSESHOE%20DR%20&city=NASHVILLE&state=TN&zipCode=37216
 
 https://property.corelogicapi.com/v2/properties/search?streetAddress=4516%20Jackie%20Retreat%20Dr&city=Murfreesboro&state=TN&zipCode=37127

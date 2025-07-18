@@ -9,7 +9,6 @@ import (
 	"homeinsight-properties/pkg/metrics"
 )
 
-
 type propertyTransformer struct{}
 
 func NewPropertyTransformer() PropertyTransformer {
@@ -22,7 +21,9 @@ func (t *propertyTransformer) TransformAPIResponse(apiResponse map[string]interf
 		metrics.MongoOperationDuration.WithLabelValues("transform_api_response", "").Observe(time.Since(start).Seconds())
 	}()
 
-	property := &models.Property{}
+	property := &models.Property{
+		UpdatedAt: start.UTC(),
+	}
 
 	if buildings, ok := apiResponse["buildings"].(map[string]interface{})["data"].(map[string]interface{}); ok {
 		if clip, ok := buildings["clip"].(string); ok && clip != "" {

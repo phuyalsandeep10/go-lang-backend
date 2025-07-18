@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -17,6 +19,7 @@ type Property struct {
 	Ownership          Ownership          `json:"ownership" bson:"ownership"`
 	TaxAssessment      TaxAssessment      `json:"taxAssessment" bson:"taxAssessment"`
 	LastMarketSale     LastMarketSale     `json:"lastMarketSale" bson:"lastMarketSale"`
+	UpdatedAt          time.Time          `json:"updatedAt" bson:"updatedAt"`
 }
 
 type Address struct {

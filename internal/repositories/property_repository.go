@@ -7,6 +7,7 @@ import (
 
 	"homeinsight-properties/internal/models"
 	"homeinsight-properties/pkg/database"
+	"homeinsight-properties/pkg/logger"
 	"homeinsight-properties/pkg/metrics"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -94,9 +95,7 @@ func (r *propertyRepository) FindWithPagination(ctx context.Context, offset, lim
 	metrics.MongoOperationDuration.WithLabelValues("cursor_all", "properties").Observe(time.Since(start).Seconds())
 	if err != nil {
 		metrics.MongoErrorsTotal.WithLabelValues("cursor_all", "properties").Inc()
-		return nil,
-
-0, err
+		return nil, 0, err
 	}
 	return properties, total, nil
 }
@@ -126,6 +125,7 @@ func (r *propertyRepository) Update(ctx context.Context, property *models.Proper
 			"ownership":        property.Ownership,
 			"taxAssessment":    property.TaxAssessment,
 			"lastMarketSale":   property.LastMarketSale,
+			"updatedAt":        property.UpdatedAt,
 		},
 	}
 	start := time.Now()
@@ -133,11 +133,14 @@ func (r *propertyRepository) Update(ctx context.Context, property *models.Proper
 	metrics.MongoOperationDuration.WithLabelValues("update_one", "properties").Observe(time.Since(start).Seconds())
 	if err != nil {
 		metrics.MongoErrorsTotal.WithLabelValues("update_one", "properties").Inc()
+		logger.GlobalLogger.Errorf("Failed to update property in MongoDB: propertyId=%s, error=%v", property.PropertyID, err)
 		return err
 	}
 	if result.MatchedCount == 0 {
+		logger.GlobalLogger.Errorf("Property not found for update: propertyId=%s", property.PropertyID)
 		return fmt.Errorf("property not found")
 	}
+	logger.GlobalLogger.Printf("Successfully updated property: propertyId=%s, updatedAt=%s", property.PropertyID, property.UpdatedAt.String())
 	return nil
 }
 
