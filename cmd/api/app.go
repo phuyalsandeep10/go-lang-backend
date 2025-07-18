@@ -99,7 +99,6 @@ func (a *App) initializeDependencies() {
 	corelogicClient := corelogic.NewClient(
 		a.Config.CoreLogic.ClientKey,
 		a.Config.CoreLogic.ClientSecret,
-		a.Config.CoreLogic.BaseUrl,
 		a.Config.CoreLogic.DeveloperEmail,
 	)
 

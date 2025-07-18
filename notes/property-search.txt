@@ -344,6 +344,40 @@ b. lowercase
 
 
 
+
+Address: 1874 BARNSTAPLE LN, BRENTWOOD, TN 37027
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=1874%20BARNSTAPLE%20LN%2C%20BRENTWOOD%2C%20TN%2037027
+{{base_url}}/api/properties/property-search?q=1874 BARNSTAPLE LN, BRENTWOOD, TN 37027
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=1874%20barnstaple%20ln%2C%20brentwood%2C%20tn%2037027
+{{base_url}}/api/properties/property-search?q=1874 barnstaple ln, brentwood, tn 37027
+
+
+Address: 35 WHITSETT RD, NASHVILLE, TN 37210
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=35%20WHITSETT%20RD%2C%20NASHVILLE%2C%20TN%2037210
+{{base_url}}/api/properties/property-search?q=35 WHITSETT RD, NASHVILLE, TN 37210
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=35%20whitsett%20rd%2C%20nashville%2C%20tn%2037210
+{{base_url}}/api/properties/property-search?q=35 whitsett rd, nashville, tn 37210
+
+
+
+
+Address: 9570 NORMANDY WAY, BRENTWOOD, TN 37027
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=9570%20NORMANDY%20WAY%2C%20BRENTWOOD%2C%20TN%2037027
+{{base_url}}/api/properties/property-search?q=9570 NORMANDY WAY, BRENTWOOD, TN 37027
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=9570%20normandy%20way%2C%20brentwood%2C%20tn%2037027
+{{base_url}}/api/properties/property-search?q=9570 normandy way, brentwood, tn 37027
+
+
+
 https://property.corelogicapi.com/v2/properties/search?streetAddress=1050%20HORSESHOE%20DR%20&city=NASHVILLE&state=TN&zipCode=37216
 
 https://property.corelogicapi.com/v2/properties/search?streetAddress=4516%20Jackie%20Retreat%20Dr&city=Murfreesboro&state=TN&zipCode=37127

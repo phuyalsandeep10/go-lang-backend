@@ -28,7 +28,6 @@ type Config struct {
 	CoreLogic struct {
 		ClientKey      string `yaml:"client_key"`
 		ClientSecret   string `yaml:"client_secret"`
-		BaseUrl        string `yaml:"base_url" validate:"required"`
 		DeveloperEmail string `yaml:"developer_email"`
 	} `yaml:"corelogic"`
 }
@@ -104,9 +103,6 @@ func LoadConfig(path string) (*Config, error) {
 	}
 	if cfg.CoreLogic.ClientSecret == "" {
 		return nil, fmt.Errorf("CORELOGIC_PASSWORD is required")
-	}
-	if cfg.CoreLogic.BaseUrl == "" {
-		return nil, fmt.Errorf("CORELOGIC_BASE_URL is required")
 	}
 	if cfg.CoreLogic.DeveloperEmail == "" {
 		return nil, fmt.Errorf("CORELOGIC_DEVELOPER_EMAIL is required")

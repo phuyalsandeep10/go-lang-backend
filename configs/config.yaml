@@ -16,7 +16,6 @@ jwt:
   secret: ""
 
 corelogic:
-  base_url: "https://star.corelogic.com"
   client_key: ""
   client_secret: ""
   developer_email: ""
