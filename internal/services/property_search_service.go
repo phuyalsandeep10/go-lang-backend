@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"time"
 
 	"homeinsight-properties/internal/models"
 	"homeinsight-properties/internal/repositories"
@@ -11,6 +12,7 @@ import (
 	"homeinsight-properties/internal/utils"
 	"homeinsight-properties/internal/validators"
 	"homeinsight-properties/pkg/cache"
+	"homeinsight-properties/pkg/corelogic"
 	"homeinsight-properties/pkg/logger"
 	"homeinsight-properties/pkg/metrics"
 
@@ -19,11 +21,12 @@ import (
 )
 
 type PropertySearchService struct {
-	repo      repositories.PropertyRepository
-	cache     repositories.PropertyCache
-	addrTrans transformers.AddressTransformer
-	propTrans transformers.PropertyTransformer
-	validator validators.PropertyValidator
+	repo                repositories.PropertyRepository
+	cache               repositories.PropertyCache
+	addrTrans           transformers.AddressTransformer
+	propTrans           transformers.PropertyTransformer
+	validator           validators.PropertyValidator
+	externalDataService *ExternalDataService
 }
 
 func NewPropertySearchService(
@@ -32,18 +35,19 @@ func NewPropertySearchService(
 	addrTrans transformers.AddressTransformer,
 	propTrans transformers.PropertyTransformer,
 	validator validators.PropertyValidator,
+	corelogicClient *corelogic.Client,
 ) *PropertySearchService {
 	return &PropertySearchService{
-		repo:      repo,
-		cache:     cache,
-		addrTrans: addrTrans,
-		propTrans: propTrans,
-		validator: validator,
+		repo:                repo,
+		cache:               cache,
+		addrTrans:           addrTrans,
+		propTrans:           propTrans,
+		validator:           validator,
+		externalDataService: NewExternalDataService(corelogicClient, propTrans),
 	}
 }
 
 func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req *models.SearchRequest) (*models.Property, error) {
-	// Get Gin context
 	ginCtx, ok := ctx.(*gin.Context)
 	if !ok {
 		ginCtx = &gin.Context{}
@@ -83,53 +87,61 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 		logger.GlobalLogger.Errorf("DB query failed: query=%s, error=%v", req.Search, err)
 		return nil, err
 	}
+
+	// Check if property exists and if updatedAt is older than 2 months
 	if property != nil {
-		ginCtx.Set("data_source", "DATABASE")
-		ginCtx.Set("property_id", property.PropertyID)
-		propertyKey := cache.PropertyKey(property.PropertyID)
-		_ = s.cache.SetProperty(ctx, propertyKey, property, Month)
-		_ = s.cache.SetSearchKey(ctx, cacheKey, property.PropertyID, Month)
-		_ = s.cache.AddCacheKeyToPropertySet(ctx, property.PropertyID, cacheKey)
-		return property, nil
+		twoMonthsAgo := time.Now().AddDate(0, -2, 0)
+		if property.UpdatedAt.After(twoMonthsAgo) {
+			ginCtx.Set("data_source", "DATABASE")
+			ginCtx.Set("property_id", property.PropertyID)
+			propertyKey := cache.PropertyKey(property.PropertyID)
+			_ = s.cache.SetProperty(ctx, propertyKey, property, Month)
+			_ = s.cache.SetSearchKey(ctx, cacheKey, property.PropertyID, Month)
+			_ = s.cache.AddCacheKeyToPropertySet(ctx, property.PropertyID, cacheKey)
+			return property, nil
+		}
 	}
 
-	// Fallback to mock data
-	ginCtx.Set("data_source", "MOCK")
-	mockData, err := utils.ReadMockData("property-detail.json")
+	// Fallback to external data source
+	newProperty, err := s.externalDataService.FetchFromExternalSource(ctx, street, city, state, zip, req)
 	if err != nil {
-		logger.GlobalLogger.Errorf("Failed to read mock data: query=%s, error=%v", req.Search, err)
-		return nil, fmt.Errorf("failed to read mock data: %v", err)
+		return nil, err
 	}
 
-	property, err = s.propTrans.TransformAPIResponse(mockData)
-	if err != nil {
-		logger.GlobalLogger.Errorf("Failed to transform mock data: query=%s, error=%v", req.Search, err)
-		return nil, fmt.Errorf("failed to transform mock data: %v", err)
+	ginCtx.Set("property_id", newProperty.PropertyID)
+
+	// If property exists, update it; otherwise, create a new one
+	if property != nil {
+		// Preserve existing ID and propertyId
+		newProperty.ID = property.ID
+		newProperty.PropertyID = property.PropertyID
+		newProperty.UpdatedAt = time.Now()
+
+		if err := s.repo.Update(ctx, newProperty); err != nil {
+			logger.GlobalLogger.Errorf("Failed to update property: propertyID=%s, error=%v", newProperty.PropertyID, err)
+			return nil, fmt.Errorf("failed to update property: %v", err)
+		}
+	} else {
+		// Generate a new ID for a new property
+		newProperty.ID = primitive.NewObjectID()
+		newProperty.UpdatedAt = time.Now()
+
+		if err := s.repo.Create(ctx, newProperty); err != nil {
+			logger.GlobalLogger.Errorf("Failed to create property: propertyID=%s, error=%v", newProperty.PropertyID, err)
+			return nil, fmt.Errorf("failed to create property: %v", err)
+		}
 	}
 
-	// Override address fields
-	property.Address.StreetAddress = street
-	property.Address.City = city
-	property.Address.State = state
-	property.Address.ZipCode = zip
-	property.ID = primitive.NewObjectID()
-	ginCtx.Set("property_id", property.PropertyID)
+	// Cache the property
+	propertyKey := cache.PropertyKey(newProperty.PropertyID)
+	_ = s.cache.SetProperty(ctx, propertyKey, newProperty, Month)
+	_ = s.cache.SetSearchKey(ctx, cacheKey, newProperty.PropertyID, Month)
+	_ = s.cache.AddCacheKeyToPropertySet(ctx, newProperty.PropertyID, cacheKey)
 
-	// Insert into database
-	if err := s.repo.Create(ctx, property); err != nil {
-		logger.GlobalLogger.Errorf("Failed to create property: query=%s, error=%v", req.Search, err)
-		return nil, fmt.Errorf("failed to create property: %v", err)
-	}
-
-	propertyKey := cache.PropertyKey(property.PropertyID)
-	_ = s.cache.SetProperty(ctx, propertyKey, property, Month)
-	_ = s.cache.SetSearchKey(ctx, cacheKey, property.PropertyID, Month)
-	_ = s.cache.AddCacheKeyToPropertySet(ctx, property.PropertyID, cacheKey)
-	return property, nil
+	return newProperty, nil
 }
 
 func (s *PropertySearchService) GetPropertiesWithPagination(ctx context.Context, offset, limit int, baseURL string, params url.Values) (*models.PaginatedPropertiesResponse, error) {
-	// Get Gin context
 	ginCtx, ok := ctx.(*gin.Context)
 	if !ok {
 		ginCtx = &gin.Context{}

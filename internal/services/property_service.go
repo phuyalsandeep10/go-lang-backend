@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"homeinsight-properties/internal/models"
@@ -10,7 +11,10 @@ import (
 	"homeinsight-properties/internal/utils"
 	"homeinsight-properties/internal/validators"
 	"homeinsight-properties/pkg/cache"
+	"homeinsight-properties/pkg/corelogic"
+	"homeinsight-properties/pkg/logger"
 	"homeinsight-properties/pkg/metrics"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -22,6 +26,7 @@ type PropertyService struct {
 	trans     transformers.PropertyTransformer
 	addrTrans transformers.AddressTransformer
 	validator validators.PropertyValidator
+	corelogic *corelogic.Client
 }
 
 func NewPropertyService(
@@ -30,6 +35,7 @@ func NewPropertyService(
 	trans transformers.PropertyTransformer,
 	addrTrans transformers.AddressTransformer,
 	validator validators.PropertyValidator,
+	corelogicClient *corelogic.Client,
 ) *PropertyService {
 	return &PropertyService{
 		repo:      repo,
@@ -37,6 +43,7 @@ func NewPropertyService(
 		trans:     trans,
 		addrTrans: addrTrans,
 		validator: validator,
+		corelogic: corelogicClient,
 	}
 }
 
@@ -50,6 +57,7 @@ func (s *PropertyService) GetPropertyByID(ctx context.Context, id string) (*mode
 
 	property, err := s.repo.FindByID(ctx, id)
 	if err != nil {
+		logger.GlobalLogger.Errorf("DB query failed: id=%s, error=%v", id, err)
 		return nil, err
 	}
 	if property != nil {
@@ -57,18 +65,29 @@ func (s *PropertyService) GetPropertyByID(ctx context.Context, id string) (*mode
 		return property, nil
 	}
 
-	mockData, err := utils.ReadMockData("property-detail.json")
+	// Fallback to external data source
+	// Option 1: Use CoreLogic API
+	// property, err = s.corelogic.RequestCoreLogic(ctx, "", "", "", "")
+	// if err != nil {
+	// 	logger.GlobalLogger.Errorf("CoreLogic failed: id=%s, error=%v", id, err)
+	// 	return nil, fmt.Errorf("failed to fetch from CoreLogic: %v", err)
+	// }
+
+	
+
+	// Option 2: Use Mock Data
+	property, err = utils.ReadMockData(ctx, "property-detail.json", s.trans)
 	if err != nil {
-		return nil, err
+		logger.GlobalLogger.Errorf("Mock data read failed: id=%s, error=%v", id, err)
+		return nil, fmt.Errorf("failed to read mock data: %v", err)
 	}
 
-	property, err = s.trans.TransformAPIResponse(mockData)
-	if err != nil {
-		return nil, err
-	}
+	// Override ID to match the requested ID
 	property.ID = primitive.NewObjectID()
+	property.PropertyID = id
 
 	if err := s.repo.Create(ctx, property); err != nil {
+		logger.GlobalLogger.Errorf("Failed to create property: id=%s, error=%v", id, err)
 		return nil, err
 	}
 

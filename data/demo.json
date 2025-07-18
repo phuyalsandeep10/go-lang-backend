@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "pageNumber": 1,
+    "pageSize": 1,
+    "totalRecords": 1,
+    "totalPages": 1
+  },
+  "items": [
+    {
+      "clip": "7909216472",
+      "v1PropertyId": "47037:71142252",
+      "propertyAddress": {
+        "streetAddress": "1050 HORSESHOE DR",
+        "propertyStreetAddressParsed": {
+          "houseNumber": "1050",
+          "streetNamePrefixDir": null,
+          "streetName": "HORSESHOE",
+          "streetNameSuffix": "DR",
+          "streetNameSuffixDir": null,
+          "unitType": null,
+          "unitNumber": null
+        },
+        "city": "NASHVILLE",
+        "state": "TN",
+        "zipCode": "37216",
+        "zipPlus4": "2424",
+        "county": "DAVIDSON"
+      },
+      "propertyAPN": {
+        "fipsCode": "47037",
+        "apnSequenceNumber": 1,
+        "apnParcelNumberUnformatted": "06114007300",
+        "apnParcelNumberFormatted": "061-14-0-073",
+        "previousApnUnformatted": null,
+        "universalParcelId": "71142252"
+      },
+      "addressMatchInformation": {
+        "propertyMatchScore": 9,
+        "resultCode": "ADDR:MATCH",
+        "matchCode": "ADDR:ADDREXACT",
+        "addressType": "PROPERTY",
+        "addressMatchCode": "A0000",
+        "addressMatchCodeDescription": "Matched unique number"
+      }
+    }
+  ],
+  "messages": []
+}

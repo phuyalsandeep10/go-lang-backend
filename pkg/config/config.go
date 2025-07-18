@@ -3,92 +3,90 @@ package config
 import (
 	"fmt"
 	"os"
-	"strconv"
 
 	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
 	Server struct {
-		Port int `yaml:"port"`
+		Port int `yaml:"port" validate:"required,gt=0,lte=65535"`
 	} `yaml:"server"`
 	Database struct {
 		URI    string `yaml:"uri"`
-		DBName string `yaml:"dbname"`
+		DBName string `yaml:"dbname" validate:"required"`
 	} `yaml:"database"`
 	Redis struct {
-		Host        string `yaml:"host" validate:"required,hostname"`
-		Port        int    `yaml:"port" validate:"required,gt=0,lte=65535"`
-		Password    string `yaml:"password"`
-		DB          int    `yaml:"db" validate:"gte=0"`
-		TLSEnabled  bool   `yaml:"tls_enabled"`
-		TLSCertFile string `yaml:"tls_cert_file"`
+		Host       string `yaml:"host" validate:"required,hostname"`
+		Port       int    `yaml:"port" validate:"required,gt=0,lte=65535"`
+		Password   string `yaml:"password"`
+		DB         int    `yaml:"db" validate:"gte=0"`
+		TLSEnabled bool   `yaml:"tls_enabled"`
 	} `yaml:"redis"`
 	JWT struct {
 		Secret string `yaml:"secret"`
 	} `yaml:"jwt"`
+	CoreLogic struct {
+		ClientKey      string `yaml:"client_key"`
+		ClientSecret   string `yaml:"client_secret"`
+		BaseUrl        string `yaml:"base_url" validate:"required"`
+		DeveloperEmail string `yaml:"developer_email"`
+	} `yaml:"corelogic"`
 }
 
 func LoadConfig(path string) (*Config, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read config file: %v", err)
-	}
+	cfg := &Config{}
 
-	var cfg Config
-	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal config: %v", err)
-	}
-
-	// Override with environment variables if set
-	if uri := os.Getenv("MONGO_URI"); uri != "" {
-		cfg.Database.URI = uri
-	}
-	if dbname := os.Getenv("DB_NAME"); dbname != "" {
-		cfg.Database.DBName = dbname
-	}
-	if host := os.Getenv("REDIS_HOST"); host != "" {
-		cfg.Redis.Host = host
-	}
-	if port := os.Getenv("REDIS_PORT"); port != "" {
-		portNum, err := strconv.Atoi(port)
+	// Load from YAML file if provided
+	if path != "" {
+		data, err := os.ReadFile(path)
 		if err != nil {
-			return nil, fmt.Errorf("invalid REDIS_PORT value: %v", err)
+			return nil, fmt.Errorf("failed to read config file: %v", err)
 		}
-		cfg.Redis.Port = portNum
-	}
-	if password := os.Getenv("REDIS_PASSWORD"); password != "" {
-		cfg.Redis.Password = password
-	}
-	if db := os.Getenv("REDIS_DB"); db != "" {
-		dbNum, err := strconv.Atoi(db)
-		if err != nil {
-			return nil, fmt.Errorf("invalid REDIS_DB value: %v", err)
+		if err := yaml.Unmarshal(data, cfg); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal config: %v", err)
 		}
-		cfg.Redis.DB = dbNum
-	}
-	if tlsEnabled := os.Getenv("REDIS_TLS_ENABLED"); tlsEnabled != "" {
-		cfg.Redis.TLSEnabled = tlsEnabled == "true"
-	}
-	if tlsCertFile := os.Getenv("REDIS_TLS_CERT_FILE"); tlsCertFile != "" {
-		cfg.Redis.TLSCertFile = tlsCertFile
-	}
-	if secret := os.Getenv("JWT_SECRET"); secret != "" {
-		cfg.JWT.Secret = secret
 	}
 
-	// Set default values
-	if cfg.Redis.Host == "" {
-		cfg.Redis.Host = "localhost"
+	// Override with environment variables for sensitive fields
+	if mongoURI := os.Getenv("MONGO_URI"); mongoURI != "" {
+		cfg.Database.URI = mongoURI
 	}
-	if cfg.Redis.Port == 0 {
-		cfg.Redis.Port = 6379
+	if redisHost := os.Getenv("REDIS_HOST"); redisHost != "" {
+		cfg.Redis.Host = redisHost
 	}
-	if cfg.Redis.DB < 0 {
-		cfg.Redis.DB = 0
+	if redisPassword := os.Getenv("REDIS_PASSWORD"); redisPassword != "" {
+		cfg.Redis.Password = redisPassword
+	}
+	if jwtSecret := os.Getenv("JWT_SECRET"); jwtSecret != "" {
+		cfg.JWT.Secret = jwtSecret
+	}
+	if corelogicUsername := os.Getenv("CORELOGIC_USERNAME"); corelogicUsername != "" {
+		cfg.CoreLogic.ClientKey = corelogicUsername
+	}
+	if corelogicPassword := os.Getenv("CORELOGIC_PASSWORD"); corelogicPassword != "" {
+		cfg.CoreLogic.ClientSecret = corelogicPassword
+	}
+	if corelogicDeveloperEmail := os.Getenv("CORELOGIC_DEVELOPER_EMAIL"); corelogicDeveloperEmail != "" {
+		cfg.CoreLogic.DeveloperEmail = corelogicDeveloperEmail
+	}
+
+	// Set tls_enabled based on ENV
+	if env := os.Getenv("ENV"); env == "production" {
+		cfg.Redis.TLSEnabled = true
+	} else {
+		cfg.Redis.TLSEnabled = false
 	}
 
 	// Validation
+	if cfg.Server.Port <= 0 || cfg.Server.Port > 65535 {
+		return nil, fmt.Errorf("SERVER_PORT must be between 1 and 65535")
+	}
+	if cfg.Database.URI == "" {
+		return nil, fmt.Errorf("MONGO_URI is required")
+	}
+	if cfg.Database.DBName == "" {
+		return nil, fmt.Errorf("DB_NAME is required")
+	}
 	if cfg.Redis.Host == "" {
 		return nil, fmt.Errorf("REDIS_HOST is required")
 	}
@@ -98,11 +96,21 @@ func LoadConfig(path string) (*Config, error) {
 	if cfg.Redis.DB < 0 {
 		return nil, fmt.Errorf("REDIS_DB must be non-negative")
 	}
-	if cfg.Redis.TLSEnabled && cfg.Redis.TLSCertFile != "" {
-		if _, err := os.Stat(cfg.Redis.TLSCertFile); os.IsNotExist(err) {
-			return nil, fmt.Errorf("TLS certificate file does not exist: %s", cfg.Redis.TLSCertFile)
-		}
+	if cfg.JWT.Secret == "" {
+		return nil, fmt.Errorf("JWT_SECRET is required")
+	}
+	if cfg.CoreLogic.ClientKey == "" {
+		return nil, fmt.Errorf("CORELOGIC_USERNAME is required")
+	}
+	if cfg.CoreLogic.ClientSecret == "" {
+		return nil, fmt.Errorf("CORELOGIC_PASSWORD is required")
+	}
+	if cfg.CoreLogic.BaseUrl == "" {
+		return nil, fmt.Errorf("CORELOGIC_BASE_URL is required")
+	}
+	if cfg.CoreLogic.DeveloperEmail == "" {
+		return nil, fmt.Errorf("CORELOGIC_DEVELOPER_EMAIL is required")
 	}
 
-	return &cfg, nil
+	return cfg, nil
 }

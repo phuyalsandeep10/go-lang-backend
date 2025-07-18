@@ -17,6 +17,9 @@ RUN go build -o homeinsight ./cmd/api
 # Stage 2: Run stage with minimal base image
 FROM alpine:latest
 
+# Install ca-certificates for TLS support
+RUN apk add --no-cache ca-certificates
+
 WORKDIR /root/
 
 COPY --from=builder /app/homeinsight .

@@ -1,24 +1,22 @@
-# database:
-#   host: localhost
-#   port: 3306
-#   user: ""
-#   password: ""
-#   dbname: homeinsight
-
 server:
   port: 8000
 
 database:
-  uri: "mongodb+srv://<username>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority"
-  dbname: "homeinsight"
+  uri: ""
+  dbname: homeinsight
 
 redis:
-  host: localhost
+  host: ""
   port: 6379
   password: ""
   db: 0
   tls_enabled: false
-  tls_cert_file: ""
 
 jwt:
-  secret: "your_jwt_secret_key"
+  secret: ""
+
+corelogic:
+  base_url: "https://star.corelogic.com"
+  client_key: ""
+  client_secret: ""
+  developer_email: ""

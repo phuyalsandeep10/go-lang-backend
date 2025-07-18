@@ -1,0 +1,137 @@
+{
+  "corelogicPropertyId": "47149:138925971",
+  "compositePropertyId": "47149:138925971",
+  "voluntaryLienHistoryList": [
+    {
+      "chronologyCode": "20220404227284",
+      "salesHistoryList": [
+        {
+          "buyerName": "VOLUNTEER STATE BANK",
+          "documentType": "WARRANTY DEED",
+          "nonMarketTransactionIndicator": "N",
+          "saleDate": "20220331",
+          "salePrice": "1610000",
+          "saleRecordingDate": "20220404",
+          "salesDocumentNumber": "2227-3284",
+          "salesHistoryChronologyCode": "20220404227284",
+          "salesTitleCompany": "LAWYERS LAND & TITLE SVCS",
+          "saleTypeCode1": "F",
+          "saleTypeCode2": "S",
+          "sellerName": "KKS GP",
+          "taxAmount": "5635.00",
+          "transferDocumentNumber": "TN202204040123",
+          "reoIndicator": "N",
+          "reoSaleIndicator": "N",
+          "buyerEtAl": "N",
+          "buyerName1": "VOLUNTEER STATE BANK",
+          "buyerName2": "",
+          "buyerName3": "",
+          "buyerName4": "",
+          "buyerOwnershipRights": "FEE SIMPLE",
+          "buyerRelationshipType": "",
+          "buyerCorporateIndicator": "Y",
+          "deedCategory": "SALE",
+          "instrumentNumber": "202204040567",
+          "primaryCategoryCode": "WD",
+          "recordingBookNumber": "2227",
+          "recordingPageNumber": "3284",
+          "shortSaleIndicator": "N"
+        }
+      ],
+      "financeHistoryList": [
+        {
+          "mortgageChronologyCode": "20220405098765",
+          "borrowerEtAl": "N",
+          "borrowerOwnershipRights": "FEE SIMPLE",
+          "borrowerRelationshipType": "",
+          "interestRate": "4.25",
+          "interestRateType": "FIXED",
+          "lender": "VOLUNTEER STATE BANK",
+          "mortgageAmount": "1288000",
+          "mortgageDocumentNumber": "202204050789",
+          "mortgageDocumentType": "DEED OF TRUST",
+          "mortgageRecordingDate": "20220405",
+          "mortgageTermCode": "Y",
+          "mortgageType": "CONVENTIONAL",
+          "mortgageTerm": "30",
+          "borrower1": "WALDRON R FAMILY LIMITED PARTNERSHIP",
+          "borrower2": "",
+          "borrower3": "",
+          "borrower4": "",
+          "armRiderIndicator": "N",
+          "initialRateResetCap": "",
+          "paymentOptionIndicator": "N",
+          "prepaymentPenaltyIndicator": "N",
+          "interestOnlyIndicator": "N",
+          "negativeAmortizationIndicator": "N",
+          "armRateChangeFrequency": "",
+          "armIndexType": "",
+          "armMaximumPercentageRate": "",
+          "armInitialRateChangeDate": "",
+          "armRateChangeMargin": "",
+          "armRateChangeLimit": "",
+          "armRateChangeInterval": "",
+          "armPaymentChangeDate": ""
+        }
+      ],
+      "releaseHistoryList": [
+        {
+          "releaseChronologyCode": "20230406012345",
+          "recordingDate": "20230406",
+          "documentType": "RELEASE OF LIEN",
+          "documentNumber": "202304060901",
+          "originalDocumentNumber": "202004030456",
+          "originalRecordingDate": "20200403"
+        }
+      ],
+      "assignmentHistoryList": [
+        {
+          "assignmentChronologyCode": "20220407054321",
+          "recordingDate": "20220407",
+          "originalRecordingDate": "20220405",
+          "documentNumber": "202204070234",
+          "originalDocumentNumber": "202204050789",
+          "documentType": "ASSIGNMENT OF MORTGAGE",
+          "previousLender": "VOLUNTEER STATE BANK",
+          "currentLender": "NATIONAL MORTGAGE CORP",
+          "borrower1": "WALDRON R FAMILY LIMITED PARTNERSHIP",
+          "borrowerRelationshipType": "",
+          "borrowerEtal": "N",
+          "borrowerOwnershipRights": "FEE SIMPLE",
+          "borrower2": "",
+          "borrower3": "",
+          "borrower4": ""
+        }
+      ],
+      "foreclosureHistoryList": [
+        {
+          "foreclosureChronologyCode": "20210515087654",
+          "recordingDate": "20210515",
+          "trusteeSaleNumber": "TN202105150001",
+          "documentNumber": "202105150432",
+          "unpaidBalance": "500000",
+          "documentType": "NOTICE OF TRUSTEE SALE",
+          "foreclosureBuyerRelationshipsType": "",
+          "foreclosureBuyerEtal": "N",
+          "foreclosureBuyerOwnershipRights": "",
+          "buyer1": "",
+          "buyer2": "",
+          "buyer3": "",
+          "buyer4": "",
+          "originalRecordingDate": "202004030456",
+          "originalDocumentNumber": "202004030456",
+          "trusteeName": "TENNESSEE TRUSTEE SERVICES",
+          "trusteePhoneNumber": "615-555-1234",
+          "titleCompany": "LAWYERS LAND & TITLE SVCS",
+          "defaultDate": "20210401",
+          "lender": "FIRST NATIONAL BANK",
+          "defaultAmount": "510000",
+          "caseNumber": "TN202104010789",
+          "plaintiff1": "FIRST NATIONAL BANK",
+          "plaintiff2": "",
+          "filingDate": "20210410"
+        }
+      ]
+    }
+  ]
+}

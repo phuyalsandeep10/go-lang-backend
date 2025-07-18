@@ -21,7 +21,9 @@ func (t *propertyTransformer) TransformAPIResponse(apiResponse map[string]interf
 		metrics.MongoOperationDuration.WithLabelValues("transform_api_response", "").Observe(time.Since(start).Seconds())
 	}()
 
-	property := &models.Property{}
+	property := &models.Property{
+		UpdatedAt: start.UTC(),
+	}
 
 	if buildings, ok := apiResponse["buildings"].(map[string]interface{})["data"].(map[string]interface{}); ok {
 		if clip, ok := buildings["clip"].(string); ok && clip != "" {
@@ -118,6 +120,10 @@ func (t *propertyTransformer) TransformAPIResponse(apiResponse map[string]interf
 				FullBathroomsCount:    getInt(buildings, "allBuildingsSummary.fullBathroomsCount"),
 				HalfBathroomsCount:    getInt(buildings, "allBuildingsSummary.halfBathroomsCount"),
 				BathroomFixturesCount: getInt(buildings, "allBuildingsSummary.bathroomFixturesCount"),
+				BedroomsCount:         getInt(buildings, "allBuildingsSummary.bedroomsCount"),
+				KitchensCount:         getInt(buildings, "allBuildingsSummary.kitchensCount"),
+				FamilyRoomsCount:      getInt(buildings, "allBuildingsSummary.familyRoomsCount"),
+				LivingRoomsCount:      getInt(buildings, "allBuildingsSummary.livingRoomsCount"),
 				FireplacesCount:       getInt(buildings, "allBuildingsSummary.fireplacesCount"),
 				LivingAreaSquareFeet:  getInt(buildings, "allBuildingsSummary.livingAreaSquareFeet"),
 				TotalAreaSquareFeet:   getInt(buildings, "allBuildingsSummary.totalAreaSquareFeet"),
@@ -167,6 +173,10 @@ func (t *propertyTransformer) TransformAPIResponse(apiResponse map[string]interf
 						Roof: models.Roof{
 							TypeCode:      getString(building, "structureExterior.roof.typeCode"),
 							CoverTypeCode: getString(building, "structureExterior.roof.coverTypeCode"),
+						},
+						Parking: models.Parking{
+							TypeCode:           getString(building, "structureExterior.parking.typeCode"),
+							ParkingSpacesCount: getInt(building, "structureExterior.parking.parkingSpacesCount"),
 						},
 					},
 					Interior: models.Interior{
@@ -256,8 +266,8 @@ func (t *propertyTransformer) TransformAPIResponse(apiResponse map[string]interf
 					CertificationDate:      getString(item, "taxrollUpdate.taxrollCertificationDate"),
 				},
 				SchoolDistrict: models.SchoolDistrict{
-					Code: getString(item, "schoolDistricts.code"),
-					Name: getString(item, "schoolDistricts.name"),
+					Code: getString(item, "schoolDistricts.school.code"),
+					Name: getString(item, "schoolDistricts.school.name"),
 				},
 			}
 		}
@@ -296,7 +306,7 @@ func (t *propertyTransformer) TransformAPIResponse(apiResponse map[string]interf
 				for _, seller := range sellerNames {
 					if sellerMap, ok := seller.(map[string]interface{}); ok {
 						property.LastMarketSale.Sellers = append(property.LastMarketSale.Sellers, models.Seller{
-							FullName: getString(sellerMap, "seller"),
+							FullName: getString(sellerMap, "fullName"),
 						})
 					}
 				}

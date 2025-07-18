@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -17,6 +19,7 @@ type Property struct {
 	Ownership          Ownership          `json:"ownership" bson:"ownership"`
 	TaxAssessment      TaxAssessment      `json:"taxAssessment" bson:"taxAssessment"`
 	LastMarketSale     LastMarketSale     `json:"lastMarketSale" bson:"lastMarketSale"`
+	UpdatedAt          time.Time          `json:"updatedAt" bson:"updatedAt"`
 }
 
 type Address struct {
@@ -101,6 +104,10 @@ type BuildingSummary struct {
 	FullBathroomsCount  int `json:"fullBathroomsCount" bson:"fullBathroomsCount" validate:"gte=0"`
 	HalfBathroomsCount  int `json:"halfBathroomsCount" bson:"halfBathroomsCount" validate:"gte=0"`
 	BathroomFixturesCount int `json:"bathroomFixturesCount" bson:"bathroomFixturesCount" validate:"gte=0"`
+	BedroomsCount       int `json:"bedroomsCount" bson:"bedroomsCount" validate:"gte=0"`
+	KitchensCount       int `json:"kitchensCount" bson:"kitchensCount" validate:"gte=0"`
+	FamilyRoomsCount    int `json:"familyRoomsCount" bson:"familyRoomsCount" validate:"gte=0"`
+	LivingRoomsCount    int `json:"livingRoomsCount" bson:"livingRoomsCount" validate:"gte=0"`
 	FireplacesCount     int `json:"fireplacesCount" bson:"fireplacesCount" validate:"gte=0"`
 	LivingAreaSquareFeet int `json:"livingAreaSquareFeet" bson:"livingAreaSquareFeet" validate:"gte=0"`
 	TotalAreaSquareFeet int `json:"totalAreaSquareFeet" bson:"totalAreaSquareFeet" validate:"gte=0"`
@@ -145,6 +152,7 @@ type Exterior struct {
 	Pool    Pool    `json:"pool" bson:"pool"`
 	Walls   Walls   `json:"walls" bson:"walls"`
 	Roof    Roof    `json:"roof" bson:"roof"`
+	Parking Parking `json:"parking" bson:"parking"`
 }
 
 type Patios struct {
@@ -171,6 +179,11 @@ type Walls struct {
 type Roof struct {
 	TypeCode     string `json:"typeCode" bson:"typeCode"`
 	CoverTypeCode string `json:"coverTypeCode" bson:"coverTypeCode"`
+}
+
+type Parking struct {
+	TypeCode           string `json:"typeCode" bson:"typeCode"`
+	ParkingSpacesCount int    `json:"parkingSpacesCount" bson:"parkingSpacesCount" validate:"gte=0"`
 }
 
 type Interior struct {
@@ -300,13 +313,12 @@ type TitleCompany struct {
 	Code string `json:"code" bson:"code"`
 }
 
-
 type SearchRequest struct {
-    Search        string `json:"search" bson:"search" validate:"required"`
-    StreetAddress string `json:"streetAddress" bson:"streetAddress"`
-    City          string `json:"city" bson:"city"`
-    State         string `json:"state" bson:"state"`
-    ZipCode       string `json:"zipCode" bson:"zipCode"`
+	Search        string `json:"search" bson:"search" validate:"required"`
+	StreetAddress string `json:"streetAddress" bson:"streetAddress"`
+	City          string `json:"city" bson:"city"`
+	State         string `json:"state" bson:"state"`
+	ZipCode       string `json:"zipCode" bson:"zipCode"`
 }
 
 type PropertyResponse struct {
