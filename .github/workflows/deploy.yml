@@ -102,7 +102,7 @@ jobs:
               -p 80:80 -p 443:443 \
               -v /etc/letsencrypt:/etc/letsencrypt:ro \
               -v /var/www/certbot:/var/www/certbot \
-              882142483449.dkr.ecr.us-east-1.amazonaws.com/ai_agent_nginx:latest
+              882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
 
             # Wait for homeinsightcore_nginx to be ready
             sleep 5
