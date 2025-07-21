@@ -321,10 +321,6 @@ type SearchRequest struct {
 	ZipCode       string `json:"zipCode" bson:"zipCode"`
 }
 
-type PropertyResponse struct {
-	Property *Property `json:"property" bson:"property"`
-}
-
 type PaginationMeta struct {
 	Total  int64   `json:"total" bson:"total"`
 	Offset int     `json:"offset" bson:"offset"`
@@ -334,6 +330,6 @@ type PaginationMeta struct {
 }
 
 type PaginatedPropertiesResponse struct {
-	Data     []PropertyResponse `json:"data" bson:"data"`
-	Metadata PaginationMeta     `json:"metadata" bson:"metadata"`
+	Data     []Property     `json:"data" bson:"data"`
+	Metadata PaginationMeta `json:"metadata" bson:"metadata"`
 }

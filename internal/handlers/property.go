@@ -4,10 +4,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"homeinsight-properties/internal/models"
 	"homeinsight-properties/internal/services"
 	"homeinsight-properties/pkg/logger"
+
+	"github.com/gin-gonic/gin"
 )
 
 type PropertyHandler struct {
@@ -38,7 +39,7 @@ func (h *PropertyHandler) GetProperties(c *gin.Context) {
 		return
 	}
 
-	response, err := h.searchService.GetPropertiesWithPagination(c, offset, limit, "/api/properties", c.Request.URL.Query())
+	response, err := h.searchService.ListProperties(c, offset, limit, "/api/properties", c.Request.URL.Query())
 	if err != nil {
 		logger.GlobalLogger.Errorf("Error fetching properties: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
