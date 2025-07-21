@@ -90,6 +90,15 @@ jobs:
             sudo mkdir -p /var/www/certbot
             sudo chown -R ubuntu:ubuntu /etc/letsencrypt /var/www/certbot
 
+            # Install certbot if not already installed
+            sudo apt-get update
+            sudo apt-get install -y certbot
+
+            # Generate Let's Encrypt certificates if they don't exist
+            if [ ! -d "/etc/letsencrypt/live/homeinsight-core.homeinsight.cloud" ]; then
+              sudo certbot certonly --webroot -w /var/www/certbot -d homeinsight-core.homeinsight.cloud --non-interactive --agree-tos --email your-email@example.com
+            fi
+
             # Fetch environment variables from AWS SSM Parameter Store
             export ENV=$(aws ssm get-parameter --name "/homeinsight/prod/env" --query Parameter.Value --output text)
             export MONGO_URI=$(aws ssm get-parameter --name "/homeinsight/prod/database/uri" --with-decryption --query Parameter.Value --output text)
