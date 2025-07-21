@@ -78,7 +78,7 @@ jobs:
               sudo certbot certonly --webroot -w /var/www/certbot \
                 -d homeinsight-core.homeinsight.cloud \
                 --non-interactive --agree-tos \
-                --email your-email@example.com \
+                --email homeinsightcore@gmail.com \
                 --deploy-hook "docker restart nginx || true"
             fi
 
