@@ -30,11 +30,11 @@ RUN apk add --no-cache ca-certificates
 WORKDIR /root/
 
 # Copy the Go binary and configuration file from the builder stage
-COPY --from=builder /app/homeinsight .
+COPY --from=builder /app/homeinsight ./homeinsight
 COPY --from=builder /app/configs/config.yaml ./configs/config.yaml
 
 # Ensure the binary is executable
-RUN chmod +x /homeinsight
+RUN chmod +x /root/homeinsight
 
 # Expose port for the Go application
 EXPOSE 8000
