@@ -1,30 +1,36 @@
-name: Deploy FastAPI and Nginx to AWS EC2 via ECR
+# GitHub Actions workflow to deploy Go and Nginx to AWS EC2 via ECR with SSL support
+name: Deploy GO and Nginx to AWS EC2 via ECR
 
+# Trigger the workflow on push to the develop branch
 on:
   push:
     branches:
-      - main
+      - GOWithMongoDB
 
+# Define the deployment job
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
+      # Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Configure AWS credentials for ECR and SSM access
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      # Log in to Amazon ECR
       - name: Log in to Amazon ECR
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 882142483449.dkr.ecr.us-east-1.amazonaws.com
 
-      - name: Build and Push FastAPI Docker Image
+      # Build and push the Go Docker image
+      - name: Build and Push Go Docker Image
         env:
           ECR_REPOSITORY: homeinsightcore
           IMAGE_TAG: latest
@@ -33,15 +39,17 @@ jobs:
           docker tag homeinsightcore:latest 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
           docker push 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
 
+      # Build and push the Nginx Docker image
       - name: Build and Push Nginx Docker Image
         env:
-          ECR_REPOSITORY: ai_agent_nginx
+          ECR_REPOSITORY: homeinsightcore_nginx
           IMAGE_TAG: latest
         run: |
           docker build -t homeinsightcore_nginx -f Dockerfile.nginx .
           docker tag homeinsightcore_nginx:latest 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
           docker push 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
 
+      # Deploy to EC2 instance via SSH
       - name: Deploy on EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -49,10 +57,20 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Login to ECR on the EC2 instance
+            # Ensure Docker service is running
+            sudo systemctl start docker
+            sudo systemctl enable docker
+
+            # Add ubuntu user to docker group
+            sudo usermod -aG docker ubuntu
+
+            # Apply group changes without requiring logout
+            newgrp docker << 'EOF'
+
+            # Log in to Amazon ECR on the EC2 instance
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 882142483449.dkr.ecr.us-east-1.amazonaws.com
 
-            # Pull the latest FastAPI image
+            # Pull the latest Go image
             docker pull 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
 
             # Pull the latest Nginx image
@@ -61,21 +79,18 @@ jobs:
             # Stop and remove existing containers
             docker stop homeinsightcore || true
             docker rm homeinsightcore || true
-            docker stop homeinsightcore_nginx || true
-            docker rm homeinsightcore_nginx || true
-            docker stop certbot || true
-            docker rm certbot || true
+            docker stop nginx || true
+            docker rm nginx || true
 
-            # Create a Docker network
+            # Create a Docker network for container communication
             docker network create app-network || true
 
-            # Ensure directories exist with proper permissions
+            # Ensure directories exist for SSL certificates and ACME challenges
             sudo mkdir -p /etc/letsencrypt
             sudo mkdir -p /var/www/certbot
-            sudo chown -R ubuntu:ubuntu /var/www/certbot
-            sudo chmod 755 /var/www/certbot
+            sudo chown -R ubuntu:ubuntu /etc/letsencrypt /var/www/certbot
 
-            # Fetch parameters from AWS SSM Parameter Store
+            # Fetch environment variables from AWS SSM Parameter Store
             export ENV=$(aws ssm get-parameter --name "/homeinsight/prod/env" --query Parameter.Value --output text)
             export MONGO_URI=$(aws ssm get-parameter --name "/homeinsight/prod/database/uri" --with-decryption --query Parameter.Value --output text)
             export REDIS_HOST=$(aws ssm get-parameter --name "/homeinsight/prod/redis/host" --with-decryption --query Parameter.Value --output text)
@@ -85,8 +100,9 @@ jobs:
             export CORELOGIC_USERNAME=$(aws ssm get-parameter --name "/homeinsight/prod/corelogic/username" --with-decryption --query Parameter.Value --output text)
             export CORELOGIC_PASSWORD=$(aws ssm get-parameter --name "/homeinsight/prod/corelogic/password" --with-decryption --query Parameter.Value --output text)
 
-            # Run the FastAPI container with environment variables
+            # Run the Go container with environment variables
             docker run -d --name homeinsightcore --network app-network \
+              -p 8000:8000 \
               -e ENV="$ENV" \
               -e MONGO_URI="$MONGO_URI" \
               -e REDIS_HOST="$REDIS_HOST" \
@@ -97,39 +113,11 @@ jobs:
               -e CORELOGIC_PASSWORD="$CORELOGIC_PASSWORD" \
               882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
 
-            # Run the Nginx container with volume mounts
-            docker run -d --name homeinsightcore_nginx --network app-network \
+            # Run the Nginx container with SSL certificate mounts
+            docker run -d --name nginx --network app-network \
               -p 80:80 -p 443:443 \
-              -v /etc/letsencrypt:/etc/letsencrypt:ro \
+              -v /etc/letsencrypt:/etc/letsencrypt \
               -v /var/www/certbot:/var/www/certbot \
               882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
 
-            # Wait for homeinsightcore_nginx to be ready
-            sleep 5
-
-            # Check if SSL certificate already exists
-            if [ ! -f "/etc/letsencrypt/live/homeinsight-core.homeinsight.cloud/fullchain.pem" ]; then
-              echo "Obtaining SSL certificate..."
-              # Run certbot to obtain SSL certificate
-              docker run --rm \
-                -v /etc/letsencrypt:/etc/letsencrypt \
-                -v /var/www/certbot:/var/www/certbot \
-                --network app-network \
-                certbot/certbot certonly \
-                --webroot \
-                --webroot-path=/var/www/certbot \
-                --email your-email@example.com \
-                --agree-tos \
-                --no-eff-email \
-                --force-renewal \
-                -d homeinsight-core.homeinsight.cloud
-
-              # Reload homeinsightcore_nginx to use the new certificate
-              docker exec homeinsightcore_nginx homeinsightcore_nginx -s reload
-            else
-              echo "SSL certificate already exists"
-            fi
-
-            # Set up auto-renewal cron job
-            (crontab -l 2>/dev/null || echo "") | grep -v "certbot renew" | crontab -
-            (crontab -l 2>/dev/null; echo "0 12 * * * docker run --rm -v /etc/letsencrypt:/etc/letsencrypt -v /var/www/certbot:/var/www/certbot --network app-network certbot/certbot renew --quiet && docker exec homeinsightcore_nginx homeinsightcore_nginx -s reload") | crontab -
+            EOF

@@ -1,11 +1,20 @@
-# Use the official Nginx image
+# Use the official Nginx image as the base
 FROM nginx:latest
+
+# Install certbot for Let's Encrypt certificate management
+RUN apt-get update && apt-get install -y certbot python3-certbot-nginx && apt-get clean
 
 # Remove default Nginx configuration
 RUN rm /etc/nginx/conf.d/default.conf
 
 # Copy custom Nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/
+COPY nginx.conf /etc/nginx/conf.d/homeinsight.conf
 
-# Expose ports
+# Validate Nginx configuration
+RUN nginx -t
+
+# Expose HTTP and HTTPS ports
 EXPOSE 80 443
+
+# Start Nginx in the foreground
+CMD ["nginx", "-g", "daemon off;"]
