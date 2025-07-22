@@ -77,9 +77,12 @@ func (a *App) setupHealthCheck() {
 func (a *App) setupAPIRoutes() {
     api := a.Router.Group("/api")
     {
-        // Public routes
-        api.POST("/register", a.UserHandler.Register)
-        api.POST("/login", a.UserHandler.Login)
+        // Authentication routes
+        auth := api.Group("/auth")
+        {
+            auth.POST("/register", a.UserHandler.Register)
+            auth.POST("/login", a.UserHandler.Login)
+        }
 
         // Protected routes
         protected := api.Group("/properties")

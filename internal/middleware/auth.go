@@ -1,12 +1,10 @@
-
-
 package middleware
 
 import (
 	"net/http"
 	"strings"
 
-	"homeinsight-properties/pkg/auth"
+	"homeinsight-properties/internal/auth"
 	"homeinsight-properties/pkg/config"
 
 	"github.com/gin-gonic/gin"
