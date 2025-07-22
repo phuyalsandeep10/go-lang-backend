@@ -8,17 +8,15 @@ import (
 	"homeinsight-properties/internal/models"
 	"homeinsight-properties/internal/repositories"
 	"homeinsight-properties/internal/transformers"
-	"homeinsight-properties/internal/utils"
 	"homeinsight-properties/internal/validators"
 	"homeinsight-properties/pkg/cache"
+	"homeinsight-properties/pkg/config"
 	"homeinsight-properties/pkg/corelogic"
 	"homeinsight-properties/pkg/logger"
 	"homeinsight-properties/pkg/metrics"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/gin-gonic/gin"
 )
-
-const Month = 30 * 24 * time.Hour
 
 type PropertyService struct {
 	repo      repositories.PropertyRepository
@@ -27,6 +25,8 @@ type PropertyService struct {
 	addrTrans transformers.AddressTransformer
 	validator validators.PropertyValidator
 	corelogic *corelogic.Client
+	config    *config.Config
+	cacheTTL  time.Duration
 }
 
 func NewPropertyService(
@@ -36,6 +36,7 @@ func NewPropertyService(
 	addrTrans transformers.AddressTransformer,
 	validator validators.PropertyValidator,
 	corelogicClient *corelogic.Client,
+	cfg *config.Config,
 ) *PropertyService {
 	return &PropertyService{
 		repo:      repo,
@@ -44,55 +45,52 @@ func NewPropertyService(
 		addrTrans: addrTrans,
 		validator: validator,
 		corelogic: corelogicClient,
+		config:    cfg,
+		cacheTTL:  time.Duration(cfg.Redis.CacheTTLDays) * 24 * time.Hour,
 	}
 }
 
 func (s *PropertyService) GetPropertyByID(ctx context.Context, id string) (*models.Property, error) {
+	ginCtx, _ := ctx.(*gin.Context)
+	if ginCtx == nil {
+		ginCtx = &gin.Context{}
+	}
+
 	propertyKey := cache.PropertyKey(id)
+	ginCtx.Set("data_source", "REDIS")
+	ginCtx.Set("property_id", id)
+
+	// Check cache
 	if property, err := s.cache.GetProperty(ctx, propertyKey); err == nil && property != nil {
 		metrics.CacheHitsTotal.Inc()
+		ginCtx.Set("cache_hit", true)
 		return property, nil
 	}
-	metrics.CacheMissesTotal.Inc()
 
+	metrics.CacheMissesTotal.Inc()
+	ginCtx.Set("cache_hit", false)
+
+	// Query database
 	property, err := s.repo.FindByID(ctx, id)
 	if err != nil {
 		logger.GlobalLogger.Errorf("DB query failed: id=%s, error=%v", id, err)
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch property: %v", err)
 	}
-	if property != nil {
-		_ = s.cache.SetProperty(ctx, propertyKey, property, Month)
-		return property, nil
-	}
-
-	// Fallback to external data source
-	// Option 1: Use CoreLogic API
-	// property, err = s.corelogic.RequestCoreLogic(ctx, "", "", "", "")
-	// if err != nil {
-	// 	logger.GlobalLogger.Errorf("CoreLogic failed: id=%s, error=%v", id, err)
-	// 	return nil, fmt.Errorf("failed to fetch from CoreLogic: %v", err)
-	// }
-
-	
-
-	// Option 2: Use Mock Data
-	property, err = utils.ReadMockData(ctx, "property-detail.json", s.trans)
-	if err != nil {
-		logger.GlobalLogger.Errorf("Mock data read failed: id=%s, error=%v", id, err)
-		return nil, fmt.Errorf("failed to read mock data: %v", err)
+	if property == nil {
+		logger.GlobalLogger.Errorf("Property not found: id=%s", id)
+		return nil, fmt.Errorf("property with id %s not found", id)
 	}
 
-	// Override ID to match the requested ID
-	property.ID = primitive.NewObjectID()
-	property.PropertyID = id
+	ginCtx.Set("data_source", "DATABASE")
 
-	if err := s.repo.Create(ctx, property); err != nil {
-		logger.GlobalLogger.Errorf("Failed to create property: id=%s, error=%v", id, err)
-		return nil, err
+	// Cache the property
+	if err := s.cache.SetProperty(ctx, propertyKey, property, s.cacheTTL); err != nil {
+		logger.GlobalLogger.Errorf("Failed to cache property: id=%s, error=%v", id, err)
+	}
+	if err := s.cache.AddCacheKeyToPropertySet(ctx, property.PropertyID, propertyKey); err != nil {
+		logger.GlobalLogger.Errorf("Failed to add cache key to property set: id=%s, key=%s, error=%v", id, propertyKey, err)
 	}
 
-	_ = s.cache.SetProperty(ctx, propertyKey, property, Month)
-	_ = s.cache.InvalidatePropertyCacheKeys(ctx, property.PropertyID)
 	return property, nil
 }
 
@@ -107,8 +105,12 @@ func (s *PropertyService) CreateProperty(ctx context.Context, property *models.P
 	}
 
 	propertyKey := cache.PropertyKey(property.PropertyID)
-	_ = s.cache.SetProperty(ctx, propertyKey, property, Month)
-	_ = s.cache.InvalidatePropertyCacheKeys(ctx, property.PropertyID)
+	if err := s.cache.SetProperty(ctx, propertyKey, property, s.cacheTTL); err != nil {
+		logger.GlobalLogger.Errorf("Failed to cache property: id=%s, error=%v", property.PropertyID, err)
+	}
+	if err := s.cache.InvalidatePropertyCacheKeys(ctx, property.PropertyID); err != nil {
+		logger.GlobalLogger.Errorf("Failed to invalidate cache keys: id=%s, error=%v", property.PropertyID, err)
+	}
 	return nil
 }
 
@@ -123,8 +125,12 @@ func (s *PropertyService) UpdateProperty(ctx context.Context, property *models.P
 	}
 
 	propertyKey := cache.PropertyKey(property.PropertyID)
-	_ = s.cache.SetProperty(ctx, propertyKey, property, Month)
-	_ = s.cache.InvalidatePropertyCacheKeys(ctx, property.PropertyID)
+	if err := s.cache.SetProperty(ctx, propertyKey, property, s.cacheTTL); err != nil {
+		logger.GlobalLogger.Errorf("Failed to cache property: id=%s, error=%v", property.PropertyID, err)
+	}
+	if err := s.cache.InvalidatePropertyCacheKeys(ctx, property.PropertyID); err != nil {
+		logger.GlobalLogger.Errorf("Failed to invalidate cache keys: id=%s, error=%v", property.PropertyID, err)
+	}
 	return nil
 }
 
@@ -132,7 +138,9 @@ func (s *PropertyService) DeleteProperty(ctx context.Context, id string) error {
 	if err := s.repo.Delete(ctx, id); err != nil {
 		return err
 	}
-	_ = s.cache.InvalidatePropertyCacheKeys(ctx, id)
+	if err := s.cache.InvalidatePropertyCacheKeys(ctx, id); err != nil {
+		logger.GlobalLogger.Errorf("Failed to invalidate cache keys: id=%s, error=%v", id, err)
+	}
 	return nil
 }
 

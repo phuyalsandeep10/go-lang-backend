@@ -1,3 +1,4 @@
+
 package corelogic
 
 import (
@@ -7,7 +8,6 @@ import (
     "io"
     "net/http"
     "os"
-    "time"
 
     "homeinsight-properties/pkg/logger"
 )
@@ -58,56 +58,37 @@ func (c *Client) SearchPropertyByAddress(token, street, city, state, zip string)
     req.Header.Set("Authorization", "Bearer "+token)
     req.Header.Set("Content-Type", "application/json")
 
-    // Retry loop for HTTP request
-    maxRetries := 3
-    for attempt := 1; attempt <= maxRetries; attempt++ {
-        resp, err := c.httpClient.Do(req)
-        if err != nil {
-            logger.GlobalLogger.Errorf("Failed to send search request to proxy (attempt %d/%d): url=%s, error=%v", attempt, maxRetries, proxyURL, err)
-            if attempt == maxRetries {
-                return "", "", fmt.Errorf("failed to send search request to proxy after %d attempts: %v", maxRetries, err)
-            }
-            time.Sleep(time.Duration(attempt) * time.Second)
-            continue
-        }
-        defer resp.Body.Close()
+    // Send the HTTP request
+    resp, err := c.httpClient.Do(req)
+    if err != nil {
+        logger.GlobalLogger.Errorf("Failed to send search request to proxy: url=%s, error=%v", proxyURL, err)
+        return "", "", fmt.Errorf("failed to send search request to proxy: %v", err)
+    }
+    defer resp.Body.Close()
 
-        // Read the response body
-        body, err := io.ReadAll(resp.Body)
-        if err != nil {
-            logger.GlobalLogger.Errorf("Failed to read search response body (attempt %d/%d): url=%s, status=%s, error=%v", attempt, maxRetries, proxyURL, resp.Status, err)
-            if attempt == maxRetries {
-                return "", "", fmt.Errorf("failed to read response body after %d attempts: %v", maxRetries, err)
-            }
-            time.Sleep(time.Duration(attempt) * time.Second)
-            continue
-        }
-
-        // Check the response status
-        if resp.StatusCode != http.StatusOK {
-            logger.GlobalLogger.Errorf("Search request to proxy failed (attempt %d/%d): url=%s, status=%s, response=%s", attempt, maxRetries, proxyURL, resp.Status, string(body))
-            if attempt == maxRetries {
-                return "", "", fmt.Errorf("search failed after %d attempts: %s, response: %s", maxRetries, resp.Status, string(body))
-            }
-            time.Sleep(time.Duration(attempt) * time.Second)
-            continue
-        }
-
-        // Parse the response
-        var searchResp PropertySearchResponse
-        if err := json.Unmarshal(body, &searchResp); err != nil {
-            logger.GlobalLogger.Errorf("Failed to decode search response: url=%s, response=%s, error=%v", proxyURL, string(body), err)
-            return "", "", fmt.Errorf("failed to decode search response: %v", err)
-        }
-
-        if len(searchResp.Items) == 0 {
-            logger.GlobalLogger.Errorf("No property found: fullAddress=%s", fullAddress)
-            return "", "", fmt.Errorf("no property found for address: %s", fullAddress)
-        }
-
-        return searchResp.Items[0].Clip, searchResp.Items[0].V1PropertyId, nil
+    // Read the response body
+    body, err := io.ReadAll(resp.Body)
+    if err != nil {
+        logger.GlobalLogger.Errorf("Failed to read search response body: url=%s, status=%s, error=%v", proxyURL, resp.Status, err)
+        return "", "", fmt.Errorf("failed to read response body: %v", err)
     }
 
-    logger.GlobalLogger.Errorf("Failed to search property: max retries exceeded for fullAddress: %s", fullAddress)
-    return "", "", fmt.Errorf("failed to search property: max retries exceeded")
+    // Check the response status
+    if resp.StatusCode != http.StatusOK {
+        return "", "", fmt.Errorf("search failed: %s, response: %s", resp.Status, string(body))
+    }
+
+    // Parse the response
+    var searchResp PropertySearchResponse
+    if err := json.Unmarshal(body, &searchResp); err != nil {
+        logger.GlobalLogger.Errorf("Failed to decode search response: url=%s, response=%s, error=%v", proxyURL, string(body), err)
+        return "", "", fmt.Errorf("failed to decode search response: %v", err)
+    }
+
+    if len(searchResp.Items) == 0 {
+        logger.GlobalLogger.Errorf("No property found: fullAddress=%s", fullAddress)
+        return "", "", fmt.Errorf("no property found for address: %s", fullAddress)
+    }
+
+    return searchResp.Items[0].Clip, searchResp.Items[0].V1PropertyId, nil
 }

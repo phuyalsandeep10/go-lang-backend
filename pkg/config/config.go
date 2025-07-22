@@ -12,15 +12,17 @@ type Config struct {
 		Port int `yaml:"port" validate:"required,gt=0,lte=65535"`
 	} `yaml:"server"`
 	Database struct {
-		URI    string `yaml:"uri"`
-		DBName string `yaml:"dbname" validate:"required"`
+		URI               string `yaml:"uri"`
+		DBName            string `yaml:"dbname" validate:"required"`
+		StaleThresholdDays int    `yaml:"stale_threshold_days" validate:"required,gte=1"`
 	} `yaml:"database"`
 	Redis struct {
-		Host       string `yaml:"host" validate:"required,hostname"`
-		Port       int    `yaml:"port" validate:"required,gt=0,lte=65535"`
-		Password   string `yaml:"password"`
-		DB         int    `yaml:"db" validate:"gte=0"`
-		TLSEnabled bool   `yaml:"tls_enabled"`
+		Host          string `yaml:"host" validate:"required,hostname"`
+		Port          int    `yaml:"port" validate:"required,gt=0,lte=65535"`
+		Password      string `yaml:"password"`
+		DB            int    `yaml:"db" validate:"gte=0"`
+		TLSEnabled    bool   `yaml:"tls_enabled"`
+		CacheTTLDays  int    `yaml:"cache_ttl_days" validate:"required,gte=1"`
 	} `yaml:"redis"`
 	JWT struct {
 		Secret string `yaml:"secret"`
@@ -30,6 +32,12 @@ type Config struct {
 		ClientSecret   string `yaml:"client_secret"`
 		DeveloperEmail string `yaml:"developer_email"`
 	} `yaml:"corelogic"`
+	ErrorHandling struct {
+		LogTechnicalDetails bool   `yaml:"log_technical_details"`
+		UserMessageLanguage string `yaml:"user_message_language" validate:"required,oneof=en es fr"`
+		RetryAttempts       int    `yaml:"retry_attempts" validate:"gte=0,lte=5"`
+		RetryDelayMS        int    `yaml:"retry_delay_ms" validate:"gte=0"`
+	} `yaml:"error_handling"`
 }
 
 func LoadConfig(path string) (*Config, error) {
@@ -106,6 +114,9 @@ func LoadConfig(path string) (*Config, error) {
 	}
 	if cfg.CoreLogic.DeveloperEmail == "" {
 		return nil, fmt.Errorf("CORELOGIC_DEVELOPER_EMAIL is required")
+	}
+	if cfg.ErrorHandling.UserMessageLanguage == "" {
+		cfg.ErrorHandling.UserMessageLanguage = "en" // Default to English
 	}
 
 	return cfg, nil

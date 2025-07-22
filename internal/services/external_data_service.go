@@ -1,46 +1,47 @@
-
 package services
 
 import (
 	"context"
-	"fmt"
 
 	"homeinsight-properties/internal/models"
 	"homeinsight-properties/internal/transformers"
+	"homeinsight-properties/internal/utils"
+	"homeinsight-properties/pkg/config"
 	"homeinsight-properties/pkg/corelogic"
-	"homeinsight-properties/pkg/logger"
+
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ExternalDataService struct {
 	corelogic *corelogic.Client
 	propTrans transformers.PropertyTransformer
+	config    *config.Config
 }
 
 func NewExternalDataService(
 	corelogicClient *corelogic.Client,
 	propTrans transformers.PropertyTransformer,
+	cfg *config.Config,
 ) *ExternalDataService {
 	return &ExternalDataService{
 		corelogic: corelogicClient,
 		propTrans: propTrans,
+		config:    cfg,
 	}
 }
 
 func (s *ExternalDataService) FetchFromExternalSource(ctx context.Context, street, city, state, zip string, req *models.SearchRequest) (*models.Property, error) {
-	// Option 1: Use CoreLogic API
-	property, err := s.corelogic.RequestCoreLogic(ctx, street, city, state, zip)
-	if err != nil {
-		logger.GlobalLogger.Errorf("CoreLogic failed: query=%s, error=%v", req.Search, err)
-		return nil, fmt.Errorf("failed to fetch from CoreLogic: %v", err)
+	ginCtx, _ := ctx.(*gin.Context)
+	if ginCtx == nil {
+		ginCtx = &gin.Context{}
 	}
 
-	// Option 2: Use Mock Data
-	// property, err = utils.ReadMockData(ctx, "property-detail.json", s.propTrans)
-	// if err != nil {
-	// 	logger.GlobalLogger.Errorf("Mock data read failed: query=%s, error=%v", req.Search, err)
-	// 	return nil, fmt.Errorf("failed to read mock data: %v", err)
-	// }
+	// Request CoreLogic
+	property, err := s.corelogic.RequestCoreLogic(ctx, street, city, state, zip)
+	if err != nil {
+		return nil, utils.WrapError(err, "CoreLogic fetch failed: query=%s", req.Search)
+	}
 
 	// Override address fields with search input
 	property.Address.StreetAddress = street

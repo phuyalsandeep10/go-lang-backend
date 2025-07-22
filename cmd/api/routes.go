@@ -75,22 +75,25 @@ func (a *App) setupHealthCheck() {
 
 // API routes for user and property operations
 func (a *App) setupAPIRoutes() {
-	api := a.Router.Group("/api")
-	{
-		// Public routes
-		api.POST("/register", a.UserHandler.Register)
-		api.POST("/login", a.UserHandler.Login)
+    api := a.Router.Group("/api")
+    {
+        // Authentication routes
+        auth := api.Group("/auth")
+        {
+            auth.POST("/register", a.UserHandler.Register)
+            auth.POST("/login", a.UserHandler.Login)
+        }
 
-		// Protected routes
-		protected := api.Group("/properties")
-		protected.Use(middleware.AuthMiddleware())
-		{
-			protected.GET("", a.PropertyHandler.GetProperties)
-			protected.GET("/property-search", a.PropertyHandler.SearchProperty)
-			protected.GET("/:id", a.PropertyHandler.GetPropertyByID)
-			protected.POST("", a.PropertyHandler.CreateProperty)
-			protected.PUT("", a.PropertyHandler.UpdateProperty)
-			protected.DELETE("/:id", a.PropertyHandler.DeleteProperty)
-		}
-	}
+        // Protected routes
+        protected := api.Group("/properties")
+        protected.Use(middleware.AuthMiddleware())
+        {
+            protected.GET("", a.PropertyHandler.GetProperties)
+            protected.GET("/property-search", a.PropertyHandler.SearchProperty)
+            protected.GET("/property-detail/:id", a.PropertyHandler.GetPropertyByID)
+            protected.POST("", a.PropertyHandler.CreateProperty)
+            protected.PUT("/property-detail/:id", a.PropertyHandler.UpdateProperty)
+            protected.DELETE("/property-detail/:id", a.PropertyHandler.DeleteProperty)
+        }
+    }
 }
