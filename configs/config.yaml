@@ -4,6 +4,7 @@ server:
 database:
   uri: ""
   dbname: homeinsight
+  stale_threshold_days: 60 #2 months (60 days)
 
 redis:
   host: ""
@@ -11,6 +12,7 @@ redis:
   password: ""
   db: 0
   tls_enabled: false
+  cache_ttl_days: 30 #1 month (30 days)
 
 jwt:
   secret: ""

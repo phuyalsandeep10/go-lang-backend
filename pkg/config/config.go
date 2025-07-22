@@ -12,15 +12,17 @@ type Config struct {
 		Port int `yaml:"port" validate:"required,gt=0,lte=65535"`
 	} `yaml:"server"`
 	Database struct {
-		URI    string `yaml:"uri"`
-		DBName string `yaml:"dbname" validate:"required"`
+		URI               string `yaml:"uri"`
+		DBName            string `yaml:"dbname" validate:"required"`
+		StaleThresholdDays int    `yaml:"stale_threshold_days" validate:"required,gte=1"`
 	} `yaml:"database"`
 	Redis struct {
-		Host       string `yaml:"host" validate:"required,hostname"`
-		Port       int    `yaml:"port" validate:"required,gt=0,lte=65535"`
-		Password   string `yaml:"password"`
-		DB         int    `yaml:"db" validate:"gte=0"`
-		TLSEnabled bool   `yaml:"tls_enabled"`
+		Host          string `yaml:"host" validate:"required,hostname"`
+		Port          int    `yaml:"port" validate:"required,gt=0,lte=65535"`
+		Password      string `yaml:"password"`
+		DB            int    `yaml:"db" validate:"gte=0"`
+		TLSEnabled    bool   `yaml:"tls_enabled"`
+		CacheTTLDays  int    `yaml:"cache_ttl_days" validate:"required,gte=1"`
 	} `yaml:"redis"`
 	JWT struct {
 		Secret string `yaml:"secret"`

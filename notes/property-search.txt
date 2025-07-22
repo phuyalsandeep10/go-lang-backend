@@ -34,10 +34,6 @@ b. lowercase
 
 4.! Address: 415 W NORTHFIELD BLVD, MURFREESBORO, TN 37129
 -----------------------------------------------------------
-
-
-"clip": "5376239895",
-            "v1PropertyId": "47149:138925971",
 a. UPPERCASE
 {{base_url}}/api/properties/property-search?q=415%20W%20NORTHFIELD%20BLVD%2C%20MURFREESBORO%2C%20TN%2037129
 {{base_url}}/api/properties/property-search?q=415 W NORTHFIELD BLVD, MURFREESBORO, TN 37129
@@ -375,6 +371,118 @@ a. UPPERCASE
 b. lowercase
 {{base_url}}/api/properties/property-search?q=9570%20normandy%20way%2C%20brentwood%2C%20tn%2037027
 {{base_url}}/api/properties/property-search?q=9570 normandy way, brentwood, tn 37027
+
+
+
+
+Address: 1010 GREEN HILLS DRIVE, NASHVILLE, TN 37215
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=1010%20GREEN%20HILLS%20DRIVE%2C%20NASHVILLE%2C%20TN%2037215
+{{base_url}}/api/properties/property-search?q=1010 GREEN HILLS DRIVE, NASHVILLE, TN 37215
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=1010%20green%20hills%20drive%2C%20nashville%2C%20tn%2037215
+{{base_url}}/api/properties/property-search?q=1010 green hills drive, nashville, tn 37215
+
+
+
+
+Address: 1401 WALKER WAY, COLUMBIA, TN 38401
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=1401%20WALKER%20WAY%2C%20COLUMBIA%2C%20TN%2038401
+{{base_url}}/api/properties/property-search?q=1401 WALKER WAY, COLUMBIA, TN 38401
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=1401%20walker%20way%2C%20columbia%2C%20tn%2038401
+{{base_url}}/api/properties/property-search?q=1401 walker way, columbia, tn 38401
+
+
+Address: 9570 NORMANDY WAY, BRENTWOOD, TN 37027
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=9570%20NORMANDY%20WAY%2C%20BRENTWOOD%2C%20TN%2037027
+{{base_url}}/api/properties/property-search?q=9570 NORMANDY WAY, BRENTWOOD, TN 37027
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=9570%20normandy%20way%2C%20brentwood%2C%20tn%2037027
+{{base_url}}/api/properties/property-search?q=9570 normandy way, brentwood, tn 37027
+
+
+
+Address: 5002 FULLBRIGHT CT, FRANKLIN, TN 37064
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=5002%20FULLBRIGHT%20CT%2C%20FRANKLIN%2C%20TN%2037064
+{{base_url}}/api/properties/property-search?q=5002 FULLBRIGHT CT, FRANKLIN, TN 37064
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=5002%20fullbright%20ct%2C%20franklin%2C%20tn%2037064
+{{base_url}}/api/properties/property-search?q=5002 fullbright ct, franklin, tn 37064
+
+
+
+Address: 324 BEECHWOOD DRIVE, BURNS, TN 37029
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=324%20BEECHWOOD%20DRIVE%2C%20BURNS%2C%20TN%2037029
+{{base_url}}/api/properties/property-search?q=324 BEECHWOOD DRIVE, BURNS, TN 37029
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=324%20beechwood%20drive%2C%20burns%2C%20tn%2037029
+{{base_url}}/api/properties/property-search?q=324 beechwood drive, burns, tn 37029
+
+
+
+Address: 3013 PORTLAND COURT, FRANKLIN, TN 37064
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=3013%20PORTLAND%20COURT%2C%20FRANKLIN%2C%20TN%2037064
+{{base_url}}/api/properties/property-search?q=3013 PORTLAND COURT, FRANKLIN, TN 37064
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=3013%20portland%20court%2C%20franklin%2C%20tn%2037064
+{{base_url}}/api/properties/property-search?q=3013 portland court, franklin, tn 37064
+
+
+Address: 1141 CARTER ST, FRANKLIN, TN 37064
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=1141%20CARTER%20ST%2C%20FRANKLIN%2C%20TN%2037064
+{{base_url}}/api/properties/property-search?q=1141 CARTER ST, FRANKLIN, TN 37064
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=1141%20carter%20st%2C%20franklin%2C%20tn%2037064
+{{base_url}}/api/properties/property-search?q=1141 carter st, franklin, tn 37064
+
+
+
+Address: 226 HINKLE DR, NASHVILLE, TN 37218
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=226%20HINKLE%20DR%2C%20NASHVILLE%2C%20TN%2037218
+{{base_url}}/api/properties/property-search?q=226 HINKLE DR, NASHVILLE, TN 37218
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=226%20hinkle%20dr%2C%20nashville%2C%20tn%2037218
+{{base_url}}/api/properties/property-search?q=226 hinkle dr, nashville, tn 37218
+
+
+Address: 3219 LAKEFORD DR, NASHVILLE, TN 37214
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=3219%20LAKEFORD%20DR%2C%20NASHVILLE%2C%20TN%2037214
+{{base_url}}/api/properties/property-search?q=3219 LAKEFORD DR, NASHVILLE, TN 37214
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=3219%20lakeford%20dr%2C%20nashville%2C%20tn%2037214
+{{base_url}}/api/properties/property-search?q=3219 lakeford dr, nashville, tn 37214
+
+
+Address: 515 MIDWAY CIR, BRENTWOOD, TN 37027
+a. UPPERCASE
+{{base_url}}/api/properties/property-search?q=515%20MIDWAY%20CIR%2C%20BRENTWOOD%2C%20TN%2037027
+{{base_url}}/api/properties/property-search?q=515 MIDWAY CIR, BRENTWOOD, TN 37027
+
+b. lowercase
+{{base_url}}/api/properties/property-search?q=515%20midway%20cir%2C%20brentwood%2C%20tn%2037027
+{{base_url}}/api/properties/property-search?q=515 midway cir, brentwood, tn 37027
+
+
+
+
 
 
 

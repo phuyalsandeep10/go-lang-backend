@@ -103,8 +103,8 @@ func (a *App) initializeDependencies() {
 	)
 
 	// Services
-	propertyService := services.NewPropertyService(propertyRepo, propertyCache, propTrans, addrTrans, propertyValidator,corelogicClient)
-	searchService := services.NewPropertySearchService(propertyRepo, propertyCache, addrTrans, propTrans, propertyValidator, corelogicClient)
+	propertyService := services.NewPropertyService(propertyRepo, propertyCache, propTrans, addrTrans, propertyValidator, corelogicClient, a.Config)
+	searchService := services.NewPropertySearchService(propertyRepo, propertyCache, addrTrans, propTrans, propertyValidator, corelogicClient, a.Config)
 	userService := services.NewUserService(userRepo, userValidator)
 
 	// Handlers
