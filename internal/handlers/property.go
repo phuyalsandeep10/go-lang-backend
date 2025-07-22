@@ -1,11 +1,14 @@
+
 package handlers
 
 import (
 	"net/http"
 	"strconv"
 
+	"homeinsight-properties/internal/errors"
 	"homeinsight-properties/internal/models"
 	"homeinsight-properties/internal/services"
+	"homeinsight-properties/internal/utils"
 	"homeinsight-properties/pkg/logger"
 
 	"github.com/gin-gonic/gin"
@@ -29,20 +32,37 @@ func (h *PropertyHandler) GetProperties(c *gin.Context) {
 
 	offset, err := strconv.Atoi(offsetStr)
 	if err != nil || offset < 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "offset must be a non-negative integer"})
+		appErr := errors.NewAppError(
+			"invalid offset parameter",
+			errors.MsgInvalidParameters,
+			errors.ErrCodeInvalidParameters,
+			http.StatusBadRequest,
+			err,
+		)
+		logger.GlobalLogger.Errorf("Invalid offset: value=%s, error=%v", offsetStr, appErr.TechnicalMessage)
+		c.Error(appErr)
 		return
 	}
 
 	limit, err := strconv.Atoi(limitStr)
 	if err != nil || limit <= 0 || limit > 100 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "limit must be a positive integer between 1 and 100"})
+		appErr := errors.NewAppError(
+			"invalid limit parameter",
+			errors.MsgInvalidParameters,
+			errors.ErrCodeInvalidParameters,
+			http.StatusBadRequest,
+			err,
+		)
+		logger.GlobalLogger.Errorf("Invalid limit: value=%s, error=%v", limitStr, appErr.TechnicalMessage)
+		c.Error(appErr)
 		return
 	}
 
 	response, err := h.searchService.ListProperties(c, offset, limit, "/api/properties", c.Request.URL.Query())
 	if err != nil {
-		logger.GlobalLogger.Errorf("Error fetching properties: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		c.Error(utils.LogAndMapError(c, err, "get properties",
+			"offset", offset,
+			"limit", limit))
 		return
 	}
 	c.JSON(http.StatusOK, response)
@@ -51,19 +71,34 @@ func (h *PropertyHandler) GetProperties(c *gin.Context) {
 func (h *PropertyHandler) SearchProperty(c *gin.Context) {
 	query := c.Query("q")
 	if query == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "query parameter 'q' is required"})
+		appErr := errors.NewAppError(
+			"query parameter missing",
+			"Search query is required",
+			errors.ErrCodeInvalidParameters,
+			http.StatusBadRequest,
+			nil,
+		)
+		logger.GlobalLogger.Errorf("Missing query parameter: path=%s", c.Request.URL.Path)
+		c.Error(appErr)
 		return
 	}
 	if len(query) > 100 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "query parameter 'q' exceeds maximum length"})
+		appErr := errors.NewAppError(
+			"query parameter too long",
+			"Search query exceeds maximum length of 100 characters",
+			errors.ErrCodeInvalidParameters,
+			http.StatusBadRequest,
+			nil,
+		)
+		logger.GlobalLogger.Errorf("Query too long: query=%s", query)
+		c.Error(appErr)
 		return
 	}
 
 	req := &models.SearchRequest{Search: query}
 	property, err := h.searchService.SearchSpecificProperty(c, req)
 	if err != nil {
-		logger.GlobalLogger.Errorf("Error searching property: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.Error(utils.LogAndMapError(c, err, "search specific property", "query", query))
 		return
 	}
 	c.JSON(http.StatusOK, property)
@@ -72,14 +107,21 @@ func (h *PropertyHandler) SearchProperty(c *gin.Context) {
 func (h *PropertyHandler) GetPropertyByID(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "id parameter is required"})
+		appErr := errors.NewAppError(
+			"id parameter missing",
+			"Property ID is required",
+			errors.ErrCodeInvalidParameters,
+			http.StatusBadRequest,
+			nil,
+		)
+		logger.GlobalLogger.Errorf("Missing ID parameter: path=%s", c.Request.URL.Path)
+		c.Error(appErr)
 		return
 	}
 
 	property, err := h.propertyService.GetPropertyByID(c, id)
 	if err != nil {
-		logger.GlobalLogger.Errorf("Error fetching property by ID: %v", err)
-		c.JSON(http.StatusNotFound, gin.H{"error": "property not found"})
+		c.Error(utils.LogAndMapError(c, err, "get property by ID", "id", id))
 		return
 	}
 	c.JSON(http.StatusOK, property)
@@ -88,13 +130,20 @@ func (h *PropertyHandler) GetPropertyByID(c *gin.Context) {
 func (h *PropertyHandler) CreateProperty(c *gin.Context) {
 	var property models.Property
 	if err := c.ShouldBindJSON(&property); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		appErr := errors.NewAppError(
+			"invalid request body",
+			"The provided property data is invalid",
+			errors.ErrCodeInvalidParameters,
+			http.StatusBadRequest,
+			err,
+		)
+		logger.GlobalLogger.Errorf("Invalid property data: error=%v", err)
+		c.Error(appErr)
 		return
 	}
 
 	if err := h.propertyService.CreateProperty(c, &property); err != nil {
-		logger.GlobalLogger.Errorf("Error creating property: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		c.Error(utils.LogAndMapError(c, err, "create property"))
 		return
 	}
 	c.JSON(http.StatusCreated, property)
@@ -103,13 +152,20 @@ func (h *PropertyHandler) CreateProperty(c *gin.Context) {
 func (h *PropertyHandler) UpdateProperty(c *gin.Context) {
 	var property models.Property
 	if err := c.ShouldBindJSON(&property); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		appErr := errors.NewAppError(
+			"invalid request body",
+			"The provided property data is invalid",
+			errors.ErrCodeInvalidParameters,
+			http.StatusBadRequest,
+			err,
+		)
+		logger.GlobalLogger.Errorf("Invalid property data: error=%v", err)
+		c.Error(appErr)
 		return
 	}
 
 	if err := h.propertyService.UpdateProperty(c, &property); err != nil {
-		logger.GlobalLogger.Errorf("Error updating property: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		c.Error(utils.LogAndMapError(c, err, "update property"))
 		return
 	}
 	c.JSON(http.StatusOK, property)
@@ -118,13 +174,20 @@ func (h *PropertyHandler) UpdateProperty(c *gin.Context) {
 func (h *PropertyHandler) DeleteProperty(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "id parameter is required"})
+		appErr := errors.NewAppError(
+			"id parameter missing",
+			"Property ID is required",
+			errors.ErrCodeInvalidParameters,
+			http.StatusBadRequest,
+			nil,
+		)
+		logger.GlobalLogger.Errorf("Missing ID parameter: path=%s", c.Request.URL.Path)
+		c.Error(appErr)
 		return
 	}
 
 	if err := h.propertyService.DeleteProperty(c, id); err != nil {
-		logger.GlobalLogger.Errorf("Error deleting property: %v", err)
-		c.JSON(http.StatusNotFound, gin.H{"error": "property not found"})
+		c.Error(utils.LogAndMapError(c, err, "delete property", "id", id))
 		return
 	}
 	c.JSON(http.StatusNoContent, nil)

@@ -2,8 +2,9 @@ package services
 
 import (
 	"context"
-	"fmt"
 	"net/url"
+	"strconv"
+	"time"
 
 	"homeinsight-properties/internal/models"
 	"homeinsight-properties/internal/utils"
@@ -26,13 +27,24 @@ func (s *PropertySearchService) ListProperties(ctx context.Context, offset, limi
 	}
 
 	ginCtx.Set("data_source", "DATABASE")
-	ginCtx.Set("query", fmt.Sprintf("offset=%d,limit=%d", offset, limit))
+	ginCtx.Set("query", "offset="+strconv.Itoa(offset)+",limit="+strconv.Itoa(limit))
 
 	// Query database
-	properties, total, err := s.repo.FindWithPagination(ctx, offset, limit)
+	var properties []models.Property
+	var total int64
+	var err error
+	for attempt := 1; attempt <= s.config.ErrorHandling.RetryAttempts; attempt++ {
+		properties, total, err = s.repo.FindWithPagination(ctx, offset, limit)
+		if err == nil || !utils.IsRetryableError(err) {
+			break
+		}
+		logger.GlobalLogger.Warnf("Database query attempt %d/%d failed: offset=%d, limit=%d, error=%v", attempt, s.config.ErrorHandling.RetryAttempts, offset, limit, err)
+		time.Sleep(time.Duration(s.config.ErrorHandling.RetryDelayMS) * time.Millisecond)
+	}
 	if err != nil {
-		logger.GlobalLogger.Errorf("DB query failed: offset=%d, limit=%d, error=%v", offset, limit, err)
-		return nil, err
+		return nil, utils.LogAndMapError(ctx, err, "list properties",
+			"offset", offset,
+			"limit", limit)
 	}
 
 	metadata := models.PaginationMeta{

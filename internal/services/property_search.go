@@ -1,3 +1,4 @@
+
 package services
 
 import (
@@ -8,6 +9,7 @@ import (
 	"homeinsight-properties/internal/models"
 	"homeinsight-properties/internal/repositories"
 	"homeinsight-properties/internal/transformers"
+	"homeinsight-properties/internal/utils"
 	"homeinsight-properties/internal/validators"
 	"homeinsight-properties/pkg/cache"
 	"homeinsight-properties/pkg/config"
@@ -44,7 +46,7 @@ func NewPropertySearchService(
 		addrTrans:           addrTrans,
 		propTrans:           propTrans,
 		validator:           validator,
-		externalDataService: NewExternalDataService(corelogicClient, propTrans),
+		externalDataService: NewExternalDataService(corelogicClient, propTrans, cfg),
 		config:              cfg,
 	}
 }
@@ -54,13 +56,16 @@ func (s *PropertySearchService) cacheProperty(ctx context.Context, property *mod
 	propertyKey := cache.PropertyKey(property.PropertyID)
 	cacheTTL := time.Duration(s.config.Redis.CacheTTLDays) * 24 * time.Hour
 	if err := s.cache.SetProperty(ctx, propertyKey, property, cacheTTL); err != nil {
-		return fmt.Errorf("failed to cache property: %v", err)
+		logger.GlobalLogger.Warnf("Failed to cache property: propertyID=%s, error=%v", property.PropertyID, err)
+		return nil
 	}
 	if err := s.cache.SetSearchKey(ctx, cacheKey, property.PropertyID, cacheTTL); err != nil {
-		return fmt.Errorf("failed to cache search key: %v", err)
+		logger.GlobalLogger.Warnf("Failed to cache search key: propertyID=%s, error=%v", property.PropertyID, err)
+		return nil
 	}
 	if err := s.cache.AddCacheKeyToPropertySet(ctx, property.PropertyID, cacheKey); err != nil {
-		return fmt.Errorf("failed to add cache key to property set: %v", err)
+		logger.GlobalLogger.Warnf("Failed to add cache key to property set: propertyID=%s, error=%v", property.PropertyID, err)
+		return nil
 	}
 	return nil
 }
@@ -79,15 +84,14 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 
 	// Validate search request
 	if err := s.validator.ValidateSearch(req); err != nil {
-		logger.GlobalLogger.Errorf("Invalid search request: query=%s, error=%v", req.Search, err)
-		return nil, fmt.Errorf("invalid search request: %v", err)
+		return nil, utils.LogAndMapError(ctx, err, "validate search request", "query", req.Search)
 	}
 
 	// Parse address
 	street, city, state, zip := s.addrTrans.ParseAddress(req.Search)
 	if street == "" || city == "" {
-		logger.GlobalLogger.Errorf("Missing address fields: query=%s", req.Search)
-		return nil, fmt.Errorf("street address and city are required")
+		err := fmt.Errorf("street address and city are required")
+		return nil, utils.LogAndMapError(ctx, err, "parse address", "query", req.Search)
 	}
 
 	// Generate cache key and set initial metadata
@@ -103,6 +107,7 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 			ginCtx.Set("property_id", propertyID)
 			return property, nil
 		}
+		logger.GlobalLogger.Warnf("Cache miss for property: cacheKey=%s, error=%v", cacheKey, err)
 	}
 
 	// Cache miss
@@ -110,10 +115,24 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 	ginCtx.Set("cache_hit", false)
 
 	// Query database
-	property, err := s.repo.FindByAddress(ctx, street, city, state, zip)
+	var property *models.Property
+	var err error
+	for attempt := 1; attempt <= s.config.ErrorHandling.RetryAttempts; attempt++ {
+		property, err = s.repo.FindByAddress(ctx, street, city, state, zip)
+		if err == nil || !utils.IsRetryableError(err) {
+			break
+		}
+		logger.GlobalLogger.Warnf("Database query attempt %d/%d failed: query=%s, error=%v", attempt, s.config.ErrorHandling.RetryAttempts, req.Search, err)
+		time.Sleep(time.Duration(s.config.ErrorHandling.RetryDelayMS) * time.Millisecond)
+	}
 	if err != nil {
-		logger.GlobalLogger.Errorf("Database query failed: query=%s, error=%v", req.Search, err)
-		return nil, fmt.Errorf("database query failed: %v", err)
+		return nil, utils.LogAndMapError(ctx, utils.WrapError(err, "database query failed: query=%s", req.Search),
+			"database query",
+			"query", req.Search,
+			"street", street,
+			"city", city,
+			"state", state,
+			"zip", zip)
 	}
 
 	// Handle existing property
@@ -122,7 +141,7 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 		if !s.isPropertyStale(property.UpdatedAt) {
 			ginCtx.Set("data_source", "DATABASE")
 			if err := s.cacheProperty(ctx, property, cacheKey); err != nil {
-				logger.GlobalLogger.Errorf("Cache update failed: propertyID=%s, error=%v", property.PropertyID, err)
+				logger.GlobalLogger.Warnf("Cache update failed: propertyID=%s, error=%v", property.PropertyID, err)
 			}
 			return property, nil
 		}
@@ -130,8 +149,7 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 		// Property is stale, fetch from external source
 		newProperty, err := s.externalDataService.FetchFromExternalSource(ctx, street, city, state, zip, req)
 		if err != nil {
-			logger.GlobalLogger.Errorf("External data fetch failed: query=%s, error=%v", req.Search, err)
-			return nil, fmt.Errorf("failed to fetch from external source: %v", err)
+			return nil, utils.WrapError(err, "fetch external data failed: query=%s", req.Search)
 		}
 
 		// Update existing property
@@ -140,13 +158,14 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 		newProperty.UpdatedAt = time.Now()
 
 		if err := s.repo.Update(ctx, newProperty); err != nil {
-			logger.GlobalLogger.Errorf("Failed to update property: propertyID=%s, error=%v", newProperty.PropertyID, err)
-			return nil, fmt.Errorf("failed to update property: %v", err)
+			return nil, utils.LogAndMapError(ctx, utils.WrapError(err, "update property failed: propertyID=%s", newProperty.PropertyID),
+				"update property",
+				"propertyID", newProperty.PropertyID)
 		}
 
 		// Cache updated property
 		if err := s.cacheProperty(ctx, newProperty, cacheKey); err != nil {
-			logger.GlobalLogger.Errorf("Cache update failed: propertyID=%s, error=%v", newProperty.PropertyID, err)
+			logger.GlobalLogger.Warnf("Cache update failed: propertyID=%s, error=%v", newProperty.PropertyID, err)
 		}
 		ginCtx.Set("data_source", "CORELOGIC_API")
 		return newProperty, nil
@@ -155,15 +174,15 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 	// No property found, fetch from external source
 	newProperty, err := s.externalDataService.FetchFromExternalSource(ctx, street, city, state, zip, req)
 	if err != nil {
-		logger.GlobalLogger.Errorf("External data fetch failed: query=%s, error=%v", req.Search, err)
-		return nil, fmt.Errorf("failed to fetch from external source: %v", err)
+		return nil, utils.WrapError(err, "fetch external data failed: query=%s", req.Search)
 	}
 
 	// Check for race condition
 	existingProperty, err := s.repo.FindByID(ctx, newProperty.PropertyID)
 	if err != nil {
-		logger.GlobalLogger.Errorf("Failed to check existing property: propertyID=%s, error=%v", newProperty.PropertyID, err)
-		return nil, fmt.Errorf("failed to check existing property: %v", err)
+		return nil, utils.LogAndMapError(ctx, utils.WrapError(err, "check existing property failed: propertyID=%s", newProperty.PropertyID),
+			"check existing property",
+			"propertyID", newProperty.PropertyID)
 	}
 	if existingProperty != nil {
 		newProperty.ID = existingProperty.ID
@@ -171,12 +190,13 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 		newProperty.UpdatedAt = time.Now()
 
 		if err := s.repo.Update(ctx, newProperty); err != nil {
-			logger.GlobalLogger.Errorf("Failed to update property: propertyID=%s, error=%v", newProperty.PropertyID, err)
-			return nil, fmt.Errorf("failed to update property: %v", err)
+			return nil, utils.LogAndMapError(ctx, utils.WrapError(err, "update property failed: propertyID=%s", newProperty.PropertyID),
+				"update property",
+				"propertyID", newProperty.PropertyID)
 		}
 
 		if err := s.cacheProperty(ctx, newProperty, cacheKey); err != nil {
-			logger.GlobalLogger.Errorf("Cache update failed: propertyID=%s, error=%v", newProperty.PropertyID, err)
+			logger.GlobalLogger.Warnf("Cache update failed: propertyID=%s, error=%v", newProperty.PropertyID, err)
 		}
 		ginCtx.Set("data_source", "CORELOGIC_API")
 		ginCtx.Set("property_id", newProperty.PropertyID)
@@ -188,13 +208,14 @@ func (s *PropertySearchService) SearchSpecificProperty(ctx context.Context, req 
 	newProperty.UpdatedAt = time.Now()
 
 	if err := s.repo.Create(ctx, newProperty); err != nil {
-		logger.GlobalLogger.Errorf("Failed to create property: propertyID=%s, error=%v", newProperty.PropertyID, err)
-		return nil, fmt.Errorf("failed to create property: %v", err)
+		return nil, utils.LogAndMapError(ctx, utils.WrapError(err, "create property failed: propertyID=%s", newProperty.PropertyID),
+			"create property",
+			"propertyID", newProperty.PropertyID)
 	}
 
 	// Cache new property
 	if err := s.cacheProperty(ctx, newProperty, cacheKey); err != nil {
-		logger.GlobalLogger.Errorf("Cache update failed: propertyID=%s, error=%v", newProperty.PropertyID, err)
+		logger.GlobalLogger.Warnf("Cache update failed: propertyID=%s, error=%v", newProperty.PropertyID, err)
 	}
 	ginCtx.Set("data_source", "CORELOGIC_API")
 	ginCtx.Set("property_id", newProperty.PropertyID)

@@ -30,8 +30,6 @@ func (c *Client) RequestCoreLogic(ctx context.Context, street, city, state, zip 
     // Search for property by address
     clip, v1PropertyId, err := c.SearchPropertyByAddress(token, street, city, state, zip)
     if err != nil {
-        logger.GlobalLogger.Errorf("CoreLogic search failed: street=%s, city=%s, state=%s, zip=%s, error=%v",
-            street, city, state, zip, err)
         return nil, fmt.Errorf("failed to search property: %v", err)
     }
 

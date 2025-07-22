@@ -1,3 +1,4 @@
+
 package corelogic
 
 import (
@@ -7,7 +8,6 @@ import (
     "io"
     "net/http"
     "os"
-    "time"
 
     "homeinsight-properties/pkg/logger"
 )
@@ -49,53 +49,36 @@ func (c *Client) GetPropertyDetails(token, propertyId string) (map[string]interf
     req.Header.Set("Authorization", "Bearer "+token)
     req.Header.Set("Content-Type", "application/json")
 
-    // Retry loop for HTTP request
-    maxRetries := 3
-    for attempt := 1; attempt <= maxRetries; attempt++ {
-        resp, err := c.httpClient.Do(req)
-        if err != nil {
-            logger.GlobalLogger.Errorf("Failed to send detail request to proxy (attempt %d/%d): url=%s, error=%v", attempt, maxRetries, proxyURL, err)
-            if attempt == maxRetries {
-                return nil, fmt.Errorf("failed to send detail request to proxy after %d attempts: %v", maxRetries, err)
-            }
-            time.Sleep(time.Duration(attempt) * time.Second)
-            continue
-        }
-        defer resp.Body.Close()
+    // Send the HTTP request
+    resp, err := c.httpClient.Do(req)
+    if err != nil {
+        logger.GlobalLogger.Errorf("Failed to send detail request to proxy: url=%s, error=%v", proxyURL, err)
+        return nil, fmt.Errorf("failed to send detail request to proxy: %v", err)
+    }
+    defer resp.Body.Close()
 
-        // Read the response body
-        body, err := io.ReadAll(resp.Body)
-        if err != nil {
-            logger.GlobalLogger.Errorf("Failed to read detail response body (attempt %d/%d): url=%s, status=%s, error=%v", attempt, maxRetries, proxyURL, resp.Status, err)
-            if attempt == maxRetries {
-                return nil, fmt.Errorf("failed to read response body after %d attempts: %v", maxRetries, err)
-            }
-            time.Sleep(time.Duration(attempt) * time.Second)
-            continue
-        }
-
-        // Check the response status
-        if resp.StatusCode != http.StatusOK {
-            logger.GlobalLogger.Errorf("Detail request to proxy failed (attempt %d/%d): url=%s, status=%s, response=%s", attempt, maxRetries, proxyURL, resp.Status, string(body))
-            if attempt == maxRetries {
-                return nil, fmt.Errorf("failed to get property details after %d attempts: %s, response: %s", maxRetries, resp.Status, string(body))
-            }
-            time.Sleep(time.Duration(attempt) * time.Second)
-            continue
-        }
-
-        // Parse the response
-        var details map[string]interface{}
-        if err := json.Unmarshal(body, &details); err != nil {
-            logger.GlobalLogger.Errorf("Failed to decode detail response: url=%s, response=%s, error=%v", proxyURL, string(body), err)
-            return nil, fmt.Errorf("failed to decode property details response: %v", err)
-        }
-
-        logger.GlobalLogger.Printf("Property details retrieved successfully for property ID: %s", propertyId)
-        return details, nil
+    // Read the response body
+    body, err := io.ReadAll(resp.Body)
+    if err != nil {
+        logger.GlobalLogger.Errorf("Failed to read detail response body: url=%s, status=%s, error=%v", proxyURL, resp.Status, err)
+        return nil, fmt.Errorf("failed to read response body: %v", err)
     }
 
-    return nil, fmt.Errorf("failed to get property details: max retries exceeded")
+    // Check the response status
+    if resp.StatusCode != http.StatusOK {
+        logger.GlobalLogger.Errorf("Detail request to proxy failed: url=%s, status=%s, response=%s", proxyURL, resp.Status, string(body))
+        return nil, fmt.Errorf("failed to get property details: %s, response: %s", resp.Status, string(body))
+    }
+
+    // Parse the response
+    var details map[string]interface{}
+    if err := json.Unmarshal(body, &details); err != nil {
+        logger.GlobalLogger.Errorf("Failed to decode detail response: url=%s, response=%s, error=%v", proxyURL, string(body), err)
+        return nil, fmt.Errorf("failed to decode property details response: %v", err)
+    }
+
+    logger.GlobalLogger.Printf("Property details retrieved successfully for property ID: %s", propertyId)
+    return details, nil
 }
 
 // retrieve detailed property information using clip.

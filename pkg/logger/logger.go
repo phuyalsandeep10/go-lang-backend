@@ -1,3 +1,4 @@
+
 package logger
 
 import (
@@ -13,6 +14,7 @@ import (
 // Logger struct to hold leveled loggers and configuration
 type Logger struct {
 	infoLogger  *log.Logger
+	warnLogger  *log.Logger
 	errorLogger *log.Logger
 	debugLogger *log.Logger
 	output      io.Writer
@@ -26,6 +28,7 @@ type LogLevel int
 const (
 	DEBUG LogLevel = iota
 	INFO
+	WARN
 	ERROR
 )
 
@@ -44,14 +47,17 @@ func InitLogger(output io.Writer, level string) {
 		switch strings.ToUpper(level) {
 		case "DEBUG":
 			logLevel = DEBUG
-		case "ERROR":
-			logLevel = ERROR
 		case "INFO":
 			logLevel = INFO
+		case "WARN":
+			logLevel = WARN
+		case "ERROR":
+			logLevel = ERROR
 		}
 
 		GlobalLogger = &Logger{
 			infoLogger:  log.New(output, color.GreenString("INFO: "), log.Ldate|log.Ltime|log.Lshortfile),
+			warnLogger:  log.New(output, color.YellowString("WARN: "), log.Ldate|log.Ltime|log.Lshortfile),
 			errorLogger: log.New(output, color.RedString("ERROR: "), log.Ldate|log.Ltime|log.Lshortfile),
 			debugLogger: log.New(output, color.BlueString("DEBUG: "), log.Ldate|log.Ltime|log.Lshortfile),
 			output:      output,
@@ -75,6 +81,24 @@ func (l *Logger) Printf(format string, v ...interface{}) {
 	defer l.mutex.Unlock()
 	if l.level <= INFO {
 		l.infoLogger.Printf(format, v...)
+	}
+}
+
+// Warn logs a message at the WARN level
+func (l *Logger) Warn(v ...interface{}) {
+	l.mutex.Lock()
+	defer l.mutex.Unlock()
+	if l.level <= WARN {
+		l.warnLogger.Println(v...)
+	}
+}
+
+// Warnf logs a formatted message at the WARN level
+func (l *Logger) Warnf(format string, v ...interface{}) {
+	l.mutex.Lock()
+	defer l.mutex.Unlock()
+	if l.level <= WARN {
+		l.warnLogger.Printf(format, v...)
 	}
 }
 

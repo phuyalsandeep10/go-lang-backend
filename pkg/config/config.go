@@ -32,6 +32,12 @@ type Config struct {
 		ClientSecret   string `yaml:"client_secret"`
 		DeveloperEmail string `yaml:"developer_email"`
 	} `yaml:"corelogic"`
+	ErrorHandling struct {
+		LogTechnicalDetails bool   `yaml:"log_technical_details"`
+		UserMessageLanguage string `yaml:"user_message_language" validate:"required,oneof=en es fr"`
+		RetryAttempts       int    `yaml:"retry_attempts" validate:"gte=0,lte=5"`
+		RetryDelayMS        int    `yaml:"retry_delay_ms" validate:"gte=0"`
+	} `yaml:"error_handling"`
 }
 
 func LoadConfig(path string) (*Config, error) {
@@ -108,6 +114,9 @@ func LoadConfig(path string) (*Config, error) {
 	}
 	if cfg.CoreLogic.DeveloperEmail == "" {
 		return nil, fmt.Errorf("CORELOGIC_DEVELOPER_EMAIL is required")
+	}
+	if cfg.ErrorHandling.UserMessageLanguage == "" {
+		cfg.ErrorHandling.UserMessageLanguage = "en" // Default to English
 	}
 
 	return cfg, nil

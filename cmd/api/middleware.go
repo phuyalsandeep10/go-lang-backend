@@ -19,6 +19,7 @@ func (a *App) setupMiddleware() {
 	a.Router.Use(middleware.LoggingMiddleware())
 	a.Router.Use(middleware.RateLimitMiddleware(a.RateLimiter))
 	a.Router.Use(middleware.SecureHeaders())
+	a.Router.Use(middleware.ErrorHandler())
 	a.Router.Use(gin.Recovery())
 }
 

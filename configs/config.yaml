@@ -21,3 +21,9 @@ corelogic:
   client_key: ""
   client_secret: ""
   developer_email: ""
+
+error_handling:
+  log_technical_details: true
+  user_message_language: "en"
+  retry_attempts: 3
+  retry_delay_ms: 1000

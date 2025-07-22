@@ -3,7 +3,7 @@ name: Deploy Go App with Nginx and SSL to AWS EC2
 on:
   push:
     branches:
-      - GOWithMongoDB
+      - main
 
 jobs:
   deploy:
