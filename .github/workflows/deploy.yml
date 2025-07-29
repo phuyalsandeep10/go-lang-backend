@@ -28,6 +28,16 @@ jobs:
         run: |
           docker build -t go-lang-project .
 
+      - name: Create .env file from AWS SSM Parameters
+        run: |
+          echo "MONGO_URI=$(aws ssm get-parameter --name 'mongo-myapp' --with-decryption --query Parameter.Value --output text)" > .env
+          echo "REDIS_ADDR=$(aws ssm get-parameter --name 'redis-myapp' --with-decryption --query Parameter.Value --output text)" >> .env
+          cat .env
+
+      - name: Test Docker container locally with .env
+        run: |
+          docker run --rm --env-file .env go-lang-project || (echo "Docker container failed to start" && exit 1)
+
       - name: Tag Docker image
         run: |
           docker tag go-lang-project:latest 550487074506.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/go-lang-project:latest
@@ -56,19 +66,27 @@ jobs:
             export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
             export AWS_REGION=${{ secrets.AWS_REGION }}
 
-            # Fetch MONGO_URI from SSM Parameter Store
-            MONGO_URI=$(aws ssm get-parameter --name "mongo-myapp" --with-decryption --query Parameter.Value --output text)
+            # Fetch environment variables from SSM and save to .env
+            echo "MONGO_URI=$(aws ssm get-parameter --name 'mongo-myapp' --with-decryption --query Parameter.Value --output text)" > .env
+            echo "REDIS_ADDR=$(aws ssm get-parameter --name 'redis-myapp' --with-decryption --query Parameter.Value --output text)" >> .env
 
+            # Debug: show .env content
+            cat .env
 
-            # Use sudo -E to preserve environment variables
-            sudo -E aws ecr get-login-password --region $AWS_REGION | sudo docker login --username AWS --password-stdin 550487074506.dkr.ecr.$AWS_REGION.amazonaws.com
+            # Login to ECR
+            sudo -E aws ecr get-login-password --region $AWS_REGION | \
+              sudo docker login --username AWS --password-stdin 550487074506.dkr.ecr.$AWS_REGION.amazonaws.com
 
             # Pull the latest image
             sudo docker pull 550487074506.dkr.ecr.$AWS_REGION.amazonaws.com/go-lang-project:latest
 
-            # Stop and remove old container
+            # Stop and remove existing container
             sudo docker stop backend || true
             sudo docker rm backend || true
 
-            # Run the new container
-            sudo docker run -d --name backend -p 8000:8000 550487074506.dkr.ecr.$AWS_REGION.amazonaws.com/go-lang-project:latest
+            # Run container with .env
+            sudo docker run -d \
+              --name backend \
+              --env-file .env \
+              -p 8000:8000 \
+              550487074506.dkr.ecr.$AWS_REGION.amazonaws.com/go-lang-project:latest
