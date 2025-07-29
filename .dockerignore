@@ -32,6 +32,4 @@ Thumbs.db
 coverage.out
 
 # Config files that shouldn't go to the container
-.env
-.env.*
 configs/*.local.yaml

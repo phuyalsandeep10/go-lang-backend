@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"os"
+	"strconv"
 
 	"homeinsight-properties/internal/handlers"
 	"homeinsight-properties/internal/middleware"
@@ -18,6 +20,7 @@ import (
 	"homeinsight-properties/pkg/metrics"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"golang.org/x/time/rate"
 )
 
@@ -28,6 +31,7 @@ type App struct {
 	UserHandler     *handlers.UserHandler
 	RateLimiter     *middleware.RateLimiter
 	Server          *http.Server
+	RedisClient     *redis.Client
 }
 
 // create and initialize a new App instance
@@ -63,10 +67,19 @@ func (a *App) initializeDatabase() {
 
 // Redis cache
 func (a *App) initializeCache() {
-	if err := cache.InitRedis(a.Config); err != nil {
+	addr := a.Config.Redis.Host + ":" + strconv.Itoa(a.Config.Redis.Port)
+
+	rdb := redis.NewClient(&redis.Options{
+		Addr: addr,
+	})
+
+	ctx := context.Background()
+	if err := rdb.Ping(ctx).Err(); err != nil {
 		logger.GlobalLogger.Errorf("Failed to initialize Redis: %v", err)
 		os.Exit(1)
 	}
+
+	a.RedisClient = rdb
 }
 
 // Prometheus metrics
@@ -113,11 +126,22 @@ func (a *App) initializeDependencies() {
 }
 
 // Gin router with middleware and routes
+// func (a *App) initializeRouter() {
+// 	a.Router = gin.New()
+// 	a.setupMiddleware()
+// 	a.setupRoutes()
+// }
 func (a *App) initializeRouter() {
 	a.Router = gin.New()
 	a.setupMiddleware()
 	a.setupRoutes()
+
+	// Add this to handle "/"
+	a.Router.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "Welcome to HomeInsight API"})
+	})
 }
+
 
 // cleanup operations
 func (a *App) cleanup() {

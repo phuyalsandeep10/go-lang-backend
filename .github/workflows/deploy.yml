@@ -1,4 +1,4 @@
-name: Deploy Go App with Nginx and SSL to AWS EC2
+name: Build, publish, and deploy Frontend Docker image (ECR) to EC2
 
 on:
   push:
@@ -6,129 +6,60 @@ on:
       - main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
-        run: |
-          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 882142483449.dkr.ecr.us-east-1.amazonaws.com
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build and Push Go Docker Image
+      - name: Build Docker image
         run: |
-          docker build -t homeinsightcore -f Dockerfile .
-          docker tag homeinsightcore:latest 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
-          docker push 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
-
-      - name: Build and Push Nginx Docker Image
+          docker build -t go-lang-project .
+      
+      - name: Tag Docker image
         run: |
-          docker build -t homeinsightcore_nginx -f Dockerfile.nginx .
-          docker tag homeinsightcore_nginx:latest 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
-          docker push 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
+          docker tag go-lang-project:latest 550487074506.dkr.ecr.us-east-1.amazonaws.com/go-lang-project:latest
+      
+      - name: Push Docker image to Amazon ECR
+        run: |
+          docker push 550487074506.dkr.ecr.us-east-1.amazonaws.com/go-lang-project:latest
 
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.7
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build  # This ensures the deploy job runs after the build job
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Deploy code to EC2
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
+          username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT}}
           script: |
-            # Start Docker
-            sudo systemctl start docker || true
-            sudo usermod -aG docker ubuntu || true
-            newgrp docker
+            # Log in to AWS ECR on the EC2 instance
+            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 550487074506.dkr.ecr.us-east-1.amazonaws.com
 
-            # Pull latest images
-            docker pull 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
-            docker pull 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
-
-            # Stop and remove existing containers
-            docker stop homeinsightcore || true
-            docker rm homeinsightcore || true
-            docker stop nginx || true
-            docker rm nginx || true
-
-            # Create network
-            docker network create app-network || true
-
-            # Setup directories
-            sudo mkdir -p /etc/letsencrypt
-            sudo mkdir -p /var/www/certbot
-            sudo chown -R ubuntu:ubuntu /etc/letsencrypt /var/www/certbot
-
-            # Install Certbot if not present
-            if ! command -v certbot &> /dev/null; then
-              sudo apt update
-              sudo apt install -y certbot
-            fi
-
-            # Run minimal Nginx to serve challenge
-            docker run -d --name nginx-challenge \
-              -p 80:80 \
-              -v /var/www/certbot:/var/www/certbot \
-              nginx:latest
-
-            # Only generate cert if it doesn't exist
-            if [ ! -d "/etc/letsencrypt/live/homeinsight-core.homeinsight.cloud" ]; then
-              echo "Generating Let's Encrypt certificate..."
-              sudo certbot certonly --webroot \
-                -w /var/www/certbot \
-                -d homeinsight-core.homeinsight.cloud \
-                --non-interactive \
-                --agree-tos \
-                --email homeinsightcore@gmail.com || true
-
-              # Restart challenge container to ensure clean state
-              docker stop nginx-challenge
-              docker rm nginx-challenge
-              docker run -d --name nginx-challenge \
-                -p 80:80 \
-                -v /var/www/certbot:/var/www/certbot \
-                nginx:latest
-            else
-              echo "Certificate already exists."
-            fi
-
-            # Stop challenge container before starting full Nginx
-            docker stop nginx-challenge || true
-            docker rm nginx-challenge || true
-
-            # Fetch environment variables from SSM
-            export ENV=$(aws ssm get-parameter --name "/homeinsight/prod/env" --query Parameter.Value --output text)
-            export MONGO_URI=$(aws ssm get-parameter --name "/homeinsight/prod/database/uri" --with-decryption --query Parameter.Value --output text)
-            export REDIS_HOST=$(aws ssm get-parameter --name "/homeinsight/prod/redis/host" --with-decryption --query Parameter.Value --output text)
-            export JWT_SECRET=$(aws ssm get-parameter --name "/homeinsight/prod/jwt/secret" --with-decryption --query Parameter.Value --output text)
-            export CORELOGIC_PROXY_URL=$(aws ssm get-parameter --name "/homeinsight/prod/corelogic/proxy-url" --with-decryption --query Parameter.Value --output text)
-            export CORELOGIC_DEVELOPER_EMAIL=$(aws ssm get-parameter --name "/homeinsight/prod/corelogic/developer-email" --query Parameter.Value --output text)
-            export CORELOGIC_USERNAME=$(aws ssm get-parameter --name "/homeinsight/prod/corelogic/username" --with-decryption --query Parameter.Value --output text)
-            export CORELOGIC_PASSWORD=$(aws ssm get-parameter --name "/homeinsight/prod/corelogic/password" --with-decryption --query Parameter.Value --output text)
-
-            # Start Go App
-            docker run -d --name homeinsightcore --network app-network -p 8000:8000 \
-              -e ENV="$ENV" \
-              -e MONGO_URI="$MONGO_URI" \
-              -e REDIS_HOST="$REDIS_HOST" \
-              -e JWT_SECRET="$JWT_SECRET" \
-              -e CORELOGIC_PROXY_URL="$CORELOGIC_PROXY_URL" \
-              -e CORELOGIC_DEVELOPER_EMAIL="$CORELOGIC_DEVELOPER_EMAIL" \
-              -e CORELOGIC_USERNAME="$CORELOGIC_USERNAME" \
-              -e CORELOGIC_PASSWORD="$CORELOGIC_PASSWORD" \
-              882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore:latest
-
-            # Start Nginx with SSL
-            docker run -d --name nginx --network app-network \
-              -p 80:80 -p 443:443 \
-              -v /etc/letsencrypt:/etc/letsencrypt \
-              -v /var/www/certbot:/var/www/certbot \
-              882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
-
-            echo "✅ Deployment complete!"
+            # Pull the latest image
+            sudo docker pull 550487074506.dkr.ecr.us-east-1.amazonaws.com/go-lang-project:latest
+            
+            # Stop and remove the old container if it exists
+            sudo docker stop backend || true
+            sudo docker rm backend || true
+            
+            # Run the new container
+            sudo docker run -d --name backend -p 8000:8000 550487074506.dkr.ecr.us-east-1.amazonaws.com/go-lang-project:latest
