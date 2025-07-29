@@ -56,6 +56,10 @@ jobs:
             export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
             export AWS_REGION=${{ secrets.AWS_REGION }}
 
+            # Fetch MONGO_URI from SSM Parameter Store
+            MONGO_URI=$(aws ssm get-parameter --name "mongo-myapp" --with-decryption --query Parameter.Value --output text)
+
+
             # Use sudo -E to preserve environment variables
             sudo -E aws ecr get-login-password --region $AWS_REGION | sudo docker login --username AWS --password-stdin 550487074506.dkr.ecr.$AWS_REGION.amazonaws.com
 
