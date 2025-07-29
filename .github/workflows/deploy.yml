@@ -55,7 +55,7 @@ jobs:
 
             sudo docker pull 550487074506.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/go-lang-project:latest
 
-            sudo docker stop backend || true
-            sudo docker rm backend || true
+            sudo docker stop go-lang-project || true
+            sudo docker rm go-lang-project || true
 
-            sudo docker run -d --name backend -p 8000:8000 550487074506.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/go-lang-project:latest
+            sudo docker run -d --name go-lang-project -p 8000:8000 550487074506.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/go-lang-project:latest
