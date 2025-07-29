@@ -27,39 +27,35 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t go-lang-project .
-      
+
       - name: Tag Docker image
         run: |
-          docker tag go-lang-project:latest 550487074506.dkr.ecr.us-east-1.amazonaws.com/go-lang-project:latest
-      
+          docker tag go-lang-project:latest 550487074506.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/go-lang-project:latest
+
       - name: Push Docker image to Amazon ECR
         run: |
-          docker push 550487074506.dkr.ecr.us-east-1.amazonaws.com/go-lang-project:latest
+          docker push 550487074506.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/go-lang-project:latest
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build  # This ensures the deploy job runs after the build job
+    needs: build
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        
+
       - name: Deploy code to EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          port: ${{ secrets.EC2_PORT}}
+          port: ${{ secrets.EC2_PORT }}
           script: |
-            # Log in to AWS ECR on the EC2 instance
-            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 550487074506.dkr.ecr.us-east-1.amazonaws.com
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin 550487074506.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
 
-            # Pull the latest image
-            sudo docker pull 550487074506.dkr.ecr.us-east-1.amazonaws.com/go-lang-project:latest
-            
-            # Stop and remove the old container if it exists
+            sudo docker pull 550487074506.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/go-lang-project:latest
+
             sudo docker stop backend || true
             sudo docker rm backend || true
-            
-            # Run the new container
-            sudo docker run -d --name backend -p 8000:8000 550487074506.dkr.ecr.us-east-1.amazonaws.com/go-lang-project:latest
+
+            sudo docker run -d --name backend -p 8000:8000 550487074506.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/go-lang-project:latest
