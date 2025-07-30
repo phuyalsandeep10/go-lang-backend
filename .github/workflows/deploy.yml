@@ -58,6 +58,10 @@ jobs:
             # Stop and remove the old container if it exists
             sudo docker stop go-language || true
             sudo docker rm go-language || true
+
+            sudo docker run -d --name go-language -p 8000:8000 \
+             -e MONGO_URI="${{ secrets.MONGO_URI }}" \
+             550487074506.dkr.ecr.us-east-1.amazonaws.com/go-language-repo:latest
             
             # Run the new container
             sudo docker run -d --name go-language -p 8000:8000 550487074506.dkr.ecr.us-east-1.amazonaws.com/go-language-repo:latest
