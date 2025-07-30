@@ -30,13 +30,6 @@ jobs:
           docker tag go-language-repo:latest 550487074506.dkr.ecr.us-east-1.amazonaws.com/go-language-repo:latest
           docker push 550487074506.dkr.ecr.us-east-1.amazonaws.com/go-language-repo:latest
 
-      # Uncomment and update if you want to build and push Nginx image as well
-      # - name: Build and Push Nginx Docker Image
-      #   run: |
-      #     docker build -t homeinsightcore_nginx -f Dockerfile.nginx .
-      #     docker tag homeinsightcore_nginx:latest 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
-      #     docker push 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
-
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -44,24 +37,22 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Update apt and install awscli if not installed (optional)
+            # Install AWS CLI if not available
             if ! command -v aws > /dev/null; then
               sudo apt-get update && sudo apt-get install -y awscli
             fi
 
-            # Log in to AWS ECR on EC2 instance
+            # Log in to AWS ECR
             aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin 550487074506.dkr.ecr.us-east-1.amazonaws.com
 
-            # Pull the latest image
+            # Pull latest Docker image
             sudo docker pull 550487074506.dkr.ecr.us-east-1.amazonaws.com/go-language-repo:latest
-            
-            # Stop and remove the old container if it exists
+
+            # Stop and remove old container (if exists)
             sudo docker stop go-language-repo || true
             sudo docker rm go-language-repo || true
 
+            # Run the container with required env var
             sudo docker run -d --name go-language-repo -p 8000:8000 \
-             -e MONGO_URI="${{ secrets.MONGO_URI }}" \
-             550487074506.dkr.ecr.us-east-1.amazonaws.com/go-language-repo:latest
-            
-            # Run the new container
-            sudo docker run -d --name go-language-repo -p 8000:8000 550487074506.dkr.ecr.us-east-1.amazonaws.com/go-language-repo:latest
+              -e MONGO_URI="${{ secrets.MONGO_URI }}" \
+              550487074506.dkr.ecr.us-east-1.amazonaws.com/go-language-repo:latest
