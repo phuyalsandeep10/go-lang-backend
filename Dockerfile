@@ -26,7 +26,7 @@ COPY --from=builder /app/configs/config.yaml ./configs/config.yaml
 # (Optional) Copy .env file if you need it inside the container
 # You can uncomment this line if your Go app reads .env directly
 # COPY --from=builder /app/.env .env
-#COPY --from=builder /app/.env .env
+COPY --from=builder /app/.env .env
 
 
 RUN chmod +x ./homeinsight

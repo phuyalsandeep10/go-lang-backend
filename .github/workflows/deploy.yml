@@ -1,4 +1,4 @@
-name: Build, publish, and deploy Frontend Docker image (ECR) to EC2
+name: Deploy Go App with Nginx and SSL to AWS EC2
 
 on:
   push:
@@ -6,87 +6,52 @@ on:
       - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: us-east-1
 
       - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build Docker image
         run: |
-          docker build -t go-lang-project .
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 550487074506.dkr.ecr.us-east-1.amazonaws.com
 
-      - name: Create .env file from AWS SSM Parameters
+      - name: Build and Push Go Docker Image
         run: |
-          echo "MONGO_URI=$(aws ssm get-parameter --name 'mongo-myapp' --with-decryption --query Parameter.Value --output text)" > .env
-          echo "REDIS_ADDR=$(aws ssm get-parameter --name 'redis-myapp' --with-decryption --query Parameter.Value --output text)" >> .env
-          cat .env
+          docker build -t go-language-repo .
+          docker tag go-language-repo:latest 550487074506.dkr.ecr.us-east-1.amazonaws.com/go-language-repo:latest
+          docker push 550487074506.dkr.ecr.us-east-1.amazonaws.com/go-language-repo:latest
 
-      - name: Test Docker container locally with .env
-        run: |
-          docker run --rm --env-file .env go-lang-project || (echo "Docker container failed to start" && exit 1)
+      # - name: Build and Push Nginx Docker Image
+      #   run: |
+      #     docker build -t homeinsightcore_nginx -f Dockerfile.nginx .
+      #     docker tag homeinsightcore_nginx:latest 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
+      #     docker push 882142483449.dkr.ecr.us-east-1.amazonaws.com/homeinsightcore_nginx:latest
 
-      - name: Tag Docker image
-        run: |
-          docker tag go-lang-project:latest 550487074506.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/go-lang-project:latest
-
-      - name: Push Docker image to Amazon ECR
-        run: |
-          docker push 550487074506.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/go-lang-project:latest
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Deploy code to EC2
-        uses: appleboy/ssh-action@master
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
+          username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          port: ${{ secrets.EC2_PORT }}
           script: |
-            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            export AWS_REGION=${{ secrets.AWS_REGION }}
-
-            # Fetch environment variables from SSM and save to .env
-            echo "MONGO_URI=$(aws ssm get-parameter --name 'mongo-myapp' --with-decryption --query Parameter.Value --output text)" > .env
-            echo "REDIS_ADDR=$(aws ssm get-parameter --name 'redis-myapp' --with-decryption --query Parameter.Value --output text)" >> .env
-
-            # Debug: show .env content
-            cat .env
-
-            # Login to ECR
-            sudo -E aws ecr get-login-password --region $AWS_REGION | \
-              sudo docker login --username AWS --password-stdin 550487074506.dkr.ecr.$AWS_REGION.amazonaws.com
+            # Log in to AWS ECR on the EC2 instance
+            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 550487074506.dkr.ecr.us-east-1.amazonaws.com
 
             # Pull the latest image
-            sudo docker pull 550487074506.dkr.ecr.$AWS_REGION.amazonaws.com/go-lang-project:latest
-
-            # Stop and remove existing container
-            sudo docker stop backend || true
-            sudo docker rm backend || true
-
-            # Run container with .env
-            sudo docker run -d \
-              --name backend \
-              --env-file .env \
-              -p 8000:8000 \
-              550487074506.dkr.ecr.$AWS_REGION.amazonaws.com/go-lang-project:latest
+            sudo docker pull 550487074506.dkr.ecr.us-east-1.amazonaws.com/go-language-repo:latest
+            
+            # Stop and remove the old container if it exists
+            sudo docker stop go-language || true
+            sudo docker rm go-language || true
+            
+            # Run the new container
+            sudo docker run -d --name go-language -p 8000:8000 550487074506.dkr.ecr.us-east-1.amazonaws.com/go-language-repo:latest
+            
